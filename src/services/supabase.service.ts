@@ -47,6 +47,44 @@ export class DatabaseService {
       return null;
     }
   }
+
+  /**
+   * Enregistre ou met à jour les données de la PME et son catalogue
+   */
+  async savePmeCatalogue(pmePhone: string, pmeConfig: any) {
+    if (!config.supabaseUrl || config.supabaseUrl.includes('dummy')) {
+      return true;
+    }
+
+    try {
+      const { data: pme } = await supabase
+        .from('pmes')
+        .upsert({
+          name: pmeConfig.name,
+          whatsapp_phone_number: pmePhone,
+          description: pmeConfig.description,
+          sector: pmeConfig.sector
+        })
+        .select()
+        .single();
+
+      if (pme && pmeConfig.catalogue && pmeConfig.catalogue.length > 0) {
+        for (const item of pmeConfig.catalogue) {
+          await supabase.from('products').upsert({
+            pme_id: pme.id,
+            name: item.name,
+            price: item.price,
+            description: item.description,
+            is_active: true
+          });
+        }
+      }
+      return true;
+    } catch (error) {
+      console.error('Erreur Supabase Save:', error);
+      return false;
+    }
+  }
 }
 
 export const databaseService = new DatabaseService();
