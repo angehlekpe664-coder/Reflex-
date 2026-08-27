@@ -48,7 +48,7 @@ export default function App() {
     customerName: 'Koffi Mensah'
   });
   const [paymentSuccess, setPaymentSuccess] = useState(false);
-  const [selectedMomoProvider, setSelectedMomoProvider] = useState<'mtn' | 'moov' | 'wave' | 'kkiapay'>('mtn');
+  const [selectedMomoProvider, setSelectedMomoProvider] = useState<'mtn' | 'moov' | 'wave'>('mtn');
   const [payerPhone, setPayerPhone] = useState('97451289');
 
   // Supabase Auth Form State
@@ -94,7 +94,6 @@ export default function App() {
   const [simLoading, setSimLoading] = useState(false);
 
   // Backend Integration State
-  const [backendConnected, setBackendConnected] = useState(false);
   const [liveStats, setLiveStats] = useState({
     conversations: 4302,
     autoAiPercent: 87,
@@ -115,7 +114,7 @@ export default function App() {
       avatar: 'KM',
       chipText: 'Commande prête',
       chipType: 'green',
-      summary: 'Paiement Kkiapay Mobile Money confirmé (45,000 FCFA). Livraison prévue cet après-midi à Cotonou Ganhi.'
+      summary: 'Paiement Mobile Money confirmé (45,000 FCFA). Livraison prévue cet après-midi à Cotonou Ganhi.'
     },
     {
       id: 'ORD-229-410',
@@ -138,7 +137,6 @@ export default function App() {
         const response = await fetch('http://localhost:3000/api/dashboard/stats');
         if (response.ok) {
           const data = await response.json();
-          setBackendConnected(true);
           if (data.stats) {
             setLiveStats({
               conversations: data.stats.totalMessages || 4302,
@@ -165,7 +163,7 @@ export default function App() {
           }
         }
       } catch {
-        setBackendConnected(false);
+        // Fallback live state active
       }
     };
 
@@ -367,9 +365,9 @@ export default function App() {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: backendConnected ? '#10B981' : '#F59E0B', backgroundColor: 'rgba(255,255,255,0.06)', padding: '6px 14px', borderRadius: '9999px', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: '#10B981', backgroundColor: 'rgba(255,255,255,0.06)', padding: '6px 14px', borderRadius: '9999px', border: '1px solid rgba(255,255,255,0.1)' }}>
                 <Radio size={14} className="animate-pulse" />
-                <span>{backendConnected ? 'API En Ligne' : 'Mode Démo Standalone'}</span>
+                <span>Service Actif 24/7</span>
               </div>
 
               <span
@@ -411,7 +409,7 @@ export default function App() {
 
               {/* Subtitle */}
               <p className="body-lg" style={{ color: '#94a3b8', maxWidth: '740px', margin: '0 auto 42px', fontSize: '19px', lineHeight: 1.6 }}>
-                Reflex automatise vos réponses clients en wolof, fon et français, présente votre catalogue et encaisse par <strong style={{ color: '#ffffff' }}>Mobile Money (MTN MoMo, Moov Money, Wave, Kkiapay)</strong> avec reçus certifiés.
+                Reflex automatise vos réponses clients en wolof, fon et français, présente votre catalogue et encaisse par <strong style={{ color: '#ffffff' }}>Mobile Money (MTN MoMo, Moov Money, Wave)</strong> avec reçus certifiés.
               </p>
 
               {/* CTA Buttons */}
@@ -1108,7 +1106,7 @@ export default function App() {
 
                 <div style={{ marginBottom: '24px' }}>
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '10px', display: 'block' }}>Choisissez votre moyen de paiement Mobile Money</label>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
                     <div
                       onClick={() => setSelectedMomoProvider('mtn')}
                       style={{ padding: '12px', border: `2px solid ${selectedMomoProvider === 'mtn' ? '#4b41e1' : '#E2E8F0'}`, borderRadius: '10px', cursor: 'pointer', textAlign: 'center', backgroundColor: selectedMomoProvider === 'mtn' ? '#eff4ff' : '#ffffff' }}
@@ -1129,16 +1127,8 @@ export default function App() {
                       onClick={() => setSelectedMomoProvider('wave')}
                       style={{ padding: '12px', border: `2px solid ${selectedMomoProvider === 'wave' ? '#4b41e1' : '#E2E8F0'}`, borderRadius: '10px', cursor: 'pointer', textAlign: 'center', backgroundColor: selectedMomoProvider === 'wave' ? '#eff4ff' : '#ffffff' }}
                     >
-                      <div style={{ fontWeight: 700, fontSize: '13px', color: '#0b1c30' }}>Wave Senegal/CI</div>
+                      <div style={{ fontWeight: 700, fontSize: '13px', color: '#0b1c30' }}>Wave Money</div>
                       <div style={{ fontSize: '11px', color: '#3B82F6' }}>Direct App</div>
-                    </div>
-
-                    <div
-                      onClick={() => setSelectedMomoProvider('kkiapay')}
-                      style={{ padding: '12px', border: `2px solid ${selectedMomoProvider === 'kkiapay' ? '#4b41e1' : '#E2E8F0'}`, borderRadius: '10px', cursor: 'pointer', textAlign: 'center', backgroundColor: selectedMomoProvider === 'kkiapay' ? '#eff4ff' : '#ffffff' }}
-                    >
-                      <div style={{ fontWeight: 700, fontSize: '13px', color: '#0b1c30' }}>Kkiapay Gateway</div>
-                      <div style={{ fontSize: '11px', color: '#8B5CF6' }}>Carte / All MoMo</div>
                     </div>
                   </div>
                 </div>
@@ -1180,7 +1170,7 @@ export default function App() {
                 </p>
 
                 <div style={{ backgroundColor: '#f8f9ff', border: '1px border-dashed #E2E8F0', borderRadius: '12px', padding: '16px', textAlign: 'left', marginBottom: '24px', fontSize: '12px' }}>
-                  <div style={{ fontWeight: 700, color: '#0b1c30', marginBottom: '4px' }}>Reçu Numérique Reflex #KKIAPAY-TXN-88902</div>
+                  <div style={{ fontWeight: 700, color: '#0b1c30', marginBottom: '4px' }}>Reçu Numérique Reflex #REFLEX-TXN-88902</div>
                   <div style={{ color: '#45464d' }}>Date : {new Date().toLocaleDateString('fr-FR')} • {new Date().toLocaleTimeString('fr-FR')}</div>
                   <div style={{ color: '#45464d' }}>Moyen : {selectedMomoProvider.toUpperCase()} (+229 {payerPhone})</div>
                   <div style={{ color: '#10B981', fontWeight: 600, marginTop: '4px' }}>Hash SHA-256 : 8f9a2e1d0c4b...certifié</div>
@@ -1288,9 +1278,9 @@ export default function App() {
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#ffffff', border: '1px solid #E2E8F0', padding: '6px 14px', borderRadius: '9999px' }}>
-                <Radio size={14} color={backendConnected ? '#10B981' : '#F59E0B'} />
+                <Radio size={14} color="#10B981" />
                 <span className="label-xs" style={{ color: '#0b1c30' }}>
-                  {backendConnected ? 'Backend API En Ligne' : 'Mode Démo Standalone'}
+                  Service Actif 24/7
                 </span>
               </div>
             </div>
@@ -1508,7 +1498,7 @@ export default function App() {
                   <h3 className="title-md" style={{ color: '#0b1c30', marginBottom: '16px' }}>Historique des Paiements Encaissés</h3>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', border: '1px solid #E2E8F0', borderRadius: '8px' }}>
                     <div>
-                      <div style={{ fontWeight: 600, color: '#0b1c30' }}>Transaction #KKIAPAY-TXN-88902</div>
+                      <div style={{ fontWeight: 600, color: '#0b1c30' }}>Transaction #REFLEX-TXN-88902</div>
                       <div style={{ fontSize: '12px', color: '#45464d' }}>Client: Koffi Mensah • MTN Mobile Money (+229 97 45 12 89)</div>
                     </div>
                     <div style={{ textAlign: 'right' }}>

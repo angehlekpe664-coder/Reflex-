@@ -45,7 +45,7 @@ Consignes de vente cruciales :
 2. Réponds précisément aux questions sur les produits, les prix (en FCFA / XOF) et la livraison.
 3. Dès que le client est d'accord pour acheter ou demande comment payer, génère IMMÉDIATEMENT un lien de paiement sous ce format exact :
    "💳 *Lien de règlement Mobile Money sécurisé* : http://localhost:5173/pay/ORD-229-XXX" (remplace XXX par 3 chiffres aléatoires).
-4. Précise que le paiement est sécurisé et disponible via MTN Mobile Money, Moov Money, Wave et Kkiapay avec reçu instantané.
+4. Précise que le paiement est sécurisé et disponible via MTN Mobile Money, Moov Money et Wave avec reçu instantané.
 5. Garde des réponses synthétiques adaptées à WhatsApp.`;
 
       const response = await openai.chat.completions.create({

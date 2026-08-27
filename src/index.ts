@@ -21,13 +21,13 @@ const liveOrders: Array<any> = [
     amount: 45000,
     item: 'Perruque Brésilienne 18 pouces',
     deliveryAddress: 'Ganhi, Immeuble Horizon, Cotonou',
-    paymentRef: 'KKIAPAY-TXN-88902',
+    paymentRef: 'REFLEX-TXN-88902',
     lastMsg: "C'est parfait, j'ai effectué le paiement via le lien. Quand pouvez-vous me livrer à Ganhi ?",
     summary: {
       intention: 'Achat de Perruque Brésilienne 18 pouces',
       amount: 45000,
       deliveryLocation: 'Ganhi, Immeuble Horizon, Cotonou',
-      paymentMethod: 'Kkiapay (MTN Mobile Money)',
+      paymentMethod: 'MTN Mobile Money',
       conclusion: 'Le client Koffi Mensah a conclu l\'accord avec l\'IA et réglé la totalité du montant (45 000 FCFA). La livraison est requise cet après-midi à Ganhi.'
     }
   }
@@ -190,13 +190,13 @@ app.post('/api/webhook/n8n', (req, res) => {
         amount: Number(amount),
         item: orderIntent,
         deliveryAddress: address || 'Cotonou, Bénin',
-        paymentRef: `KKIAPAY-TXN-${Math.floor(10000 + Math.random() * 90000)}`,
+        paymentRef: `REFLEX-TXN-${Math.floor(10000 + Math.random() * 90000)}`,
         lastMsg: userMessage || 'Accord conclu par l\'IA n8n',
         summary: {
           intention: orderIntent,
           amount: Number(amount),
           deliveryLocation: address || 'Cotonou, Bénin',
-          paymentMethod: 'Kkiapay (Mobile Money)',
+          paymentMethod: 'MTN Mobile Money / Wave',
           conclusion: `L'IA a conclu le marché avec ${customerName || 'le client'} pour ${orderIntent}. Montant: ${amount} FCFA.`
         }
       };
