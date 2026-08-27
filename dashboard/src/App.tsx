@@ -348,174 +348,240 @@ export default function App() {
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--surface-bg)', fontFamily: 'var(--font-geist)' }}>
 
       {/* ========================================================================= */}
-      {/* 1. ENRICHED RICH LANDING PAGE WITH DEMO & FOOTER */}
+      {/* 1. STYLISH CONTEXTUAL LANDING PAGE WITH GENERATED BACKGROUNDS & OUTFIT FONTS */}
       {/* ========================================================================= */}
       {activeView === 'landing' && (
-        <div style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', position: 'relative', overflowX: 'hidden' }}>
+        <div style={{ minHeight: '100vh', backgroundColor: '#0b1c30', color: '#ffffff', position: 'relative', overflowX: 'hidden', fontFamily: 'var(--font-jakarta)' }}>
 
-          {/* Dancing WhatsApp background logos */}
+          {/* Dancing WhatsApp Background */}
           <div className="whatsapp-motion-container">
             <svg className="wa-float-icon wa-float-1" width="56" height="56" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.205 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
             <svg className="wa-float-icon wa-float-2" width="68" height="68" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.205 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
           </div>
 
-          {/* Clean Top Navigation Bar */}
-          <header style={{ padding: '16px 48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#ffffff', borderBottom: '1px solid #E2E8F0', position: 'relative', zIndex: 10 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-              <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '38px', width: 'auto', borderRadius: '8px' }} />
-              <span style={{ fontWeight: 800, fontSize: '20px', color: '#0b1c30', letterSpacing: '-0.02em' }}>Reflex</span>
+          {/* Top Navigation Bar */}
+          <header style={{ padding: '18px 48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255,255,255,0.1)', position: 'sticky', top: 0, zIndex: 50 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
+              <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '42px', width: 'auto', borderRadius: '10px', boxShadow: '0 4px 12px rgba(37, 211, 102, 0.3)' }} />
+              <span className="font-outfit" style={{ fontWeight: 800, fontSize: '24px', color: '#ffffff', letterSpacing: '-0.02em' }}>Reflex</span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: backendConnected ? '#10B981' : '#F59E0B' }}>
-                <Radio size={14} />
-                <span>{backendConnected ? 'Backend API En Ligne' : 'Mode Démo Standalone'}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: backendConnected ? '#10B981' : '#F59E0B', backgroundColor: 'rgba(255,255,255,0.06)', padding: '6px 14px', borderRadius: '9999px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <Radio size={14} className="animate-pulse" />
+                <span>{backendConnected ? 'API En Ligne' : 'Mode Démo Standalone'}</span>
               </div>
 
               <span
-                style={{ fontSize: '14px', fontWeight: 500, color: '#45464d', cursor: 'pointer' }}
+                style={{ fontSize: '15px', fontWeight: 500, color: '#cbd5e1', cursor: 'pointer', transition: 'color 0.2s' }}
                 onClick={() => { setAuthMode('login'); setActiveView('auth'); }}
               >
                 Se connecter
               </span>
 
               <button
-                className="btn-secondary-purple"
-                style={{ borderRadius: '8px', padding: '9px 20px' }}
+                className="btn-gradient-ai"
+                style={{ borderRadius: '10px', padding: '10px 22px', fontSize: '14px' }}
                 onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
               >
-                Commencer gratuitement
+                Commencer gratuitement <ArrowRight size={16} />
               </button>
             </div>
           </header>
 
-          {/* Hero Section with "Voir la Démo" button */}
-          <div style={{ maxWidth: '960px', margin: '0 auto', padding: '70px 24px 40px', textAlign: 'center', position: 'relative', zIndex: 10 }}>
-            <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'center' }}>
-              <img src="/logo.jpg" alt="Reflex Intelligent Automation" className="hero-logo-img" />
-            </div>
-
-            <h1 className="display-lg" style={{ color: '#0b1c30', fontSize: '48px', lineHeight: 1.15, marginBottom: '20px' }}>
-              Votre WhatsApp devient votre <br />meilleur commercial 24/7.
-            </h1>
-
-            <p className="body-lg" style={{ color: '#45464d', maxWidth: '720px', margin: '0 auto 36px', lineHeight: 1.6, fontSize: '18px' }}>
-              Reflex automatise vos réponses clients, présente vos produits et encaisse par Mobile Money (MTN MoMo, Moov, Wave, Kkiapay) directement sur WhatsApp avec reçus numériques certifiés.
-            </p>
-
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '56px' }}>
-              <button
-                className="btn-primary-black"
-                style={{ padding: '15px 34px', fontSize: '16px' }}
-                onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
-              >
-                Commencer gratuitement <ArrowRight size={18} />
-              </button>
+          {/* Hero Section with Contextual Background & Stylish Outfit Typography */}
+          <div className="hero-context-bg" style={{ padding: '90px 24px 80px', position: 'relative', zIndex: 10 }}>
+            <div style={{ maxWidth: '960px', margin: '0 auto', textAlign: 'center' }}>
               
-              <a
-                href="#demo-showcase"
-                className="btn-outline-white"
-                style={{ padding: '15px 30px', fontSize: '16px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}
-              >
-                <Play size={18} color="#4b41e1" /> Voir la Démo
-              </a>
+              {/* Context Badge */}
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 18px', borderRadius: '9999px', marginBottom: '28px' }} className="glass-badge">
+                <Sparkles size={16} color="#00f2fe" />
+                <span className="font-outfit" style={{ fontSize: '13px', fontWeight: 600, color: '#00f2fe', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                  L'IA commerciale N°1 des PMEs au Bénin
+                </span>
+              </div>
+
+              {/* Main Headline */}
+              <h1 className="display-lg" style={{ color: '#ffffff', fontSize: '56px', lineHeight: 1.12, marginBottom: '24px' }}>
+                Votre WhatsApp devient votre <br />
+                <span style={{ background: 'linear-gradient(135deg, #00f2fe 0%, #4facfe 50%, #f6d365 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                  meilleur commercial 24/7.
+                </span>
+              </h1>
+
+              {/* Subtitle */}
+              <p className="body-lg" style={{ color: '#94a3b8', maxWidth: '740px', margin: '0 auto 42px', fontSize: '19px', lineHeight: 1.6 }}>
+                Reflex automatise vos réponses clients en wolof, fon et français, présente votre catalogue et encaisse par <strong style={{ color: '#ffffff' }}>Mobile Money (MTN MoMo, Moov Money, Wave, Kkiapay)</strong> avec reçus certifiés.
+              </p>
+
+              {/* CTA Buttons */}
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '18px', marginBottom: '60px', flexWrap: 'wrap' }}>
+                <button
+                  className="btn-gradient-ai"
+                  style={{ padding: '16px 36px', fontSize: '17px', borderRadius: '12px' }}
+                  onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
+                >
+                  Commencer gratuitement <ArrowRight size={20} />
+                </button>
+                
+                <a
+                  href="#demo-showcase"
+                  style={{ padding: '16px 32px', fontSize: '17px', borderRadius: '12px', color: '#ffffff', border: '1px solid rgba(255,255,255,0.2)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)' }}
+                >
+                  <Play size={20} color="#00f2fe" fill="#00f2fe" /> Voir la Démo Interactive
+                </a>
+              </div>
+
+              {/* Trust Badges Bar */}
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '32px', flexWrap: 'wrap', opacity: 0.85 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#cbd5e1' }}>
+                  <CheckCircle size={16} color="#10B981" /> <span>Installation en 3 minutes</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#cbd5e1' }}>
+                  <Shield size={16} color="#10B981" /> <span>Paiements Certifiés SHA-256</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#cbd5e1' }}>
+                  <Zap size={16} color="#F59E0B" /> <span>Réponses IA en &lt; 3s</span>
+                </div>
+              </div>
+
             </div>
           </div>
 
-          {/* 4 KEY FEATURES GRID */}
-          <div style={{ maxWidth: '1100px', margin: '0 auto 80px', padding: '0 24px' }}>
-            <h2 className="headline-lg" style={{ textAlign: 'center', color: '#0b1c30', marginBottom: '40px' }}>
-              Tout ce dont votre PME a besoin pour exploser ses ventes sur WhatsApp
-            </h2>
+          {/* 4 KEY FEATURES GRID WITH GLASSMORPHISM */}
+          <div style={{ maxWidth: '1140px', margin: '0 auto 100px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
+            <div style={{ textAlign: 'center', marginBottom: '52px' }}>
+              <span className="font-outfit" style={{ color: '#00f2fe', fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>FONCTIONNALITÉS CLÉS</span>
+              <h2 className="headline-lg" style={{ color: '#ffffff', marginTop: '8px' }}>
+                Tout pour faire exploser votre chiffre d'affaires sur WhatsApp
+              </h2>
+            </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
-              <div className="reflex-card-base" style={{ padding: '24px', backgroundColor: '#ffffff' }}>
-                <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#eff4ff', color: '#4b41e1', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-                  <Zap size={24} />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px' }}>
+              
+              <div className="glass-card-dark" style={{ padding: '28px', borderRadius: '18px', border: '1px solid rgba(0, 242, 254, 0.2)', transition: 'transform 0.3s ease' }}>
+                <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, rgba(0, 242, 254, 0.2), rgba(79, 172, 254, 0.2))', color: '#00f2fe', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', border: '1px solid rgba(0, 242, 254, 0.3)' }}>
+                  <Zap size={26} />
                 </div>
-                <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0b1c30', marginBottom: '8px' }}>IA Commerciale 24/7</h3>
-                <p style={{ fontSize: '13px', color: '#45464d', lineHeight: 1.5 }}>
-                  Réponses instantanées en moins de 3 secondes adaptées au ton de votre boutique.
+                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff', marginBottom: '10px' }}>IA Commerciale 24/7</h3>
+                <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.6 }}>
+                  Réponses instantanées adaptées au ton de votre boutique. L'IA présente vos produits et vend sans interruption.
                 </p>
               </div>
 
-              <div className="reflex-card-base" style={{ padding: '24px', backgroundColor: '#ffffff' }}>
-                <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#d1fae5', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-                  <CreditCard size={24} />
+              <div className="glass-card-dark" style={{ padding: '28px', borderRadius: '18px', border: '1px solid rgba(16, 185, 129, 0.2)', transition: 'transform 0.3s ease' }}>
+                <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2))', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                  <CreditCard size={26} />
                 </div>
-                <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0b1c30', marginBottom: '8px' }}>Paiement Mobile Money</h3>
-                <p style={{ fontSize: '13px', color: '#45464d', lineHeight: 1.5 }}>
-                  Envoie automatiquement un lien de paiement MTN MoMo, Moov Money et Wave à la conclusion de l'accord.
+                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff', marginBottom: '10px' }}>Paiement Mobile Money</h3>
+                <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.6 }}>
+                  Génération automatique de liens de paiement direct MTN MoMo (*139#), Moov Money (*155#) et Wave.
                 </p>
               </div>
 
-              <div className="reflex-card-base" style={{ padding: '24px', backgroundColor: '#ffffff' }}>
-                <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#fef3c7', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-                  <Receipt size={24} />
+              <div className="glass-card-dark" style={{ padding: '28px', borderRadius: '18px', border: '1px solid rgba(245, 158, 11, 0.2)', transition: 'transform 0.3s ease' }}>
+                <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2))', color: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+                  <Receipt size={26} />
                 </div>
-                <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0b1c30', marginBottom: '8px' }}>Reçus SHA-256</h3>
-                <p style={{ fontSize: '13px', color: '#45464d', lineHeight: 1.5 }}>
-                  Reçus digitaux valides et certifiés générés instantanément après chaque encaissement.
+                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff', marginBottom: '10px' }}>Reçus SHA-256</h3>
+                <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.6 }}>
+                  Émission automatique de reçus numériques valides et sécurisés envoyés directement au client sur WhatsApp.
                 </p>
               </div>
 
-              <div className="reflex-card-base" style={{ padding: '24px', backgroundColor: '#ffffff' }}>
-                <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#f3e8ff', color: '#9333ea', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-                  <LayoutDashboard size={24} />
+              <div className="glass-card-dark" style={{ padding: '28px', borderRadius: '18px', border: '1px solid rgba(168, 85, 247, 0.2)', transition: 'transform 0.3s ease' }}>
+                <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(147, 51, 234, 0.2))', color: '#c084fc', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', border: '1px solid rgba(168, 85, 247, 0.3)' }}>
+                  <LayoutDashboard size={26} />
                 </div>
-                <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0b1c30', marginBottom: '8px' }}>Dashboard PME</h3>
-                <p style={{ fontSize: '13px', color: '#45464d', lineHeight: 1.5 }}>
-                  Suivi des revenus, des commandes et des taux de conversion en temps réel depuis votre écran.
+                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff', marginBottom: '10px' }}>Dashboard PME</h3>
+                <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.6 }}>
+                  Suivez vos commandes, vos clients et vos revenus en FCFA avec des statistiques synchronisées en temps réel.
                 </p>
+              </div>
+
+            </div>
+          </div>
+
+          {/* REAL PME STORY BANNER WITH GENERATED IMAGE */}
+          <div style={{ maxWidth: '1140px', margin: '0 auto 100px', padding: '0 24px' }}>
+            <div className="pme-story-bg" style={{ borderRadius: '24px', padding: '60px 48px', border: '1px solid rgba(255,255,255,0.15)', overflow: 'hidden', position: 'relative' }}>
+              <div style={{ maxWidth: '640px' }}>
+                <span className="font-outfit" style={{ color: '#10B981', fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>CAS CONCRET • BOUTIQUE COTONOU</span>
+                <h2 className="headline-lg" style={{ color: '#ffffff', marginTop: '10px', marginBottom: '20px', fontSize: '36px' }}>
+                  "J'ai multiplié mes ventes par 3 sans recruter de vendeurs."
+                </h2>
+                <p style={{ fontSize: '16px', color: '#cbd5e1', lineHeight: 1.7, marginBottom: '28px' }}>
+                  Avant Reflex, Amara manquait des dizaines de messages clients le soir. Aujourd'hui, l'IA présente les articles du catalogue, fournit les prix en FCFA et encaisse directement par Mobile Money même pendant qu'elle dort.
+                </p>
+
+                <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
+                  <div>
+                    <div className="font-outfit" style={{ fontSize: '32px', fontWeight: 800, color: '#00f2fe' }}>+300%</div>
+                    <div style={{ fontSize: '13px', color: '#94a3b8' }}>Chiffre d'affaires MoMo</div>
+                  </div>
+                  <div>
+                    <div className="font-outfit" style={{ fontSize: '32px', fontWeight: 800, color: '#10B981' }}>&lt; 3 sec</div>
+                    <div style={{ fontSize: '13px', color: '#94a3b8' }}>Temps de réponse client</div>
+                  </div>
+                  <div>
+                    <div className="font-outfit" style={{ fontSize: '32px', fontWeight: 800, color: '#F59E0B' }}>100%</div>
+                    <div style={{ fontSize: '13px', color: '#94a3b8' }}>Reçus certifiés générés</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           {/* INTERACTIVE DEMO SHOWCASE SECTION */}
-          <div id="demo-showcase" style={{ maxWidth: '1000px', margin: '0 auto 90px', padding: '0 24px' }}>
-            <div className="reflex-card-base" style={{ padding: '40px', backgroundColor: '#ffffff', border: '1px solid #c4b5fd' }}>
-              <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-                <span className="label-xs" style={{ backgroundColor: '#eff4ff', color: '#4b41e1', padding: '4px 12px', borderRadius: '9999px', fontWeight: 600 }}>DÉMO EN DIRECT</span>
-                <h2 className="headline-lg" style={{ color: '#0b1c30', marginTop: '12px', marginBottom: '8px' }}>
-                  Découvrez comment Reflex conclut les ventes pour vous
+          <div id="demo-showcase" style={{ maxWidth: '1040px', margin: '0 auto 100px', padding: '0 24px' }}>
+            <div className="glass-card-dark" style={{ padding: '48px', borderRadius: '24px', border: '1px solid rgba(0, 242, 254, 0.3)' }}>
+              <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+                <span className="font-outfit" style={{ backgroundColor: 'rgba(0, 242, 254, 0.15)', color: '#00f2fe', padding: '6px 16px', borderRadius: '9999px', fontSize: '13px', fontWeight: 700, border: '1px solid rgba(0, 242, 254, 0.3)' }}>
+                  ▶ DEMO INTERACTIVE
+                </span>
+                <h2 className="headline-lg" style={{ color: '#ffffff', marginTop: '16px', marginBottom: '10px' }}>
+                  Testez le flux de vente WhatsApp en direct
                 </h2>
-                <p style={{ fontSize: '14px', color: '#45464d' }}>
-                  Testez un échange client réel et la redirection vers la page de règlement Mobile Money.
+                <p style={{ fontSize: '15px', color: '#94a3b8' }}>
+                  Visualisez comment l'IA Reflex discute avec le client final et génère le lien de paiement Mobile Money.
                 </p>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', alignItems: 'center' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '36px', alignItems: 'center' }}>
                 {/* Mobile Phone Mockup */}
-                <div style={{ backgroundColor: '#0b1c30', borderRadius: '24px', padding: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.15)' }}>
-                  <div style={{ backgroundColor: '#ffffff', borderRadius: '16px', padding: '16px', minHeight: '360px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                    <div style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#10B981', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Bot size={18} />
+                <div style={{ backgroundColor: '#020617', borderRadius: '28px', padding: '18px', border: '2px solid rgba(255,255,255,0.15)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}>
+                  <div style={{ backgroundColor: '#0f172a', borderRadius: '20px', padding: '16px', minHeight: '380px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#10B981', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Bot size={20} />
                       </div>
                       <div>
-                        <div style={{ fontSize: '13px', fontWeight: 700, color: '#0b1c30' }}>Assistant Boutique Élégance</div>
-                        <div style={{ fontSize: '10px', color: '#10B981' }}>En ligne sur WhatsApp</div>
+                        <div className="font-outfit" style={{ fontSize: '14px', fontWeight: 700, color: '#ffffff' }}>Assistant Boutique Élégance</div>
+                        <div style={{ fontSize: '11px', color: '#10B981', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10B981', display: 'inline-block' }}></span>
+                          En ligne sur WhatsApp
+                        </div>
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', margin: '16px 0' }}>
-                      <div style={{ backgroundColor: '#eff4ff', padding: '10px 12px', borderRadius: '12px 12px 12px 2px', fontSize: '12px', color: '#0b1c30', maxWidth: '85%' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', margin: '20px 0' }}>
+                      <div style={{ backgroundColor: 'rgba(255,255,255,0.08)', padding: '12px 14px', borderRadius: '16px 16px 16px 4px', fontSize: '13px', color: '#e2e8f0', maxWidth: '85%' }}>
                         Bonjour ! Vos perruques 18 pouces sont-elles disponibles à Cotonou ?
                       </div>
 
-                      <div style={{ backgroundColor: '#4b41e1', color: '#ffffff', padding: '10px 12px', borderRadius: '12px 12px 2px 12px', fontSize: '12px', alignSelf: 'flex-end', maxWidth: '88%' }}>
+                      <div style={{ background: 'linear-gradient(135deg, #4f46e5, #4338ca)', color: '#ffffff', padding: '12px 14px', borderRadius: '16px 16px 4px 16px', fontSize: '13px', alignSelf: 'flex-end', maxWidth: '88%', boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)' }}>
                         Oui tout à fait ! 😊 La "Perruque Brésilienne 18 pouces" est à 45 000 FCFA. Livraison rapide sous 24h.
                         <br /><br />
                         💳 <strong>Lien de paiement Mobile Money :</strong>
-                        <div style={{ marginTop: '6px', textDecoration: 'underline', cursor: 'pointer', fontWeight: 700, backgroundColor: 'rgba(255,255,255,0.2)', padding: '4px 8px', borderRadius: '4px' }} onClick={() => setActiveView('payment-checkout')}>
-                          pay/ORD-229-892 →
+                        <div style={{ marginTop: '8px', textDecoration: 'underline', cursor: 'pointer', fontWeight: 700, backgroundColor: 'rgba(255,255,255,0.2)', padding: '6px 10px', borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '6px' }} onClick={() => setActiveView('payment-checkout')}>
+                          <span>pay/ORD-229-892</span> <ArrowRight size={14} />
                         </div>
                       </div>
                     </div>
 
                     <button
-                      className="btn-primary-black"
-                      style={{ width: '100%', padding: '10px', fontSize: '12px', textAlign: 'center' }}
+                      className="btn-gradient-ai"
+                      style={{ width: '100%', padding: '12px', fontSize: '13px', textAlign: 'center', borderRadius: '10px' }}
                       onClick={() => setActiveView('payment-checkout')}
                     >
                       💳 Tester la Page de Paiement Client →
@@ -524,14 +590,14 @@ export default function App() {
                 </div>
 
                 <div>
-                  <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#0b1c30', marginBottom: '16px' }}>
-                    Du premier message au paiement en 2 minutes
+                  <h3 className="font-outfit" style={{ fontSize: '24px', fontWeight: 700, color: '#ffffff', marginBottom: '20px' }}>
+                    Du message client à l'encaissement en 4 étapes
                   </h3>
-                  <ol style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', color: '#45464d', paddingLeft: '20px', margin: 0 }}>
-                    <li><strong>Le client pose une question</strong> sur un article du catalogue sur WhatsApp.</li>
-                    <li><strong>Reflex réponds avec le ton choisi</strong> et propose le prix exact en FCFA.</li>
-                    <li><strong>L'IA génère le lien de paiement</strong> sécurisé dès que l'accord est conclu.</li>
-                    <li><strong>Le client règle via MTN MoMo / Wave</strong> et reçoit son reçu numérique certifié.</li>
+                  <ol style={{ display: 'flex', flexDirection: 'column', gap: '16px', fontSize: '15px', color: '#cbd5e1', paddingLeft: '20px', margin: 0 }}>
+                    <li><strong style={{ color: '#ffffff' }}>Le client s'informe :</strong> Question directe sur WhatsApp concernant un article du catalogue.</li>
+                    <li><strong style={{ color: '#ffffff' }}>L'IA répond instantanément :</strong> Fournit le prix exact en FCFA avec le ton de votre marque.</li>
+                    <li><strong style={{ color: '#ffffff' }}>Génération du lien de paiement :</strong> Dès que l'accord est conclu, l'IA envoie le lien sécurisé.</li>
+                    <li><strong style={{ color: '#ffffff' }}>Encaissement & Reçu :</strong> Le client règle via MTN MoMo, Moov ou Wave et reçoit son reçu certifié SHA-256.</li>
                   </ol>
                 </div>
               </div>
@@ -539,88 +605,93 @@ export default function App() {
           </div>
 
           {/* PME TESTIMONIALS SECTION */}
-          <div style={{ backgroundColor: '#ffffff', borderTop: '1px solid #E2E8F0', borderBottom: '1px solid #E2E8F0', padding: '60px 24px' }}>
-            <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-              <h2 className="headline-lg" style={{ textAlign: 'center', color: '#0b1c30', marginBottom: '40px' }}>
-                Adopté par les PMEs leaders au Bénin et en Afrique de l'Ouest
-              </h2>
+          <div style={{ backgroundColor: '#090d16', borderTop: '1px solid rgba(255,255,255,0.1)', borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '80px 24px' }}>
+            <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+              <div style={{ textAlign: 'center', marginBottom: '52px' }}>
+                <span className="font-outfit" style={{ color: '#00f2fe', fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>TÉMOIGNAGES PME</span>
+                <h2 className="headline-lg" style={{ color: '#ffffff', marginTop: '8px' }}>
+                  Rejoint par les boutiques leaders au Bénin
+                </h2>
+              </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
-                <div style={{ padding: '24px', backgroundColor: '#f8f9ff', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-                  <p style={{ fontSize: '14px', color: '#45464d', fontStyle: 'italic', marginBottom: '16px', lineHeight: 1.5 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '28px' }}>
+                
+                <div className="glass-card-dark" style={{ padding: '28px', borderRadius: '18px' }}>
+                  <p style={{ fontSize: '15px', color: '#cbd5e1', fontStyle: 'italic', marginBottom: '20px', lineHeight: 1.6 }}>
                     "Reflex réponds à nos clientes même à 23h. Nos ventes de perruques ont augmenté de 35% grâce au lien de paiement MoMo automatique."
                   </p>
-                  <div style={{ fontWeight: 700, color: '#0b1c30', fontSize: '13px' }}>Boutique Élégance Bénin</div>
-                  <div style={{ fontSize: '11px', color: '#76777d' }}>Cotonou, Bénin</div>
+                  <div className="font-outfit" style={{ fontWeight: 700, color: '#ffffff', fontSize: '15px' }}>Boutique Élégance Bénin</div>
+                  <div style={{ fontSize: '12px', color: '#00f2fe' }}>Cotonou, Bénin</div>
                 </div>
 
-                <div style={{ padding: '24px', backgroundColor: '#f8f9ff', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-                  <p style={{ fontSize: '14px', color: '#45464d', fontStyle: 'italic', marginBottom: '16px', lineHeight: 1.5 }}>
+                <div className="glass-card-dark" style={{ padding: '28px', borderRadius: '18px' }}>
+                  <p style={{ fontSize: '15px', color: '#cbd5e1', fontStyle: 'italic', marginBottom: '20px', lineHeight: 1.6 }}>
                     "La génération automatique de reçu certifié rassure énormément nos acheteurs. C'est un gain de temps incroyable !"
                   </p>
-                  <div style={{ fontWeight: 700, color: '#0b1c30', fontSize: '13px' }}>Chez Marie Cosmétiques</div>
-                  <div style={{ fontSize: '11px', color: '#76777d' }}>Porto-Novo, Bénin</div>
+                  <div className="font-outfit" style={{ fontWeight: 700, color: '#ffffff', fontSize: '15px' }}>Chez Marie Cosmétiques</div>
+                  <div style={{ fontSize: '12px', color: '#10B981' }}>Porto-Novo, Bénin</div>
                 </div>
 
-                <div style={{ padding: '24px', backgroundColor: '#f8f9ff', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-                  <p style={{ fontSize: '14px', color: '#45464d', fontStyle: 'italic', marginBottom: '16px', lineHeight: 1.5 }}>
+                <div className="glass-card-dark" style={{ padding: '28px', borderRadius: '18px' }}>
+                  <p style={{ fontSize: '15px', color: '#cbd5e1', fontStyle: 'italic', marginBottom: '20px', lineHeight: 1.6 }}>
                     "Le tableau de bord me permet de voir exactement combien l'IA m'a fait gagner chaque jour. Indispensable pour ma boutique."
                   </p>
-                  <div style={{ fontWeight: 700, color: '#0b1c30', fontSize: '13px' }}>ElectroBenin Tech</div>
-                  <div style={{ fontSize: '11px', color: '#76777d' }}>Calavi, Bénin</div>
+                  <div className="font-outfit" style={{ fontWeight: 700, color: '#ffffff', fontSize: '15px' }}>ElectroBenin Tech</div>
+                  <div style={{ fontSize: '12px', color: '#F59E0B' }}>Calavi, Bénin</div>
                 </div>
+
               </div>
             </div>
           </div>
 
-          {/* COMPLETE LANDING FOOTER */}
-          <footer style={{ backgroundColor: '#0b1c30', color: '#ffffff', padding: '60px 48px 30px' }}>
-            <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '40px', marginBottom: '40px' }}>
+          {/* FOOTER */}
+          <footer style={{ backgroundColor: '#020617', color: '#ffffff', padding: '70px 48px 36px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+            <div style={{ maxWidth: '1140px', margin: '0 auto', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '40px', marginBottom: '50px' }}>
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                  <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '6px' }} />
-                  <span style={{ fontWeight: 800, fontSize: '22px', color: '#ffffff' }}>Reflex</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px' }}>
+                  <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '40px', width: 'auto', borderRadius: '8px' }} />
+                  <span className="font-outfit" style={{ fontWeight: 800, fontSize: '24px', color: '#ffffff' }}>Reflex</span>
                 </div>
-                <p style={{ fontSize: '13px', color: '#a0aec0', lineHeight: 1.6, maxWidth: '300px' }}>
-                  La plateforme intelligente d'automatisation commerciale WhatsApp et d'encaissement Mobile Money pour les PMEs africaines.
+                <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.6, maxWidth: '320px' }}>
+                  La plateforme d'automatisation commerciale WhatsApp & Mobile Money pour les PMEs d'Afrique de l'Ouest.
                 </p>
               </div>
 
               <div>
-                <div style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', color: '#ffffff' }}>Produit</div>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#a0aec0' }}>
+                <div className="font-outfit" style={{ fontSize: '15px', fontWeight: 700, marginBottom: '18px', color: '#ffffff' }}>Produit</div>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px', color: '#94a3b8' }}>
                   <li style={{ cursor: 'pointer' }} onClick={() => setActiveView('landing')}>Fonctionnalités</li>
-                  <li style={{ cursor: 'pointer' }} onClick={() => setActiveView('landing')}>Simulateur IA</li>
+                  <li style={{ cursor: 'pointer' }} onClick={() => setActiveView('landing')}>Démo interactive</li>
                   <li style={{ cursor: 'pointer' }} onClick={() => setActiveView('payment-checkout')}>Page de paiement</li>
                 </ul>
               </div>
 
               <div>
-                <div style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', color: '#ffffff' }}>Intégrations</div>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#a0aec0' }}>
-                  <li>WhatsApp Business API</li>
+                <div className="font-outfit" style={{ fontSize: '15px', fontWeight: 700, marginBottom: '18px', color: '#ffffff' }}>Paiements</div>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px', color: '#94a3b8' }}>
                   <li>MTN Mobile Money</li>
-                  <li>Moov Money / Wave</li>
+                  <li>Moov Money</li>
+                  <li>Wave</li>
                   <li>Kkiapay Gateway</li>
                 </ul>
               </div>
 
               <div>
-                <div style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', color: '#ffffff' }}>Support & Contact</div>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#a0aec0' }}>
+                <div className="font-outfit" style={{ fontSize: '15px', fontWeight: 700, marginBottom: '18px', color: '#ffffff' }}>Support</div>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px', color: '#94a3b8' }}>
                   <li>support@reflex.bj</li>
                   <li>+229 97 00 00 00</li>
                   <li>Cotonou, Bénin</li>
-                  <li>Mentions Légales</li>
                 </ul>
               </div>
             </div>
 
-            <div style={{ maxWidth: '1100px', margin: '0 auto', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: '#a0aec0' }}>
+            <div style={{ maxWidth: '1140px', margin: '0 auto', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', color: '#64748b' }}>
               <div>© 2026 Reflex Intelligent Automation. Tous droits réservés.</div>
-              <div>Fait avec ❤️ au Bénin pour l'Afrique de l'Ouest.</div>
+              <div>Fabriqué avec passion pour les PMEs d'Afrique.</div>
             </div>
           </footer>
+
         </div>
       )}
 
