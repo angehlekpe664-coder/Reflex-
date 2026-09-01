@@ -381,7 +381,7 @@ export default function App() {
       {/* 1. STYLISH CONTEXTUAL LANDING PAGE WITH GENERATED BACKGROUNDS & OUTFIT FONTS */}
       {/* ========================================================================= */}
       {activeView === 'landing' && (
-        <div style={{ minHeight: '100vh', backgroundColor: '#0b1c30', color: '#ffffff', position: 'relative', overflowX: 'hidden', fontFamily: 'var(--font-jakarta)' }}>
+        <div className="landing-page-wrapper">
 
           {/* Dancing WhatsApp Background */}
           <div className="whatsapp-motion-container">
