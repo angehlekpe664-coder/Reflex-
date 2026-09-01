@@ -8,9 +8,6 @@ import {
   Settings,
   Sparkles,
   Send,
-  AlertTriangle,
-  Bell,
-  Home,
   Menu,
   ArrowRight,
   Bot,
@@ -21,7 +18,6 @@ import {
   Building,
   Store,
   Globe,
-  Smartphone,
   Plus,
   Trash2,
   CheckCircle,
@@ -87,6 +83,7 @@ export default function App() {
 
   // Mobile Navigation Drawer State
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [dashMobileMenuOpen, setDashMobileMenuOpen] = useState(false);
 
   // Dynamic Rotating Hero Headlines & Multi-Image Backgrounds
   const rotatingHeadlines = [
@@ -125,42 +122,41 @@ export default function App() {
   ]);
   const [simLoading, setSimLoading] = useState(false);
 
-  // Backend Integration State
+  // Backend Integration State (Default zeroed out for fresh PME accounts)
   const [liveStats, setLiveStats] = useState({
-    conversations: 4302,
-    autoAiPercent: 87,
-    commandes: 34,
-    revenusFcfa: 1245000,
-    conversionPercent: 25
+    conversations: 0,
+    autoAiPercent: 100,
+    commandes: 0,
+    revenusFcfa: 0,
+    conversionPercent: 0
   });
 
-  const [recentOrdersList, setRecentOrdersList] = useState<any[]>([
-    {
-      id: 'ORD-229-892',
-      name: 'Koffi Mensah',
-      phone: '+229 97 45 12 89',
-      time: '10:42 AM',
-      status: 'PAID',
-      amount: 45000,
-      item: 'Perruque Brésilienne 18 pouces',
-      avatar: 'KM',
-      chipText: 'Commande prête',
-      chipType: 'green',
-      summary: 'Paiement Mobile Money confirmé (45,000 FCFA). Livraison prévue cet après-midi à Cotonou Ganhi.'
-    },
-    {
-      id: 'ORD-229-410',
-      name: 'Aminata Diallo',
-      phone: '+229 96 11 22 33',
-      time: 'Il y a 10 min',
-      avatar: 'AM',
-      chipText: 'À suivre',
-      chipType: 'amber',
-      amount: 25000,
-      item: 'Sac à main en cuir artisanal',
-      summary: 'Intéressée par le sac en cuir. A besoin d\'informations sur la livraison avant d\'effectuer le paiement.'
-    }
-  ]);
+  const [recentOrdersList, setRecentOrdersList] = useState<any[]>([]);
+
+  const loadSampleDemoData = () => {
+    setLiveStats({
+      conversations: 4302,
+      autoAiPercent: 87,
+      commandes: 34,
+      revenusFcfa: 1245000,
+      conversionPercent: 25
+    });
+    setRecentOrdersList([
+      {
+        id: 'ORD-229-892',
+        name: 'Koffi Mensah',
+        phone: '+229 97 45 12 89',
+        time: '10:42 AM',
+        status: 'PAID',
+        amount: 45000,
+        item: 'Perruque Brésilienne 18 pouces',
+        avatar: 'KM',
+        chipText: 'Commande prête',
+        chipType: 'green',
+        summary: 'Paiement Mobile Money confirmé (45,000 FCFA).'
+      }
+    ]);
+  };
 
   // Real-time Backend API Polling
   useEffect(() => {
@@ -1261,12 +1257,49 @@ export default function App() {
       )}
 
       {/* ========================================================================= */}
-      {/* 8. DASHBOARD DESKTOP WITH ALL FUNCTIONAL TABS */}
+      {/* 8. DASHBOARD DESKTOP & MOBILE WITH HAMBURGER DRAWER */}
       {/* ========================================================================= */}
       {activeView === 'dashboard' && (
-        <div className="dashboard-layout-container">
+        <div>
+          {/* Dashboard Mobile Header with Hamburger Menu */}
+          <div className="dashboard-mobile-header">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
+              <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '34px', borderRadius: '8px' }} />
+              <div>
+                <span className="font-outfit" style={{ fontWeight: 800, fontSize: '18px', color: '#0b1c30' }}>Reflex</span>
+                <span style={{ fontSize: '11px', color: '#64748b', display: 'block' }}>{companyData.name}</span>
+              </div>
+            </div>
 
-          <aside className="dashboard-sidebar-container">
+            <button
+              style={{ background: 'transparent', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '8px 12px', display: 'flex', alignItems: 'center', color: '#0b1c30', cursor: 'pointer' }}
+              onClick={() => setDashMobileMenuOpen(!dashMobileMenuOpen)}
+              aria-label="Toggle Dashboard Menu"
+            >
+              <Menu size={22} />
+            </button>
+
+            {dashMobileMenuOpen && (
+              <div className="dashboard-mobile-drawer">
+                {(['Vue d\'ensemble', 'Activité WhatsApp', 'Commandes', 'Paiements', 'Catalogue', 'Paramètres'] as const).map(tab => (
+                  <button
+                    key={tab}
+                    className={`sidebar-link ${activeSidebarTab === tab ? 'active' : ''}`}
+                    onClick={() => { setActiveSidebarTab(tab); setDashMobileMenuOpen(false); }}
+                    style={{ padding: '12px 16px', borderRadius: '8px', fontSize: '14px', fontWeight: 600 }}
+                  >
+                    {tab}
+                  </button>
+                ))}
+                <button className="sidebar-link" onClick={() => { setActiveView('landing'); setDashMobileMenuOpen(false); }} style={{ borderTop: '1px solid #E2E8F0', paddingTop: '12px', marginTop: '6px' }}>
+                  <Globe size={16} /> Page d'accueil
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="dashboard-layout-container">
+            <aside className="dashboard-sidebar-container desktop-sidebar-only">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingLeft: '4px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
               <div>
@@ -1317,9 +1350,6 @@ export default function App() {
             <div style={{ marginTop: 'auto', borderTop: '1px solid #E2E8F0', paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <button className="sidebar-link" onClick={() => setActiveView('landing')}>
                 <Globe size={16} /> Page d'accueil
-              </button>
-              <button className="sidebar-link" onClick={() => setActiveView('mobile-dash')}>
-                <Smartphone size={16} /> Vue Mobile
               </button>
             </div>
           </aside>
@@ -1628,110 +1658,105 @@ export default function App() {
               </div>
             )}
 
-            {/* TAB 6: PARAMÈTRES PME */}
+            {/* TAB 6: PARAMÈTRES PME & CONNEXION WHATSAPP META */}
             {activeSidebarTab === 'Paramètres' && (
-              <div className="reflex-card-base" style={{ padding: '32px', backgroundColor: '#ffffff', maxWidth: '640px' }}>
-                <h3 className="title-md" style={{ color: '#0b1c30', marginBottom: '24px' }}>Paramètres & IA de {companyData.name}</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                  <div>
-                    <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Nom de la PME</label>
-                    <input
-                      type="text"
-                      value={companyData.name}
-                      onChange={(e) => setCompanyData({ ...companyData, name: e.target.value })}
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }}
-                    />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '740px' }}>
+                <div className="reflex-card-base" style={{ padding: '28px', backgroundColor: '#ffffff' }}>
+                  <h3 className="title-md" style={{ color: '#0b1c30', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Settings size={20} color="#6366f1" /> Paramètres Général de {companyData.name}
+                  </h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div>
+                      <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Nom de la PME</label>
+                      <input
+                        type="text"
+                        value={companyData.name}
+                        onChange={(e) => setCompanyData({ ...companyData, name: e.target.value })}
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Numéro WhatsApp Business PME</label>
+                      <input
+                        type="text"
+                        value={companyData.phone}
+                        onChange={(e) => setCompanyData({ ...companyData, phone: e.target.value })}
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Ton de l'Assistant IA</label>
+                      <select
+                        value={assistantConfig.tone}
+                        onChange={(e) => setAssistantConfig({ ...assistantConfig, tone: e.target.value })}
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px', backgroundColor: '#ffffff' }}
+                      >
+                        <option value="Chaleureux & Commercial">Chaleureux & Commercial</option>
+                        <option value="Strictement Professionnel">Strictement Professionnel</option>
+                        <option value="Décontracté & Jeune">Décontracté & Jeune</option>
+                      </select>
+                    </div>
                   </div>
-                  <div>
-                    <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Numéro WhatsApp Business</label>
-                    <input
-                      type="text"
-                      value={companyData.phone}
-                      onChange={(e) => setCompanyData({ ...companyData, phone: e.target.value })}
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }}
-                    />
+                </div>
+
+                {/* META WHATSAPP BUSINESS CLOUD API CONNECTION CARD */}
+                <div className="reflex-card-base" style={{ padding: '28px', backgroundColor: '#ffffff', border: '1px solid #c7d2fe' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                    <div style={{ width: '36px', height: '36px', borderRadius: '8px', backgroundColor: '#25D366', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff' }}>
+                      <Radio size={20} />
+                    </div>
+                    <div>
+                      <h3 className="title-md" style={{ color: '#0b1c30', fontSize: '17px' }}>Connexion WhatsApp Cloud API (Meta)</h3>
+                      <p style={{ fontSize: '12.5px', color: '#64748b' }}>Liez votre numéro pour que l'IA réponde en direct à vos vrais clients sur WhatsApp.</p>
+                    </div>
                   </div>
-                  <div>
-                    <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Ton de l'Assistant IA</label>
-                    <select
-                      value={assistantConfig.tone}
-                      onChange={(e) => setAssistantConfig({ ...assistantConfig, tone: e.target.value })}
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px', backgroundColor: '#ffffff' }}
-                    >
-                      <option value="Chaleureux & Commercial">Chaleureux & Commercial</option>
-                      <option value="Strictement Professionnel">Strictement Professionnel</option>
-                      <option value="Décontracté & Jeune">Décontracté & Jeune</option>
-                    </select>
+
+                  <div style={{ backgroundColor: '#f8fafc', padding: '16px', borderRadius: '10px', border: '1px solid #e2e8f0', marginBottom: '20px', fontSize: '13px', color: '#334155', lineHeight: 1.5 }}>
+                    <strong>📌 Instructions de liaison Meta WhatsApp :</strong>
+                    <ol style={{ marginTop: '8px', paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <li>Rendez-vous sur <a href="https://developers.facebook.com" target="_blank" rel="noreferrer" style={{ color: '#4f46e5', fontWeight: 600 }}>Meta for Developers</a> ➔ Application WhatsApp.</li>
+                      <li>Dans <strong>Configuration du Webhook</strong>, renseignez l'URL de votre serveur :<br />
+                        <code style={{ backgroundColor: '#e0e7ff', padding: '2px 6px', borderRadius: '4px', color: '#3730a3', fontWeight: 700 }}>https://reflex-zjf7.onrender.com/webhook/whatsapp</code>
+                      </li>
+                      <li>Entrez le <strong>Jeton de vérification (Verify Token)</strong> défini sur votre serveur Render.</li>
+                    </ol>
                   </div>
-                  <button className="btn-primary-black" style={{ padding: '12px', fontSize: '14px', marginTop: '12px' }} onClick={handleFinalizeOnboarding}>
-                    Enregistrer les Paramètres & Synchroniser l'IA
-                  </button>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <div>
+                      <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Meta Phone Number ID</label>
+                      <input
+                        type="text"
+                        placeholder="ex: 82102717809312"
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Token d'Accès Permanent Meta (System Access Token)</label>
+                      <input
+                        type="password"
+                        placeholder="EAAG..."
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }}
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '12px', marginTop: '10px', flexWrap: 'wrap' }}>
+                      <button className="btn-primary-black" style={{ padding: '12px 20px', fontSize: '14px' }} onClick={handleFinalizeOnboarding}>
+                        Enregistrer & Activer l'IA WhatsApp
+                      </button>
+                      <button style={{ padding: '12px 20px', fontSize: '14px', backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '8px', color: '#0f172a', fontWeight: 600, cursor: 'pointer' }} onClick={loadSampleDemoData}>
+                        Charger des données de démonstration
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
 
           </main>
         </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* 9. DASHBOARD MOBILE */}
-      {/* ========================================================================= */}
-      {activeView === 'mobile-dash' && (
-        <div style={{ maxWidth: '440px', margin: '20px auto', backgroundColor: '#f8f9ff', minHeight: '840px', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.12)', overflow: 'hidden', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-          <div style={{ padding: '24px 20px 16px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-            <div>
-              <h1 className="headline-lg-mobile" style={{ color: '#0b1c30', marginBottom: '2px' }}>Vue d'ensemble</h1>
-              <p className="body-md" style={{ color: '#45464d', fontSize: '13px' }}>{companyData.name}</p>
-            </div>
-            <button style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#ffffff', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-              <Bell size={18} color="#0b1c30" />
-            </button>
-          </div>
-
-          <div style={{ padding: '0 20px 80px', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div className="reflex-card-base" style={{ padding: '20px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                <span className="label-sm" style={{ color: '#45464d', textTransform: 'uppercase' }}>CHIFFRE D'AFFAIRES</span>
-                <span className="label-sm" style={{ backgroundColor: '#d1fae5', color: '#059669', padding: '2px 8px', borderRadius: '12px' }}>↗ +12%</span>
-              </div>
-              <div style={{ fontSize: '28px', fontWeight: 700, color: '#0b1c30' }}>1 245 000 FCFA</div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              <div className="reflex-card-base" style={{ padding: '16px' }}>
-                <div className="label-sm" style={{ color: '#45464d', marginBottom: '6px', textTransform: 'uppercase' }}>COMMANDES</div>
-                <div style={{ fontSize: '24px', fontWeight: 700, color: '#0b1c30' }}>34</div>
-              </div>
-              <div className="reflex-card-base" style={{ padding: '16px' }}>
-                <div className="label-sm" style={{ color: '#45464d', marginBottom: '6px', textTransform: 'uppercase' }}>MESSAGES AUTO</div>
-                <div style={{ fontSize: '24px', fontWeight: 700, color: '#0b1c30' }}>4302</div>
-              </div>
-            </div>
-
-            <div style={{ backgroundColor: '#fff5f5', border: '1px solid #ffdad6', borderRadius: '1rem', padding: '16px', display: 'flex', gap: '12px' }}>
-              <AlertTriangle size={22} color="#ba1a1a" style={{ flexShrink: 0, marginTop: '2px' }} />
-              <div>
-                <h4 style={{ color: '#ba1a1a', fontWeight: 600, fontSize: '15px', marginBottom: '4px' }}>Intervention nécessaire</h4>
-                <p className="body-md" style={{ color: '#45464d', fontSize: '13px', lineHeight: 1.4 }}>
-                  3 clients attendent une confirmation manuelle pour la livraison.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '64px', backgroundColor: '#ffffff', borderTop: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-around', alignItems: 'center', padding: '0 8px' }}>
-            <button style={{ background: '#645efb', color: '#ffffff', border: 'none', borderRadius: '12px', padding: '6px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer' }} onClick={() => setActiveView('dashboard')}>
-              <Home size={18} />
-              <span style={{ fontSize: '10px', fontWeight: 600 }}>Dashboard</span>
-            </button>
-            <button style={{ background: 'transparent', color: '#45464d', border: 'none', padding: '6px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-              <Menu size={18} />
-              <span style={{ fontSize: '10px', fontWeight: 500 }}>Menu</span>
-            </button>
-          </div>
-        </div>
-      )}
+      </div>
+    )}
 
     </div>
   );
