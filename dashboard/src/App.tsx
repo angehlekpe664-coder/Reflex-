@@ -121,7 +121,7 @@ export default function App() {
   const [simUserMessage, setSimUserMessage] = useState('');
   const [simChatHistory, setSimChatHistory] = useState<Array<{ sender: 'client' | 'bot'; text: string; time: string }>>([
     { sender: 'client', text: 'Bonjour, est-ce que vos perruques sont disponibles et quels sont vos prix ?', time: '14:20' },
-    { sender: 'bot', text: 'Bonjour ! Bienvenue chez Boutique Élégance Bénin. 😊 Oui ! Nous avons la "Perruque Brésilienne 18 pouces" à 45 000 FCFA. Souhaitez-vous passer commande ?\n\n💳 Lien de paiement Mobile Money : http://localhost:5173/pay/ORD-229-892', time: '14:20' }
+    { sender: 'bot', text: 'Bonjour ! Bienvenue chez Boutique Élégance Bénin. Oui ! Nous avons la "Perruque Brésilienne 18 pouces" à 45 000 FCFA. Souhaitez-vous passer commande ?\n\nLien de paiement Mobile Money : http://localhost:5173/pay/ORD-229-892', time: '14:20' }
   ]);
   const [simLoading, setSimLoading] = useState(false);
 
@@ -336,7 +336,7 @@ export default function App() {
         const orderId = `ORD-229-${Math.floor(100 + Math.random() * 900)}`;
         setSimChatHistory(prev => [...prev, {
           sender: 'bot',
-          text: `Parfait ! Voici le récapitulatif pour ${companyData.name}.\n\n💳 *Lien de règlement Mobile Money sécurisé* :\nhttp://localhost:5173/pay/${orderId}`,
+          text: `Parfait ! Voici le récapitulatif pour ${companyData.name}.\n\n*Lien de règlement Mobile Money sécurisé* :\nhttp://localhost:5173/pay/${orderId}`,
           time: timeNow
         }]);
       }
@@ -344,7 +344,7 @@ export default function App() {
       const orderId = `ORD-229-${Math.floor(100 + Math.random() * 900)}`;
       setSimChatHistory(prev => [...prev, {
         sender: 'bot',
-        text: `Parfait ! Voici votre lien de paiement :\n💳 http://localhost:5173/pay/${orderId}`,
+        text: `Parfait ! Voici votre lien de paiement :\nhttp://localhost:5173/pay/${orderId}`,
         time: timeNow
       }]);
     } finally {
@@ -459,7 +459,7 @@ export default function App() {
               <div className="glow-pill-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '8px 22px', borderRadius: '9999px', marginBottom: '32px' }}>
                 <Sparkles size={16} color="#00f2fe" className="animate-pulse" />
                 <span className="font-outfit" style={{ fontSize: '13.5px', fontWeight: 700, color: '#00f2fe', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                  ⚡ L'IA Commerciale N°1 des PMEs en Afrique de l'Ouest
+                  L'IA Commerciale N°1 des PMEs en Afrique de l'Ouest
                 </span>
               </div>
 
@@ -632,9 +632,9 @@ export default function App() {
                       </div>
 
                       <div style={{ background: 'linear-gradient(135deg, #4f46e5, #4338ca)', color: '#ffffff', padding: '12px 14px', borderRadius: '16px 16px 4px 16px', fontSize: '13px', alignSelf: 'flex-end', maxWidth: '88%', boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)' }}>
-                        Oui tout à fait ! 😊 La "Perruque Brésilienne 18 pouces" est à 45 000 FCFA. Livraison rapide sous 24h.
+                        Oui tout à fait ! La "Perruque Brésilienne 18 pouces" est à 45 000 FCFA. Livraison rapide sous 24h.
                         <br /><br />
-                        💳 <strong>Lien de paiement Mobile Money :</strong>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><CreditCard size={14} /> <strong>Lien de paiement Mobile Money :</strong></span>
                         <div style={{ marginTop: '8px', textDecoration: 'underline', cursor: 'pointer', fontWeight: 700, backgroundColor: 'rgba(255,255,255,0.2)', padding: '6px 10px', borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '6px' }} onClick={() => setActiveView('payment-checkout')}>
                           <span>pay/ORD-229-892</span> <ArrowRight size={14} />
                         </div>
@@ -643,10 +643,10 @@ export default function App() {
 
                     <button
                       className="btn-gradient-ai"
-                      style={{ width: '100%', padding: '12px', fontSize: '13px', textAlign: 'center', borderRadius: '10px' }}
+                      style={{ width: '100%', padding: '12px', fontSize: '13px', textAlign: 'center', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                       onClick={() => setActiveView('payment-checkout')}
                     >
-                      💳 Tester la Page de Paiement Client →
+                      <CreditCard size={16} /> Tester la Page de Paiement Client <ArrowRight size={14} />
                     </button>
                   </div>
                 </div>
