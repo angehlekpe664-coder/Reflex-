@@ -5,6 +5,7 @@ import { whatsappService } from './services/whatsapp.service.js';
 import { aiService } from './services/ai.service.js';
 import { databaseService } from './services/supabase.service.js';
 import { paymentService } from './services/payment.service.js';
+import { pdfReportService } from './services/pdf.service.js';
 
 const app = express();
 app.use(cors());
@@ -221,12 +222,40 @@ app.get('/api/dashboard/stats', (_req, res) => {
   });
 });
 
-// Route 5 : Santé du serveur
+// Route 5 : Téléchargement dynamique du Rapport PDF de Vente Conclue par l'IA
+app.get('/api/reports/pdf/:orderId', async (req, res) => {
+  const { orderId } = req.params;
+  const order = liveOrders.find((o) => o.id === orderId) || liveOrders[0];
+
+  try {
+    const pdfBuffer = await pdfReportService.generateOrderPDF({
+      id: order.id,
+      pmeName: currentPmeConfig.name,
+      customerName: order.customerName,
+      phone: order.phone,
+      item: order.item,
+      amount: order.amount,
+      deliveryAddress: order.deliveryAddress || 'Cotonou, Bénin',
+      paymentRef: order.paymentRef || 'REFLEX-TXN-88902',
+      date: new Date().toLocaleDateString('fr-FR') + ' - ' + order.time,
+      conclusion: order.summary?.conclusion || 'Accord conclu par l\'IA avec confirmation de livraison.'
+    });
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=Rapport_Reflex_${order.id}.pdf`);
+    res.send(pdfBuffer);
+  } catch (error) {
+    console.error('Erreur de génération PDF:', error);
+    res.status(500).json({ error: 'Échec de génération du rapport PDF' });
+  }
+});
+
+// Route 6 : Santé du serveur
 app.get('/health', (_req, res) => {
   res.json({
     status: 'online',
     service: 'Reflex WhatsApp PME SaaS API Engine',
-    n8nBridgeActive: true,
+    pdfEngineActive: true,
     timestamp: new Date().toISOString(),
   });
 });
