@@ -1265,7 +1265,7 @@ export default function App() {
               <div>
                 <h1 className="headline-lg" style={{ color: '#0b1c30', marginBottom: '4px' }}>
                   {activeSidebarTab === 'Vue d\'ensemble' && `Bonjour ${fullName || 'Alex'}, voici votre activité aujourd'hui.`}
-                  {activeSidebarTab === 'Activité WhatsApp' && 'Simulateur & Historique WhatsApp IA'}
+                  {activeSidebarTab === 'Activité WhatsApp' && 'Journal des Conversations WhatsApp Réelles'}
                   {activeSidebarTab === 'Commandes' && 'Gestion des Commandes Clients'}
                   {activeSidebarTab === 'Paiements' && 'Transactions & Reçus Mobile Money'}
                   {activeSidebarTab === 'Catalogue' && 'Gestion du Catalogue Produit'}
@@ -1375,7 +1375,7 @@ export default function App() {
                         <Bot size={20} />
                       </div>
                       <div>
-                        <div style={{ fontWeight: 700, fontSize: '15px', color: '#0b1c30' }}>Simulateur WhatsApp - {companyData.name}</div>
+                        <div style={{ fontWeight: 700, fontSize: '15px', color: '#0b1c30' }}>Console de Test & Diagnostic WhatsApp Live - {companyData.name}</div>
                         <div style={{ fontSize: '12px', color: '#10B981', fontWeight: 500 }}>● Bot IA actif en temps réel</div>
                       </div>
                     </div>
