@@ -88,6 +88,35 @@ export default function App() {
   // Mobile Navigation Drawer State
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Dynamic Rotating Hero Headlines & Multi-Image Backgrounds
+  const rotatingHeadlines = [
+    { highlight: 'meilleur commercial 24/7.', subtitle: 'Reflex automatise vos réponses clients en wolof, fon et français, présente votre catalogue et encaisse par Mobile Money (MTN MoMo, Moov Money, Wave) avec reçus certifiés.' },
+    { highlight: 'machine à vendre automatique.', subtitle: 'Ne perdez plus aucune vente sur WhatsApp. L\'IA conseille vos clients, négocie au bon prix et génère les bons de commande en temps réel.' },
+    { highlight: 'caissier Mobile Money sans effort.', subtitle: 'Générez des liens d\'encaissement sécurisés et émettez automatiquement des reçus certifiés SHA-256 pour chaque vente réussie.' }
+  ];
+  const [headlineIndex, setHeadlineIndex] = useState(0);
+
+  const heroBackgrounds = [
+    '/hero_bg.png',
+    '/pme_store.png'
+  ];
+  const [heroBgIndex, setHeroBgIndex] = useState(0);
+
+  useEffect(() => {
+    const headlineTimer = setInterval(() => {
+      setHeadlineIndex((prev) => (prev + 1) % rotatingHeadlines.length);
+    }, 3800);
+
+    const bgTimer = setInterval(() => {
+      setHeroBgIndex((prev) => (prev + 1) % heroBackgrounds.length);
+    }, 7000);
+
+    return () => {
+      clearInterval(headlineTimer);
+      clearInterval(bgTimer);
+    };
+  }, []);
+
   // Live WhatsApp Simulator State
   const [simUserMessage, setSimUserMessage] = useState('');
   const [simChatHistory, setSimChatHistory] = useState<Array<{ sender: 'client' | 'bot'; text: string; time: string }>>([
@@ -419,29 +448,32 @@ export default function App() {
             )}
           </header>
 
-          {/* Hero Section with Contextual Background & Stylish Outfit Typography */}
-          <div className="hero-context-bg" style={{ padding: '90px 24px 80px', position: 'relative', zIndex: 10 }}>
-            <div style={{ maxWidth: '960px', margin: '0 auto', textAlign: 'center' }}>
+          {/* Hero Section with Multi-Image Crossfade Background & Dynamic Rotating Headline */}
+          <div style={{ padding: '100px 24px 90px', position: 'relative', overflow: 'hidden' }}>
+            <div className="hero-bg-crossfade" style={{ backgroundImage: `linear-gradient(180deg, rgba(9, 13, 22, 0.92) 0%, rgba(15, 23, 42, 0.97) 100%), url(${heroBackgrounds[heroBgIndex]})` }} />
+            <div className="hero-radial-glow" />
+
+            <div style={{ maxWidth: '980px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 10 }}>
               
               {/* Context Badge */}
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 18px', borderRadius: '9999px', marginBottom: '28px' }} className="glass-badge">
-                <Sparkles size={16} color="#00f2fe" />
-                <span className="font-outfit" style={{ fontSize: '13px', fontWeight: 600, color: '#00f2fe', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-                  L'IA commerciale N°1 des PMEs au Bénin
+              <div className="glow-pill-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '8px 22px', borderRadius: '9999px', marginBottom: '32px' }}>
+                <Sparkles size={16} color="#00f2fe" className="animate-pulse" />
+                <span className="font-outfit" style={{ fontSize: '13.5px', fontWeight: 700, color: '#00f2fe', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                  ⚡ L'IA Commerciale N°1 des PMEs en Afrique de l'Ouest
                 </span>
               </div>
 
-              {/* Main Headline */}
-              <h1 className="display-lg" style={{ color: '#ffffff', fontSize: '56px', lineHeight: 1.12, marginBottom: '24px' }}>
+              {/* Dynamic Rotating Main Headline */}
+              <h1 className="display-lg" style={{ color: '#ffffff', fontSize: '58px', lineHeight: 1.12, marginBottom: '24px' }}>
                 Votre WhatsApp devient votre <br />
-                <span style={{ background: 'linear-gradient(135deg, #00f2fe 0%, #4facfe 50%, #f6d365 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                  meilleur commercial 24/7.
+                <span key={headlineIndex} className="animated-headline-text neon-gradient-title">
+                  {rotatingHeadlines[headlineIndex].highlight}
                 </span>
               </h1>
 
-              {/* Subtitle */}
-              <p className="body-lg" style={{ color: '#94a3b8', maxWidth: '740px', margin: '0 auto 42px', fontSize: '19px', lineHeight: 1.6 }}>
-                Reflex automatise vos réponses clients en wolof, fon et français, présente votre catalogue et encaisse par <strong style={{ color: '#ffffff' }}>Mobile Money (MTN MoMo, Moov Money, Wave)</strong> avec reçus certifiés.
+              {/* Dynamic Subtitle */}
+              <p key={`sub-${headlineIndex}`} className="animated-headline-text body-lg" style={{ color: '#cbd5e1', maxWidth: '780px', margin: '0 auto 44px', fontSize: '19.5px', lineHeight: 1.6 }}>
+                {rotatingHeadlines[headlineIndex].subtitle}
               </p>
 
               {/* CTA Buttons */}

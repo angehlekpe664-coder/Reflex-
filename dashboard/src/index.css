@@ -1,16 +1,33 @@
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Reflex Intelligent Automation Color Tokens */
-  --surface: #f8f9ff;
-  --surface-dim: #cbdbf5;
-  --surface-bright: #f8f9ff;
+  /* Reflex Luxury Electric Cyber Palette */
+  --surface: #090d16;
+  --surface-dim: #0f172a;
+  --surface-bright: #1e293b;
   --surface-container-lowest: #ffffff;
-  --surface-container-low: #eff4ff;
-  --surface-container: #e5eeff;
-  --surface-container-high: #dce9ff;
-  --surface-container-highest: #d3e4fe;
+  --surface-container-low: #f1f5f9;
+  --surface-container: #e2e8f0;
   
+  --primary-neon: #6366f1;
+  --secondary-cyan: #06b6d4;
+  --accent-emerald: #10b981;
+  --accent-rose: #f43f5e;
+  --accent-amber: #f59e0b;
+  --whatsapp-green: #25D366;
+  
+  /* Typography Fonts */
+  --font-outfit: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-jakarta: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Shadows & Neon Glows */
+  --shadow-bloom: 0 4px 20px rgba(99, 102, 241, 0.12);
+  --shadow-card: 0 8px 30px rgba(15, 23, 42, 0.08);
+  --shadow-overlay: 0 12px 32px rgba(15, 23, 42, 0.08);
+  --shadow-neon-cyan: 0 0 25px rgba(6, 182, 212, 0.35);
+  --shadow-neon-indigo: 0 0 35px rgba(99, 102, 241, 0.4);
+
   --on-surface: #0b1c30;
   --on-surface-variant: #45464d;
   --inverse-surface: #213145;
@@ -51,17 +68,6 @@
   
   --surface-bg: #F8FAFC;
   --border-subtle: #E2E8F0;
-
-  /* Typography Fonts */
-  --font-outfit: 'Outfit', -apple-system, sans-serif;
-  --font-jakarta: 'Plus Jakarta Sans', -apple-system, sans-serif;
-  --font-geist: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-
-  /* Elevation Shadows */
-  --shadow-bloom: 0 2px 4px rgba(15, 23, 42, 0.04);
-  --shadow-card: 0 4px 12px rgba(15, 23, 42, 0.03);
-  --shadow-overlay: 0 12px 32px rgba(15, 23, 42, 0.08);
 }
 
 * {
@@ -100,9 +106,65 @@ body {
   50% { opacity: 0.45; filter: drop-shadow(0 0 28px rgba(37, 211, 102, 0.8)); }
 }
 
-@keyframes logoHeroPulse {
-  0%, 100% { transform: scale(1); box-shadow: 0 10px 30px rgba(75, 65, 225, 0.15); }
-  50% { transform: scale(1.03); box-shadow: 0 15px 40px rgba(37, 211, 102, 0.25); }
+/* Motion Design - Dynamic Rotating Headline & Background Crossfade */
+@keyframes textSlideFadeIn {
+  0% { opacity: 0; transform: translateY(14px) scale(0.97); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes heroRadialPulse {
+  0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.45; }
+  50% { transform: translateX(-50%) scale(1.25); opacity: 0.8; }
+}
+
+.animated-headline-text {
+  animation: textSlideFadeIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  display: inline-block;
+}
+
+.hero-radial-glow {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 650px;
+  height: 420px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.38) 0%, rgba(6, 182, 212, 0.22) 50%, rgba(0, 0, 0, 0) 80%);
+  filter: blur(85px);
+  pointer-events: none;
+  z-index: 1;
+  animation: heroRadialPulse 7s ease-in-out infinite;
+}
+
+.hero-bg-crossfade {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: opacity 1.4s ease-in-out;
+  z-index: 0;
+}
+
+.neon-gradient-title {
+  background: linear-gradient(135deg, #00f2fe 0%, #38bdf8 30%, #a855f7 65%, #f43f5e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.glow-pill-badge {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(6, 182, 212, 0.45);
+  box-shadow: 0 0 24px rgba(6, 182, 212, 0.28);
+  transition: all 0.3s ease;
+}
+
+.glow-pill-badge:hover {
+  border-color: rgba(168, 85, 247, 0.8);
+  box-shadow: 0 0 35px rgba(168, 85, 247, 0.45);
+  transform: translateY(-2px);
 }
 
 .whatsapp-motion-container {
