@@ -643,8 +643,8 @@ export default function App() {
           </div>
 
           {/* FOOTER */}
-          <footer style={{ backgroundColor: '#020617', color: '#ffffff', padding: '70px 48px 36px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-            <div style={{ maxWidth: '1140px', margin: '0 auto', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '40px', marginBottom: '50px' }}>
+          <footer style={{ backgroundColor: '#020617', color: '#ffffff', padding: '70px 24px 36px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+            <div className="grid-responsive-footer" style={{ maxWidth: '1140px', margin: '0 auto', marginBottom: '50px' }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px' }}>
                   <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '40px', width: 'auto', borderRadius: '8px' }} />
@@ -670,7 +670,6 @@ export default function App() {
                   <li>MTN Mobile Money</li>
                   <li>Moov Money</li>
                   <li>Wave</li>
-                  <li>Kkiapay Gateway</li>
                 </ul>
               </div>
 
@@ -684,7 +683,7 @@ export default function App() {
               </div>
             </div>
 
-            <div style={{ maxWidth: '1140px', margin: '0 auto', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', color: '#64748b' }}>
+            <div style={{ maxWidth: '1140px', margin: '0 auto', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', color: '#64748b', flexWrap: 'wrap', gap: '12px' }}>
               <div>© 2026 Reflex Intelligent Automation. Tous droits réservés.</div>
               <div>Fabriqué avec passion pour les PMEs d'Afrique.</div>
             </div>
@@ -1201,9 +1200,9 @@ export default function App() {
       {/* 8. DASHBOARD DESKTOP WITH ALL FUNCTIONAL TABS */}
       {/* ========================================================================= */}
       {activeView === 'dashboard' && (
-        <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8f9ff' }}>
+        <div className="dashboard-layout-container">
 
-          <aside style={{ width: '240px', backgroundColor: '#ffffff', borderRight: '1px solid #E2E8F0', padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: '24px', flexShrink: 0 }}>
+          <aside className="dashboard-sidebar-container">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingLeft: '4px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
               <div>
@@ -1212,7 +1211,7 @@ export default function App() {
               </div>
             </div>
 
-            <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <nav className="dashboard-sidebar-nav">
               <button
                 className={`sidebar-link ${activeSidebarTab === 'Vue d\'ensemble' ? 'active' : ''}`}
                 onClick={() => setActiveSidebarTab('Vue d\'ensemble')}
@@ -1261,8 +1260,8 @@ export default function App() {
             </div>
           </aside>
 
-          <main style={{ flex: 1, padding: '40px 48px', overflowY: 'auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+          <main className="dashboard-main-content">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
               <div>
                 <h1 className="headline-lg" style={{ color: '#0b1c30', marginBottom: '4px' }}>
                   {activeSidebarTab === 'Vue d\'ensemble' && `Bonjour ${fullName || 'Alex'}, voici votre activité aujourd'hui.`}
@@ -1288,7 +1287,7 @@ export default function App() {
             {/* TAB 1: VUE D'ENSEMBLE */}
             {activeSidebarTab === 'Vue d\'ensemble' && (
               <div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px', marginBottom: '32px' }}>
+                <div className="grid-responsive-stats">
                   <div className="reflex-card-base" style={{ padding: '20px' }}>
                     <div className="label-sm" style={{ color: '#45464d', marginBottom: '8px', textTransform: 'uppercase' }}>CONVERSATIONS</div>
                     <div style={{ fontSize: '28px', fontWeight: 700, color: '#0b1c30', fontFamily: 'var(--font-mono)' }}>{liveStats.conversations}</div>
@@ -1311,7 +1310,7 @@ export default function App() {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '24px' }}>
+                <div className="grid-responsive-main">
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     <div className="reflex-card-ai" style={{ padding: '24px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
