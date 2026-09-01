@@ -85,6 +85,9 @@ export default function App() {
     'Vue d\'ensemble' | 'Activité WhatsApp' | 'Commandes' | 'Paiements' | 'Catalogue' | 'Paramètres'
   >('Vue d\'ensemble');
 
+  // Mobile Navigation Drawer State
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   // Live WhatsApp Simulator State
   const [simUserMessage, setSimUserMessage] = useState('');
   const [simChatHistory, setSimChatHistory] = useState<Array<{ sender: 'client' | 'bot'; text: string; time: string }>>([
@@ -358,13 +361,13 @@ export default function App() {
           </div>
 
           {/* Top Navigation Bar */}
-          <header style={{ padding: '18px 48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255,255,255,0.1)', position: 'sticky', top: 0, zIndex: 50 }}>
+          <header className="main-header">
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '42px', width: 'auto', borderRadius: '10px', boxShadow: '0 4px 12px rgba(37, 211, 102, 0.3)' }} />
               <span className="font-outfit" style={{ fontWeight: 800, fontSize: '24px', color: '#ffffff', letterSpacing: '-0.02em' }}>Reflex</span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+            <div className="nav-desktop-links">
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: '#10B981', backgroundColor: 'rgba(255,255,255,0.06)', padding: '6px 14px', borderRadius: '9999px', border: '1px solid rgba(255,255,255,0.1)' }}>
                 <Radio size={14} className="animate-pulse" />
                 <span>Service Actif 24/7</span>
@@ -385,6 +388,35 @@ export default function App() {
                 Commencer gratuitement <ArrowRight size={16} />
               </button>
             </div>
+
+            <button className="mobile-hamburger-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Toggle Menu">
+              <Menu size={24} />
+            </button>
+
+            {mobileMenuOpen && (
+              <div className="mobile-menu-drawer open">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: '#10B981', backgroundColor: 'rgba(255,255,255,0.06)', padding: '8px 14px', borderRadius: '9999px', border: '1px solid rgba(255,255,255,0.1)', width: 'fit-content' }}>
+                  <Radio size={14} className="animate-pulse" />
+                  <span>Service Actif 24/7</span>
+                </div>
+
+                <button
+                  className="btn-outline-white"
+                  style={{ width: '100%', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.1)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.2)' }}
+                  onClick={() => { setMobileMenuOpen(false); setAuthMode('login'); setActiveView('auth'); }}
+                >
+                  Se connecter
+                </button>
+
+                <button
+                  className="btn-gradient-ai"
+                  style={{ width: '100%', justifyContent: 'center' }}
+                  onClick={() => { setMobileMenuOpen(false); setAuthMode('signup'); setActiveView('auth'); }}
+                >
+                  Commencer gratuitement <ArrowRight size={16} />
+                </button>
+              </div>
+            )}
           </header>
 
           {/* Hero Section with Contextual Background & Stylish Outfit Typography */}
@@ -413,7 +445,7 @@ export default function App() {
               </p>
 
               {/* CTA Buttons */}
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '18px', marginBottom: '60px', flexWrap: 'wrap' }}>
+              <div className="hero-cta-container">
                 <button
                   className="btn-gradient-ai"
                   style={{ padding: '16px 36px', fontSize: '17px', borderRadius: '12px' }}
