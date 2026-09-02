@@ -1699,55 +1699,36 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* META WHATSAPP BUSINESS CLOUD API CONNECTION CARD */}
+                {/* AUTOMATED REFLEX WHATSAPP AI STATUS CARD */}
                 <div className="reflex-card-base" style={{ padding: '28px', backgroundColor: '#ffffff', border: '1px solid #c7d2fe' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                    <div style={{ width: '36px', height: '36px', borderRadius: '8px', backgroundColor: '#25D366', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff' }}>
-                      <Radio size={20} />
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px', marginBottom: '20px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ width: '42px', height: '42px', borderRadius: '12px', backgroundColor: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff' }}>
+                        <Zap size={24} />
+                      </div>
+                      <div>
+                        <h3 className="title-md" style={{ color: '#0b1c30', fontSize: '18px' }}>Assistant IA WhatsApp Reflex</h3>
+                        <p style={{ fontSize: '13px', color: '#64748b' }}>Connecté automatiquement pour la PME <strong>{companyData.name}</strong> ({companyData.phone || '+229 -- -- -- --'}).</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="title-md" style={{ color: '#0b1c30', fontSize: '17px' }}>Connexion WhatsApp Cloud API (Meta)</h3>
-                      <p style={{ fontSize: '12.5px', color: '#64748b' }}>Liez votre numéro pour que l'IA réponde en direct à vos vrais clients sur WhatsApp.</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#ecfdf5', border: '1px solid #a7f3d0', padding: '6px 16px', borderRadius: '9999px' }}>
+                      <CheckCircle size={16} color="#059669" />
+                      <span style={{ fontSize: '13px', fontWeight: 700, color: '#047857' }}>IA WhatsApp Opérationnelle 24/7</span>
                     </div>
                   </div>
 
-                  <div style={{ backgroundColor: '#f8fafc', padding: '16px', borderRadius: '10px', border: '1px solid #e2e8f0', marginBottom: '20px', fontSize: '13px', color: '#334155', lineHeight: 1.5 }}>
-                    <strong>📌 Instructions de liaison Meta WhatsApp :</strong>
-                    <ol style={{ marginTop: '8px', paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                      <li>Rendez-vous sur <a href="https://developers.facebook.com" target="_blank" rel="noreferrer" style={{ color: '#4f46e5', fontWeight: 600 }}>Meta for Developers</a> ➔ Application WhatsApp.</li>
-                      <li>Dans <strong>Configuration du Webhook</strong>, renseignez l'URL de votre serveur :<br />
-                        <code style={{ backgroundColor: '#e0e7ff', padding: '2px 6px', borderRadius: '4px', color: '#3730a3', fontWeight: 700 }}>https://reflex-zjf7.onrender.com/webhook/whatsapp</code>
-                      </li>
-                      <li>Entrez le <strong>Jeton de vérification (Verify Token)</strong> défini sur votre serveur Render.</li>
-                    </ol>
+                  <div style={{ backgroundColor: '#f8fafc', padding: '18px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '20px', fontSize: '13.5px', color: '#334155', lineHeight: 1.6 }}>
+                    ✨ <strong>Connexion 100% Automatique Réseau Reflex :</strong><br />
+                    Toutes les demandes WhatsApp adressées à votre PME sont automatiquement analysées et gérées par l'IA Reflex en utilisant les prix et descriptions de votre catalogue produit. Aucune configuration technique requise !
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                    <div>
-                      <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Meta Phone Number ID</label>
-                      <input
-                        type="text"
-                        placeholder="ex: 82102717809312"
-                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }}
-                      />
-                    </div>
-                    <div>
-                      <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Token d'Accès Permanent Meta (System Access Token)</label>
-                      <input
-                        type="password"
-                        placeholder="EAAG..."
-                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }}
-                      />
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '12px', marginTop: '10px', flexWrap: 'wrap' }}>
-                      <button className="btn-primary-black" style={{ padding: '12px 20px', fontSize: '14px' }} onClick={handleFinalizeOnboarding}>
-                        Enregistrer & Activer l'IA WhatsApp
-                      </button>
-                      <button style={{ padding: '12px 20px', fontSize: '14px', backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '8px', color: '#0f172a', fontWeight: 600, cursor: 'pointer' }} onClick={loadSampleDemoData}>
-                        Charger des données de démonstration
-                      </button>
-                    </div>
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                    <button className="btn-primary-black" style={{ padding: '12px 24px', fontSize: '14px' }} onClick={handleFinalizeOnboarding}>
+                      Enregistrer les modifications
+                    </button>
+                    <button style={{ padding: '12px 20px', fontSize: '14px', backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '8px', color: '#0f172a', fontWeight: 600, cursor: 'pointer' }} onClick={loadSampleDemoData}>
+                      Charger des données de démonstration
+                    </button>
                   </div>
                 </div>
               </div>
