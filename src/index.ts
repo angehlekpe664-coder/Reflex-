@@ -129,7 +129,7 @@ app.get('/webhook/whatsapp', (req, res) => {
   return res.sendStatus(400);
 });
 
-// Route 2 : Réception des messages WhatsApp entrants (Event Webhook Meta direct)
+// Route 2 : Réception des messages WhatsApp entrants (Event Webhook Meta direct Multi-Tenant)
 app.post('/webhook/whatsapp', async (req, res) => {
   res.status(200).send('EVENT_RECEIVED');
 
@@ -137,10 +137,14 @@ app.post('/webhook/whatsapp', async (req, res) => {
     const entry = req.body.entry?.[0];
     const changes = entry?.changes?.[0];
     const message = changes?.value?.messages?.[0];
+    const metadata = changes?.value?.metadata;
+    const contactProfile = changes?.value?.contacts?.[0]?.profile;
 
     if (!message) return;
 
     const fromPhone = message.from;
+    const customerName = contactProfile?.name || `Client (${fromPhone})`;
+    const metaPhoneNumberId = metadata?.phone_number_id || config.whatsapp.phoneNumberId;
     const messageType = message.type;
     let userText = '';
 
@@ -149,24 +153,78 @@ app.post('/webhook/whatsapp', async (req, res) => {
     } else if (messageType === 'interactive') {
       userText = message.interactive?.button_reply?.title || 'Bouton cliqué';
     } else {
-      userText = "[Message reçu : image ou audio]";
+      userText = "[Message reçu : média/pièce jointe]";
     }
 
-    console.log(`📩 Message reçu de ${fromPhone} : "${userText}"`);
+    console.log(`📩 [WhatsApp Direct] Message de ${customerName} (${fromPhone}) pour le numéro Meta ID ${metaPhoneNumberId} : "${userText}"`);
 
-    const pmeData = currentPmeConfig;
+    // 1. Identification dynamique de la PME
+    const pmeRecord = await databaseService.getPmeByPhoneNumberIdOrPhone(metaPhoneNumberId);
 
+    const pmeContext = {
+      name: pmeRecord?.pme?.name || currentPmeConfig.name,
+      description: pmeRecord?.pme?.description || currentPmeConfig.description,
+      tone: pmeRecord?.pme?.tone || currentPmeConfig.tone,
+      welcomeMessage: pmeRecord?.pme?.welcome_message || currentPmeConfig.welcomeMessage,
+      deliveryInfo: pmeRecord?.pme?.delivery_info || currentPmeConfig.deliveryInfo,
+      catalogue: pmeRecord?.catalogue || currentPmeConfig.catalogue
+    };
+
+    const pmeId = pmeRecord?.pme?.id || 'mock-pme-123';
+    const isAiActive = pmeRecord?.pme?.is_ai_active !== false;
+
+    if (!isAiActive) {
+      console.log(`🛑 L'IA est désactivée pour la PME "${pmeContext.name}". Ignoré.`);
+      return;
+    }
+
+    // 2. Enregistrement / Récupération du client en base
+    const customer = await databaseService.upsertCustomer(pmeId, fromPhone, customerName);
+
+    if (customer?.is_human_takeover) {
+      console.log(`👤 Mode Prise en Main Humaine actif pour ${fromPhone}. L'IA laisse la main à l'équipe commercial.`);
+      if (customer.id) {
+        await databaseService.saveChatMessage(pmeId, customer.id, 'user', userText);
+      }
+      return;
+    }
+
+    // 3. Récupération de l'historique de conversation
+    const chatHistory = customer?.id
+      ? await databaseService.getChatHistory(pmeId, customer.id, 8)
+      : [];
+
+    // 4. Enregistrement du message utilisateur
+    if (customer?.id) {
+      await databaseService.saveChatMessage(pmeId, customer.id, 'user', userText);
+    }
+
+    // 5. Génération de la réponse IA autonome
     const aiResponse = await aiService.generateResponse(
       userText,
-      [],
-      pmeData
+      chatHistory,
+      pmeContext
     );
 
-    // Increment message count
+    // 6. Enregistrement de la réponse assistant
+    if (customer?.id) {
+      await databaseService.saveChatMessage(pmeId, customer.id, 'assistant', aiResponse);
+    }
+
+    // 7. Statistique globale
     liveStats.totalMessages += 1;
 
-    await whatsappService.sendTextMessage(fromPhone, aiResponse);
-    console.log(`📤 Réponse envoyée à ${fromPhone}`);
+    // 8. Envoi de la réponse sur WhatsApp Meta
+    await whatsappService.sendTextMessage(
+      fromPhone,
+      aiResponse,
+      {
+        phoneNumberId: pmeRecord?.pme?.meta_phone_number_id || config.whatsapp.phoneNumberId,
+        token: pmeRecord?.pme?.meta_access_token || config.whatsapp.token
+      }
+    );
+
+    console.log(`🤖 [Réponse IA] Envoyée avec succès à ${fromPhone}`);
 
   } catch (error) {
     console.error('Erreur lors du traitement du Webhook WhatsApp:', error);

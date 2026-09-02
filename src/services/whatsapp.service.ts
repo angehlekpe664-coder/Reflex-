@@ -1,16 +1,23 @@
 import axios from 'axios';
 import { config } from '../config/env.js';
 
-export class WhatsAppService {
-  private apiUrl = `https://graph.facebook.com/v20.0/${config.whatsapp.phoneNumberId}/messages`;
+export interface WhatsAppCredentials {
+  phoneNumberId?: string;
+  token?: string;
+}
 
+export class WhatsAppService {
   /**
-   * Envoie un message texte simple sur WhatsApp
+   * Envoie un message texte simple sur WhatsApp avec support des crédentiels dynamiques PME
    */
-  async sendTextMessage(toPhone: string, textContent: string): Promise<void> {
+  async sendTextMessage(toPhone: string, textContent: string, creds?: WhatsAppCredentials): Promise<void> {
+    const phoneNumberId = creds?.phoneNumberId || config.whatsapp.phoneNumberId;
+    const token = creds?.token || config.whatsapp.token;
+    const apiUrl = `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`;
+
     try {
       await axios.post(
-        this.apiUrl,
+        apiUrl,
         {
           messaging_product: 'whatsapp',
           recipient_type: 'individual',
@@ -20,11 +27,12 @@ export class WhatsAppService {
         },
         {
           headers: {
-            Authorization: `Bearer ${config.whatsapp.token}`,
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         }
       );
+      console.log(`📤 Message WhatsApp envoyé à ${toPhone} via le sous-compte ${phoneNumberId}`);
     } catch (error: any) {
       console.error('Erreur lors de l’envoi du message WhatsApp:', error?.response?.data || error.message);
     }
@@ -33,10 +41,19 @@ export class WhatsAppService {
   /**
    * Envoie un message avec des boutons interactifs (ex: Réserver / Payer)
    */
-  async sendInteractiveButtons(toPhone: string, bodyText: string, buttons: Array<{ id: string; title: string }>): Promise<void> {
+  async sendInteractiveButtons(
+    toPhone: string,
+    bodyText: string,
+    buttons: Array<{ id: string; title: string }>,
+    creds?: WhatsAppCredentials
+  ): Promise<void> {
+    const phoneNumberId = creds?.phoneNumberId || config.whatsapp.phoneNumberId;
+    const token = creds?.token || config.whatsapp.token;
+    const apiUrl = `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`;
+
     try {
       await axios.post(
-        this.apiUrl,
+        apiUrl,
         {
           messaging_product: 'whatsapp',
           recipient_type: 'individual',
@@ -55,7 +72,7 @@ export class WhatsAppService {
         },
         {
           headers: {
-            Authorization: `Bearer ${config.whatsapp.token}`,
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         }
