@@ -185,7 +185,7 @@ export default function App() {
   // Live WhatsApp Journal Log State
   const [simChatHistory] = useState<Array<{ sender: 'client' | 'bot'; text: string; time: string }>>([
     { sender: 'client', text: 'Bonjour, est-ce que vos perruques sont disponibles et quels sont vos prix ?', time: '14:20' },
-    { sender: 'bot', text: 'Bonjour ! Bienvenue chez Boutique Élégance Bénin. Oui ! Nous avons la "Perruque Brésilienne 18 pouces" à 45 000 FCFA. Souhaitez-vous passer commande ?\n\nLien de paiement Mobile Money : http://localhost:5173/pay/ORD-229-892', time: '14:20' }
+    { sender: 'bot', text: 'Bonjour ! Bienvenue chez Boutique Élégance Bénin. Oui ! Nous avons la "Perruque Brésilienne 18 pouces" à 45 000 FCFA. Souhaitez-vous passer commande ?\n\nLien de paiement Mobile Money : https://reflex-dashboard-lfp6.onrender.com/pay/ORD-229-892', time: '14:20' }
   ]);
 
   // Backend Integration State (Default zeroed out for fresh PME accounts)
@@ -228,7 +228,7 @@ export default function App() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/dashboard/stats');
+        const response = await fetch((import.meta.env.VITE_BACKEND_URL || 'https://reflex-zjf7.onrender.com') + '/api/dashboard/stats');
         if (response.ok) {
           const data = await response.json();
           if (data.stats) {
