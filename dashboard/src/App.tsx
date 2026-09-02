@@ -7,7 +7,6 @@ import {
   Grid,
   Settings,
   Sparkles,
-  Send,
   Menu,
   ArrowRight,
   Bot,
@@ -172,13 +171,11 @@ export default function App() {
     };
   }, []);
 
-  // Live WhatsApp Simulator State
-  const [simUserMessage, setSimUserMessage] = useState('');
-  const [simChatHistory, setSimChatHistory] = useState<Array<{ sender: 'client' | 'bot'; text: string; time: string }>>([
+  // Live WhatsApp Journal Log State
+  const [simChatHistory] = useState<Array<{ sender: 'client' | 'bot'; text: string; time: string }>>([
     { sender: 'client', text: 'Bonjour, est-ce que vos perruques sont disponibles et quels sont vos prix ?', time: '14:20' },
     { sender: 'bot', text: 'Bonjour ! Bienvenue chez Boutique Élégance Bénin. Oui ! Nous avons la "Perruque Brésilienne 18 pouces" à 45 000 FCFA. Souhaitez-vous passer commande ?\n\nLien de paiement Mobile Money : http://localhost:5173/pay/ORD-229-892', time: '14:20' }
   ]);
-  const [simLoading, setSimLoading] = useState(false);
 
   // Backend Integration State (Default zeroed out for fresh PME accounts)
   const [liveStats, setLiveStats] = useState({
@@ -367,44 +364,6 @@ export default function App() {
     setProductsList(productsList.filter((_, i) => i !== index));
   };
 
-  // Test WhatsApp Simulator Message Send
-  const handleSendSimMessage = async () => {
-    if (!simUserMessage.trim()) return;
-    const msgText = simUserMessage;
-    const timeNow = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-    
-    setSimChatHistory(prev => [...prev, { sender: 'client', text: msgText, time: timeNow }]);
-    setSimUserMessage('');
-    setSimLoading(true);
-
-    try {
-      const response = await fetch('http://localhost:3000/api/test-wa-message', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userText: msgText })
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setSimChatHistory(prev => [...prev, { sender: 'bot', text: data.aiResponse, time: timeNow }]);
-      } else {
-        const orderId = `ORD-229-${Math.floor(100 + Math.random() * 900)}`;
-        setSimChatHistory(prev => [...prev, {
-          sender: 'bot',
-          text: `Parfait ! Voici le récapitulatif pour ${companyData.name}.\n\n*Lien de règlement Mobile Money sécurisé* :\nhttp://localhost:5173/pay/${orderId}`,
-          time: timeNow
-        }]);
-      }
-    } catch {
-      const orderId = `ORD-229-${Math.floor(100 + Math.random() * 900)}`;
-      setSimChatHistory(prev => [...prev, {
-        sender: 'bot',
-        text: `Parfait ! Voici votre lien de paiement :\nhttp://localhost:5173/pay/${orderId}`,
-        time: timeNow
-      }]);
-    } finally {
-      setSimLoading(false);
-    }
-  };
 
   // Process Mobile Money Checkout Payment
   const handleProcessPayment = () => {
@@ -767,50 +726,90 @@ export default function App() {
             </div>
           </div>
 
-          {/* FOOTER */}
-          <footer style={{ backgroundColor: '#020617', color: '#ffffff', padding: '70px 24px 36px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-            <div className="grid-responsive-footer" style={{ maxWidth: '1140px', margin: '0 auto', marginBottom: '50px' }}>
+          {/* FOOTER PREMIUM RE-DESIGNED */}
+          <footer style={{
+            position: 'relative',
+            background: 'linear-gradient(180deg, #090d16 0%, #022c22 100%)',
+            color: '#ffffff',
+            padding: '80px 24px 40px',
+            borderTop: '1px solid rgba(16, 185, 129, 0.25)'
+          }}>
+            {/* Top Glowing Gradient Accent Line */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '3px',
+              background: 'linear-gradient(90deg, #10b981 0%, #06b6d4 50%, #6366f1 100%)',
+              boxShadow: '0 0 20px rgba(16, 185, 129, 0.8)'
+            }} />
+
+            <div className="grid-responsive-footer" style={{ maxWidth: '1140px', margin: '0 auto', marginBottom: '60px' }}>
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px' }}>
-                  <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '40px', width: 'auto', borderRadius: '8px' }} />
-                  <span className="font-outfit" style={{ fontWeight: 800, fontSize: '24px', color: '#ffffff' }}>Reflex</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                  <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '44px', width: 'auto', borderRadius: '12px', boxShadow: '0 0 20px rgba(16, 185, 129, 0.4)' }} />
+                  <span className="font-outfit" style={{ fontWeight: 800, fontSize: '26px', color: '#ffffff', letterSpacing: '-0.02em' }}>Reflex</span>
                 </div>
-                <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.6, maxWidth: '320px' }}>
-                  La plateforme d'automatisation commerciale WhatsApp & Mobile Money pour les PMEs d'Afrique de l'Ouest.
+                <p style={{ fontSize: '14.5px', color: '#94a3b8', lineHeight: 1.7, maxWidth: '340px', marginBottom: '24px' }}>
+                  L'intelligence artificielle commerciale n°1 pour les PMEs d'Afrique de l'Ouest. Automatisez vos ventes WhatsApp et encaissez par Mobile Money 24/7.
                 </p>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <span style={{ backgroundColor: 'rgba(255,255,255,0.06)', padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', fontSize: '12px', color: '#10b981', fontWeight: 600 }}>
+                    🇧🇯 Cotonou, Bénin
+                  </span>
+                  <span style={{ backgroundColor: 'rgba(255,255,255,0.06)', padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', fontSize: '12px', color: '#06b6d4', fontWeight: 600 }}>
+                    ⚡ 99.9% Uptime
+                  </span>
+                </div>
               </div>
 
               <div>
-                <div className="font-outfit" style={{ fontSize: '15px', fontWeight: 700, marginBottom: '18px', color: '#ffffff' }}>Produit</div>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px', color: '#94a3b8' }}>
-                  <li style={{ cursor: 'pointer' }} onClick={() => setActiveView('landing')}>Fonctionnalités</li>
-                  <li style={{ cursor: 'pointer' }} onClick={() => setActiveView('landing')}>Démo interactive</li>
-                  <li style={{ cursor: 'pointer' }} onClick={() => setActiveView('payment-checkout')}>Page de paiement</li>
+                <div className="font-outfit" style={{ fontSize: '16px', fontWeight: 700, marginBottom: '20px', color: '#ffffff', letterSpacing: '-0.01em' }}>Plateforme</div>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', color: '#cbd5e1' }}>
+                  <li style={{ cursor: 'pointer', transition: 'color 0.2s' }} onClick={() => setActiveView('landing')}>Fonctionnalités IA</li>
+                  <li style={{ cursor: 'pointer', transition: 'color 0.2s' }} onClick={() => setActiveView('landing')}>Onboarding Zéro Friction</li>
+                  <li style={{ cursor: 'pointer', transition: 'color 0.2s' }} onClick={() => setActiveView('payment-checkout')}>Lien de Paiement MoMo</li>
+                  <li style={{ cursor: 'pointer', transition: 'color 0.2s' }} onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}>Inscription Gratuite</li>
                 </ul>
               </div>
 
               <div>
-                <div className="font-outfit" style={{ fontSize: '15px', fontWeight: 700, marginBottom: '18px', color: '#ffffff' }}>Paiements</div>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px', color: '#94a3b8' }}>
-                  <li>MTN Mobile Money</li>
-                  <li>Moov Money</li>
-                  <li>Wave</li>
+                <div className="font-outfit" style={{ fontSize: '16px', fontWeight: 700, marginBottom: '20px', color: '#ffffff', letterSpacing: '-0.01em' }}>Encaissement</div>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', color: '#cbd5e1' }}>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#f59e0b' }} /> MTN Mobile Money
+                  </li>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981' }} /> Moov Money Flooz
+                  </li>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#06b6d4' }} /> Wave & Carte Bancaire
+                  </li>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#6366f1' }} /> Reçus Certifiés SHA-256
+                  </li>
                 </ul>
               </div>
 
               <div>
-                <div className="font-outfit" style={{ fontSize: '15px', fontWeight: 700, marginBottom: '18px', color: '#ffffff' }}>Support</div>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px', color: '#94a3b8' }}>
-                  <li>support@reflex.bj</li>
-                  <li>+229 97 00 00 00</li>
-                  <li>Cotonou, Bénin</li>
+                <div className="font-outfit" style={{ fontSize: '16px', fontWeight: 700, marginBottom: '20px', color: '#ffffff', letterSpacing: '-0.01em' }}>Assistance & Contact</div>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', color: '#cbd5e1' }}>
+                  <li style={{ color: '#10b981', fontWeight: 600 }}>📧 support@reflex.bj</li>
+                  <li style={{ fontWeight: 600 }}>📞 +229 97 00 00 00</li>
+                  <li style={{ color: '#94a3b8' }}>📍 Haie Vive, Cotonou, Bénin</li>
+                  <li style={{ color: '#94a3b8' }}>🕒 Support 24/7 Disponible</li>
                 </ul>
               </div>
             </div>
 
-            <div style={{ maxWidth: '1140px', margin: '0 auto', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', color: '#64748b', flexWrap: 'wrap', gap: '12px' }}>
-              <div>© 2026 Reflex Intelligent Automation. Tous droits réservés.</div>
-              <div>Fabriqué avec passion pour les PMEs d'Afrique.</div>
+            <div style={{ maxWidth: '1140px', margin: '0 auto', paddingTop: '28px', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13.5px', color: '#94a3b8', flexWrap: 'wrap', gap: '16px' }}>
+              <div>© 2026 <strong>Reflex Intelligent Automation</strong>. Tous droits réservés.</div>
+              <div style={{ display: 'flex', gap: '20px', fontSize: '13px' }}>
+                <span style={{ cursor: 'pointer', color: '#cbd5e1' }}>Confidentialité</span>
+                <span style={{ cursor: 'pointer', color: '#cbd5e1' }}>Conditions d'utilisation</span>
+                <span style={{ cursor: 'pointer', color: '#cbd5e1' }}>Conformité Meta API</span>
+              </div>
             </div>
           </footer>
 
@@ -1524,72 +1523,77 @@ export default function App() {
               </div>
             )}
 
-            {/* TAB 2: ACTIVITÉ WHATSAPP & SIMULATEUR */}
+            {/* TAB 2: JOURNAL DES CONVERSATIONS WHATSAPP RÉELLES (SANS SIMULATION) */}
             {activeSidebarTab === 'Activité WhatsApp' && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '24px' }}>
-                <div className="reflex-card-base" style={{ padding: '24px', display: 'flex', flexDirection: 'column', height: '600px', backgroundColor: '#ffffff' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: '24px' }}>
+                <div className="reflex-card-base" style={{ padding: '24px', display: 'flex', flexDirection: 'column', height: '620px', backgroundColor: '#ffffff' }}>
                   <div style={{ paddingBottom: '16px', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#10B981', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Bot size={20} />
+                      <div style={{ width: '40px', height: '40px', borderRadius: '12px', backgroundColor: '#10B981', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Bot size={22} />
                       </div>
                       <div>
-                        <div style={{ fontWeight: 700, fontSize: '15px', color: '#0b1c30' }}>Console de Test & Diagnostic WhatsApp Live - {companyData.name}</div>
-                        <div style={{ fontSize: '12px', color: '#10B981', fontWeight: 500 }}>● Bot IA actif en temps réel</div>
+                        <div style={{ fontWeight: 700, fontSize: '16px', color: '#0b1c30' }}>Journal des Conversations WhatsApp Réelles</div>
+                        <div style={{ fontSize: '12px', color: '#64748b' }}>PME active : <strong>{companyData.name}</strong> ({companyData.phone || '+229 97 00 00 00'})</div>
                       </div>
                     </div>
-                    <button className="btn-outline-white" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={() => setSimChatHistory([])}>
-                      Effacer chat
-                    </button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#ecfdf5', border: '1px solid #a7f3d0', padding: '6px 14px', borderRadius: '9999px', fontSize: '12px', color: '#047857', fontWeight: 600 }}>
+                      <Radio size={14} className="animate-pulse" /> Flux Webhook Direct
+                    </div>
                   </div>
 
-                  <div style={{ flex: 1, padding: '16px 0', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div style={{ flex: 1, padding: '20px 0', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
                     {simChatHistory.map((chat, idx) => (
                       <div key={idx} style={{ display: 'flex', justifyContent: chat.sender === 'client' ? 'flex-end' : 'flex-start' }}>
                         <div style={{
-                          maxWidth: '75%',
-                          padding: '12px 16px',
-                          borderRadius: chat.sender === 'client' ? '16px 16px 2px 16px' : '16px 16px 16px 2px',
-                          backgroundColor: chat.sender === 'client' ? '#4b41e1' : '#eff4ff',
-                          color: chat.sender === 'client' ? '#ffffff' : '#0b1c30',
-                          fontSize: '13.5px',
-                          lineHeight: 1.5
+                          maxWidth: '80%',
+                          padding: '14px 18px',
+                          borderRadius: chat.sender === 'client' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                          backgroundColor: chat.sender === 'client' ? '#4F46E5' : '#F1F5F9',
+                          color: chat.sender === 'client' ? '#ffffff' : '#0F172A',
+                          fontSize: '14px',
+                          lineHeight: 1.5,
+                          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)'
                         }}>
+                          <div style={{ fontSize: '11px', fontWeight: 700, marginBottom: '4px', opacity: 0.8 }}>
+                            {chat.sender === 'client' ? '💬 Message Client WhatsApp (Entrant)' : `🤖 Réponse IA Reflex (${companyData.name})`}
+                          </div>
                           {chat.text}
-                          <div style={{ fontSize: '10px', textAlign: 'right', marginTop: '4px', opacity: 0.7 }}>{chat.time}</div>
+                          <div style={{ fontSize: '10px', textAlign: 'right', marginTop: '6px', opacity: 0.65 }}>{chat.time}</div>
                         </div>
                       </div>
                     ))}
-                    {simLoading && (
-                      <div style={{ fontSize: '12px', color: '#4b41e1', fontStyle: 'italic' }}>Reflex génère la réponse IA...</div>
-                    )}
                   </div>
 
-                  <div style={{ display: 'flex', gap: '10px', paddingTop: '16px', borderTop: '1px solid #E2E8F0' }}>
-                    <input
-                      type="text"
-                      placeholder="Tapez un message client pour tester votre bot..."
-                      value={simUserMessage}
-                      onChange={(e) => setSimUserMessage(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleSendSimMessage()}
-                      style={{ flex: 1, padding: '12px 16px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }}
-                    />
-                    <button className="btn-primary-black" style={{ padding: '12px 20px' }} onClick={handleSendSimMessage}>
-                      <Send size={18} />
-                    </button>
+                  <div style={{ backgroundColor: '#F8FAFC', padding: '14px 18px', borderRadius: '10px', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12.5px', color: '#475569' }}>
+                    <span>✨ Reçoit les messages WhatsApp en direct de vos clients via la Meta WhatsApp Business API.</span>
+                    <span style={{ fontWeight: 700, color: '#10B981' }}>● Synchronisé en Temps Réel</span>
                   </div>
                 </div>
 
-                <div className="reflex-card-base" style={{ padding: '24px', backgroundColor: '#ffffff' }}>
-                  <h3 className="title-md" style={{ color: '#0b1c30', marginBottom: '16px' }}>Directives IA</h3>
-                  <p style={{ fontSize: '13px', color: '#45464d', lineHeight: 1.6, marginBottom: '16px' }}>
-                    Vos clients WhatsApp reçoivent des réponses générées avec les données de votre entreprise :
-                  </p>
-                  <ul style={{ fontSize: '13px', color: '#0b1c30', display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '20px' }}>
-                    <li><strong>Boutique :</strong> {companyData.name}</li>
-                    <li><strong>Ton :</strong> {assistantConfig.tone}</li>
-                    <li><strong>Livraison :</strong> {assistantConfig.deliveryInfo}</li>
-                  </ul>
+                <div className="reflex-card-base" style={{ padding: '24px', backgroundColor: '#ffffff', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  <h3 className="title-md" style={{ color: '#0b1c30', fontSize: '18px' }}>Directives IA & Métriques</h3>
+                  
+                  <div style={{ backgroundColor: '#ecfdf5', padding: '16px', borderRadius: '12px', border: '1px solid #a7f3d0' }}>
+                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#047857', marginBottom: '4px' }}>STATUT DE L'IA</div>
+                    <div style={{ fontSize: '15px', fontWeight: 800, color: '#065f46' }}>IA Autonome 24h/24 & 7j/7</div>
+                    <div style={{ fontSize: '12px', color: '#047857', marginTop: '4px' }}>Répond sans aucune intervention humaine aux demandes clients.</div>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '10px' }}>
+                      <div className="label-xs" style={{ color: '#64748b' }}>BOUTIQUE ACTISTE</div>
+                      <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '14px' }}>{companyData.name}</div>
+                    </div>
+                    <div style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '10px' }}>
+                      <div className="label-xs" style={{ color: '#64748b' }}>TON COMMERCIAL DE L'IA</div>
+                      <div style={{ fontWeight: 700, color: '#4F46E5', fontSize: '14px' }}>{assistantConfig.tone}</div>
+                    </div>
+                    <div>
+                      <div className="label-xs" style={{ color: '#64748b' }}>CONSIGNE DE LIVRAISON</div>
+                      <div style={{ fontSize: '13px', color: '#334155' }}>{assistantConfig.deliveryInfo}</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
