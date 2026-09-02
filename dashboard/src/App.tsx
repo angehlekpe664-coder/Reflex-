@@ -36,11 +36,6 @@ export default function App() {
     if (typeof window === 'undefined') return 'landing';
     const isOAuth = window.location.hash.includes('access_token') || window.location.search.includes('code');
     if (isOAuth) return 'loading';
-
-    const hasOnboarded = localStorage.getItem('reflex_onboarded_completed') === 'true';
-    const hasSession = localStorage.getItem('reflex_user_session') === 'true';
-
-    if (hasSession && hasOnboarded) return 'dashboard';
     return 'landing';
   };
 
@@ -305,16 +300,20 @@ export default function App() {
         window.history.replaceState(null, '', window.location.pathname);
       }
 
-      if (checkUserIsOnboarded(user, userEmail)) {
-        // Sync onboarded flag to Supabase Cloud user metadata if not yet synced
-        if (!user?.user_metadata?.onboarded) {
-          supabase.auth.updateUser({ data: { onboarded: true } }).catch(() => {});
+      setActiveView(currentView => {
+        if (isOAuthReturn || currentView === 'loading' || currentView === 'auth') {
+          if (checkUserIsOnboarded(user, userEmail)) {
+            if (!user?.user_metadata?.onboarded) {
+              supabase.auth.updateUser({ data: { onboarded: true } }).catch(() => {});
+            }
+            localStorage.setItem('reflex_onboarded_completed', 'true');
+            return 'dashboard';
+          } else {
+            return 'onboarding-entreprise';
+          }
         }
-        localStorage.setItem('reflex_onboarded_completed', 'true');
-        setActiveView('dashboard');
-      } else {
-        setActiveView('onboarding-entreprise');
-      }
+        return currentView;
+      });
     };
 
     // Check existing Supabase session on app load
