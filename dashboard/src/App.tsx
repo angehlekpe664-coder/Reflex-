@@ -23,7 +23,9 @@ import {
   Zap,
   Play,
   Shield,
-  Receipt
+  Receipt,
+  MapPin,
+  Phone
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
 
@@ -113,10 +115,10 @@ export default function App() {
                 if (data.success) {
                   setWaConnectionStatus('CONNECTED');
                   setConnectedWabaId(data.wabaId || 'WABA-OFFICIAL');
-                  alert('🎉 Connexion WhatsApp Business Officielle réussie !');
+                  alert('Connexion WhatsApp Business Officielle réussie !');
                 } else {
                   setWaConnectionStatus('DISCONNECTED');
-                  alert('⚠️ ' + (data.error || 'Erreur lors de la liaison Meta.'));
+                  alert(data.error || 'Erreur lors de la liaison Meta.');
                 }
               })
               .catch(() => setWaConnectionStatus('CONNECTED'));
@@ -133,7 +135,7 @@ export default function App() {
     } else {
       setTimeout(() => {
         setWaConnectionStatus('CONNECTED');
-        alert('🎉 Connexion WhatsApp Business autorisée avec succès !');
+        alert('Connexion WhatsApp Business autorisée avec succès !');
       }, 1000);
     }
   };
@@ -618,8 +620,8 @@ export default function App() {
           <div id="demo-showcase" style={{ maxWidth: '1040px', margin: '0 auto 100px', padding: '0 24px' }}>
             <div className="glass-card-dark" style={{ padding: '48px', borderRadius: '24px', border: '1px solid rgba(0, 242, 254, 0.3)' }}>
               <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-                <span className="font-outfit" style={{ backgroundColor: 'rgba(0, 242, 254, 0.15)', color: '#00f2fe', padding: '6px 16px', borderRadius: '9999px', fontSize: '13px', fontWeight: 700, border: '1px solid rgba(0, 242, 254, 0.3)' }}>
-                  ▶ DEMO INTERACTIVE
+                <span className="font-outfit" style={{ backgroundColor: 'rgba(0, 242, 254, 0.15)', color: '#00f2fe', padding: '6px 16px', borderRadius: '9999px', fontSize: '13px', fontWeight: 700, border: '1px solid rgba(0, 242, 254, 0.3)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  <Play size={12} fill="#00f2fe" color="#00f2fe" /> DEMO INTERACTIVE
                 </span>
                 <h2 className="headline-lg" style={{ color: '#ffffff', marginTop: '16px', marginBottom: '10px' }}>
                   Testez le flux de vente WhatsApp en direct
@@ -755,11 +757,11 @@ export default function App() {
                   L'intelligence artificielle commerciale n°1 pour les PMEs d'Afrique de l'Ouest. Automatisez vos ventes WhatsApp et encaissez par Mobile Money 24/7.
                 </p>
                 <div style={{ display: 'flex', gap: '12px' }}>
-                  <span style={{ backgroundColor: 'rgba(255,255,255,0.06)', padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', fontSize: '12px', color: '#10b981', fontWeight: 600 }}>
-                    🇧🇯 Cotonou, Bénin
+                  <span style={{ backgroundColor: 'rgba(255,255,255,0.06)', padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', fontSize: '12px', color: '#10b981', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    <MapPin size={13} color="#10b981" /> Cotonou, Bénin
                   </span>
-                  <span style={{ backgroundColor: 'rgba(255,255,255,0.06)', padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', fontSize: '12px', color: '#06b6d4', fontWeight: 600 }}>
-                    ⚡ 99.9% Uptime
+                  <span style={{ backgroundColor: 'rgba(255,255,255,0.06)', padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', fontSize: '12px', color: '#06b6d4', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    <Zap size={13} color="#06b6d4" /> 99.9% Uptime
                   </span>
                 </div>
               </div>
@@ -795,10 +797,10 @@ export default function App() {
               <div>
                 <div className="font-outfit" style={{ fontSize: '16px', fontWeight: 700, marginBottom: '20px', color: '#ffffff', letterSpacing: '-0.01em' }}>Assistance & Contact</div>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', color: '#cbd5e1' }}>
-                  <li style={{ color: '#10b981', fontWeight: 600 }}>📧 support@reflex.bj</li>
-                  <li style={{ fontWeight: 600 }}>📞 +229 97 00 00 00</li>
-                  <li style={{ color: '#94a3b8' }}>📍 Haie Vive, Cotonou, Bénin</li>
-                  <li style={{ color: '#94a3b8' }}>🕒 Support 24/7 Disponible</li>
+                  <li style={{ color: '#10b981', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}><Mail size={15} color="#10b981" /> support@reflex.bj</li>
+                  <li style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}><Phone size={15} color="#cbd5e1" /> +229 97 00 00 00</li>
+                  <li style={{ color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '8px' }}><MapPin size={15} color="#94a3b8" /> Haie Vive, Cotonou, Bénin</li>
+                  <li style={{ color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '8px' }}><Shield size={15} color="#94a3b8" /> Support 24/7 Disponible</li>
                 </ul>
               </div>
             </div>

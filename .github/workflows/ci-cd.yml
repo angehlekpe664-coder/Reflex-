@@ -1,0 +1,101 @@
+name: Reflex CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-and-check:
+    name: Code Verification & TypeCheck
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Backend Dependencies
+        run: npm ci
+
+      - name: TypeCheck Backend
+        run: npx tsc --noEmit
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd dashboard
+          npm ci
+
+      - name: TypeCheck Frontend
+        run: |
+          cd dashboard
+          npx tsc -b
+
+  build:
+    name: Build Frontend & Backend
+    needs: lint-and-check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build Backend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Build Frontend
+        run: |
+          cd dashboard
+          npm ci
+          npm run build
+
+  docker:
+    name: Docker Container Build Test
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Backend Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          tags: reflex-api:test
+
+      - name: Build Frontend Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./dashboard
+          file: ./dashboard/Dockerfile
+          push: false
+          tags: reflex-dashboard:test
+
+  deploy-render:
+    name: Render Auto-Deploy Summary
+    needs: docker
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Pipeline Completion Summary
+        run: echo "Reflex CI/CD Pipeline successfully executed on branch main! Render auto-deploy triggered."
