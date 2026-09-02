@@ -272,9 +272,19 @@ export default function App() {
   }, []);
 
   // Helper to determine if a user has already completed onboarding
-  const checkUserIsOnboarded = (userEmail?: string) => {
+  const checkUserIsOnboarded = (user?: any, userEmail?: string) => {
+    // 1. Check Supabase User Metadata (Persisted in Supabase Cloud across all devices)
+    if (user?.user_metadata?.onboarded === true || user?.user_metadata?.onboarded === 'true') {
+      return true;
+    }
+    // 2. Check auth intent saved before Google OAuth redirect
+    const authIntent = localStorage.getItem('reflex_auth_intent');
+    if (authIntent === 'login') return true;
+
+    // 3. Fallbacks for local storage
     if (localStorage.getItem('reflex_onboarded_completed') === 'true') return true;
-    if (userEmail && localStorage.getItem(`reflex_onboarded_${userEmail}`) === 'true') return true;
+    if (userEmail && localStorage.getItem(`reflex_onboarded_${userEmail.toLowerCase()}`) === 'true') return true;
+
     return false;
   };
 
@@ -282,8 +292,10 @@ export default function App() {
   useEffect(() => {
     const isOAuthReturn = window.location.hash.includes('access_token') || window.location.search.includes('code');
 
-    const routeUserAfterAuth = (userEmail: string, userMetaName?: string) => {
-      const userFullName = userMetaName || userEmail.split('@')[0] || '';
+    const routeUserAfterAuth = (user: any) => {
+      const userEmail = user?.email || '';
+      const userFullName = user?.user_metadata?.full_name || user?.user_metadata?.name || userEmail.split('@')[0] || '';
+      
       setFullName(userFullName);
       setEmail(userEmail);
       localStorage.setItem('reflex_user_session', 'true');
@@ -293,7 +305,12 @@ export default function App() {
         window.history.replaceState(null, '', window.location.pathname);
       }
 
-      if (checkUserIsOnboarded(userEmail)) {
+      if (checkUserIsOnboarded(user, userEmail)) {
+        // Sync onboarded flag to Supabase Cloud user metadata if not yet synced
+        if (!user?.user_metadata?.onboarded) {
+          supabase.auth.updateUser({ data: { onboarded: true } }).catch(() => {});
+        }
+        localStorage.setItem('reflex_onboarded_completed', 'true');
         setActiveView('dashboard');
       } else {
         setActiveView('onboarding-entreprise');
@@ -303,10 +320,7 @@ export default function App() {
     // Check existing Supabase session on app load
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user?.email) {
-        routeUserAfterAuth(
-          session.user.email,
-          session.user.user_metadata?.full_name || session.user.user_metadata?.name
-        );
+        routeUserAfterAuth(session.user);
       } else if (isOAuthReturn) {
         // Fallback timeout in case OAuth code exchange takes longer
         setTimeout(() => {
@@ -317,10 +331,7 @@ export default function App() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') && session?.user?.email) {
-        routeUserAfterAuth(
-          session.user.email,
-          session.user.user_metadata?.full_name || session.user.user_metadata?.name
-        );
+        routeUserAfterAuth(session.user);
       }
     });
 
@@ -342,8 +353,21 @@ export default function App() {
     } catch {
       console.log('Mode démo local activé');
     }
+
+    // Persist onboarded status in Supabase Cloud user metadata
+    try {
+      await supabase.auth.updateUser({
+        data: {
+          onboarded: true,
+          company_name: companyData.name
+        }
+      });
+    } catch (e) {
+      console.log('Supabase user metadata sync error:', e);
+    }
+
     localStorage.setItem('reflex_onboarded_completed', 'true');
-    if (email) localStorage.setItem(`reflex_onboarded_${email}`, 'true');
+    if (email) localStorage.setItem(`reflex_onboarded_${email.toLowerCase()}`, 'true');
     localStorage.setItem('reflex_user_session', 'true');
     setActiveView('dashboard');
   };
@@ -352,6 +376,7 @@ export default function App() {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     localStorage.removeItem('reflex_user_session');
+    localStorage.removeItem('reflex_auth_intent');
     setActiveView('landing');
   };
 
@@ -380,14 +405,15 @@ export default function App() {
         });
         if (error) throw error;
         localStorage.setItem('reflex_user_session', 'true');
-        if (checkUserIsOnboarded(email)) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (checkUserIsOnboarded(user, email)) {
           setActiveView('dashboard');
         } else {
           setActiveView('onboarding-entreprise');
         }
       }
     } catch {
-      if (checkUserIsOnboarded(email)) {
+      if (checkUserIsOnboarded(null, email)) {
         setActiveView('dashboard');
       } else {
         setActiveView('onboarding-entreprise');
@@ -400,6 +426,7 @@ export default function App() {
   // Supabase Google Auth Handler
   const handleGoogleAuth = async () => {
     setAuthLoading(true);
+    localStorage.setItem('reflex_auth_intent', authMode);
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -409,7 +436,7 @@ export default function App() {
       });
       if (error) throw error;
     } catch {
-      if (checkUserIsOnboarded(email)) {
+      if (checkUserIsOnboarded(null, email)) {
         setActiveView('dashboard');
       } else {
         setActiveView('onboarding-entreprise');
