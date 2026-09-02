@@ -12,8 +12,10 @@ export interface PmeRecord {
   whatsapp_phone_number: string;
   business_type?: string;
   description?: string;
+  waba_id?: string;
   meta_phone_number_id?: string;
   meta_access_token?: string;
+  whatsapp_status?: 'DISCONNECTED' | 'CONNECTED' | 'PENDING';
   assistant_name?: string;
   tone?: string;
   welcome_message?: string;

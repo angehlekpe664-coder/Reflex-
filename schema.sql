@@ -16,8 +16,10 @@ CREATE TABLE IF NOT EXISTS pmes (
     whatsapp_phone_number VARCHAR(50) UNIQUE NOT NULL,
     business_type VARCHAR(100),
     description TEXT,
+    waba_id VARCHAR(100),
     meta_phone_number_id VARCHAR(100),
     meta_access_token TEXT,
+    whatsapp_status VARCHAR(50) DEFAULT 'DISCONNECTED', -- DISCONNECTED, CONNECTED, PENDING
     assistant_name VARCHAR(100) DEFAULT 'Reflex AI',
     tone VARCHAR(100) DEFAULT 'Chaleureux & Commercial',
     welcome_message TEXT,
