@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import axios from 'axios';
 import { config } from './config/env.js';
 import { whatsappService } from './services/whatsapp.service.js';
 import { aiService } from './services/ai.service.js';
@@ -71,7 +72,6 @@ app.post('/api/onboarding', async (req, res) => {
         catalogue: (productsList && productsList.length > 0) ? productsList : currentPmeConfig.catalogue
       };
 
-      // Tenter de persister dans Supabase si configuré
       try {
         await databaseService.savePmeCatalogue(currentPmeConfig.phone, currentPmeConfig);
       } catch (err) {
@@ -89,6 +89,84 @@ app.post('/api/onboarding', async (req, res) => {
   } catch (error) {
     console.error('Erreur Onboarding API:', error);
     res.status(500).json({ success: false, error: 'Erreur lors de l\'enregistrement PME.' });
+  }
+});
+
+// Route OAuth Callback Meta Embedded Signup (Officiel)
+app.post('/api/auth/meta/callback', async (req, res) => {
+  try {
+    const { code, wabaId, pmePhone } = req.body;
+    if (!code || !wabaId) {
+      return res.status(400).json({ success: false, error: 'Authorization Code ou WABA ID manquant.' });
+    }
+
+    console.log(`🔒 Traitement OAuth Meta pour WABA ${wabaId}...`);
+
+    // 1. Échange du code contre un System User Access Token auprès de Meta Graph API
+    const tokenResponse = await axios.get(`https://graph.facebook.com/v20.0/oauth/access_token`, {
+      params: {
+        client_id: config.meta.appId,
+        client_secret: config.meta.appSecret,
+        code
+      }
+    });
+
+    const accessToken = tokenResponse.data.access_token;
+
+    // 2. Récupération automatique du Phone Number ID et du numéro affiché
+    let phoneNumberId = config.whatsapp.phoneNumberId;
+    let displayPhone = pmePhone || currentPmeConfig.phone;
+
+    try {
+      const phoneRes = await axios.get(`https://graph.facebook.com/v20.0/${wabaId}/phone_numbers`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      const firstPhone = phoneRes.data.data?.[0];
+      if (firstPhone) {
+        phoneNumberId = firstPhone.id;
+        displayPhone = firstPhone.display_phone_number || displayPhone;
+      }
+    } catch (e: any) {
+      console.log('💡 Utilisation des identifiants par défaut pour le numéro.');
+    }
+
+    // 3. Souscription automatique du Webhook Reflex sur l'application WABA
+    try {
+      await axios.post(
+        `https://graph.facebook.com/v20.0/${wabaId}/subscribed_apps`,
+        {},
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+    } catch (subErr) {
+      console.log('💡 Webhook déjà abonné ou en attente.');
+    }
+
+    // 4. Sauvegarde sécurisée des identifiants en BD Supabase
+    const targetPhone = pmePhone || currentPmeConfig.phone;
+    await databaseService.saveMetaConnection(
+      targetPhone,
+      wabaId,
+      phoneNumberId,
+      accessToken,
+      displayPhone
+    );
+
+    console.log(`🎉 Connexion WhatsApp Business réussie pour WABA ${wabaId} (Phone ID: ${phoneNumberId}) !`);
+
+    // 5. Réponse sécurisée au frontend (SANS EXPOSER DE TOKEN)
+    res.json({
+      success: true,
+      message: 'Compte WhatsApp Business connecté avec succès à Reflex !',
+      status: 'CONNECTED',
+      wabaId,
+      displayPhone
+    });
+  } catch (error: any) {
+    console.error('Erreur OAuth Meta Callback:', error?.response?.data || error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Échec de la connexion officielle Meta. Vérifiez votre configuration.'
+    });
   }
 });
 

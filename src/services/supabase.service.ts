@@ -222,6 +222,44 @@ export class DatabaseService {
   }
 
   /**
+   * Enregistre les identifiants Meta de la PME après la connexion OAuth Embedded Signup
+   */
+  async saveMetaConnection(
+    pmePhone: string,
+    wabaId: string,
+    phoneNumberId: string,
+    accessToken: string,
+    displayPhone?: string
+  ): Promise<boolean> {
+    if (!config.supabaseUrl || config.supabaseUrl.includes('dummy')) {
+      return true;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('pmes')
+        .update({
+          waba_id: wabaId,
+          meta_phone_number_id: phoneNumberId,
+          meta_access_token: accessToken,
+          whatsapp_status: 'CONNECTED',
+          whatsapp_phone_number: displayPhone || pmePhone,
+          is_ai_active: true
+        })
+        .eq('whatsapp_phone_number', pmePhone);
+
+      if (error) {
+        console.error('Erreur update saveMetaConnection:', error);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.error('Erreur saveMetaConnection:', err);
+      return false;
+    }
+  }
+
+  /**
    * Ancienne méthode conservée pour rétrocompatibilité onboarding
    */
   async savePmeCatalogue(pmePhone: string, pmeConfig: any) {
