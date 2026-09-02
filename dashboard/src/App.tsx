@@ -268,9 +268,10 @@ export default function App() {
 
   // Helper to determine if a user has already completed onboarding
   const checkUserIsOnboarded = (user?: any, userEmail?: string) => {
-    // 1. Check Supabase User Metadata (Persisted in Supabase Cloud across all devices)
-    if (user?.user_metadata?.onboarded === true || user?.user_metadata?.onboarded === 'true') {
-      return true;
+    // 1. If user is authenticated in Supabase, treat as onboarded (existing user or google login)
+    if (user) {
+      if (user.user_metadata?.onboarded === true || user.user_metadata?.onboarded === 'true') return true;
+      if (user.created_at) return true;
     }
     // 2. Check auth intent saved before Google OAuth redirect
     const authIntent = localStorage.getItem('reflex_auth_intent');
@@ -1049,9 +1050,32 @@ export default function App() {
       {/* ========================================================================= */}
       {activeView === 'onboarding-entreprise' && (
         <div style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '32px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-            <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
-            <span style={{ fontWeight: 800, fontSize: '20px', color: '#0b1c30' }}>Reflex</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '540px', marginBottom: '32px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
+              <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
+              <span style={{ fontWeight: 800, fontSize: '20px', color: '#0b1c30' }}>Reflex</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                localStorage.setItem('reflex_onboarded_completed', 'true');
+                supabase.auth.updateUser({ data: { onboarded: true } }).catch(() => {});
+                setActiveView('dashboard');
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#4f46e5',
+                fontWeight: 600,
+                fontSize: '13px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              Accéder au Dashboard →
+            </button>
           </div>
 
           <div className="reflex-card-base" style={{ width: '100%', maxWidth: '540px', padding: '40px', backgroundColor: '#ffffff' }}>
@@ -1125,9 +1149,32 @@ export default function App() {
       {/* ========================================================================= */}
       {activeView === 'onboarding-catalogue' && (
         <div style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '32px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-            <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
-            <span style={{ fontWeight: 800, fontSize: '20px', color: '#0b1c30' }}>Reflex</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '540px', marginBottom: '32px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
+              <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
+              <span style={{ fontWeight: 800, fontSize: '20px', color: '#0b1c30' }}>Reflex</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                localStorage.setItem('reflex_onboarded_completed', 'true');
+                supabase.auth.updateUser({ data: { onboarded: true } }).catch(() => {});
+                setActiveView('dashboard');
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#4f46e5',
+                fontWeight: 600,
+                fontSize: '13px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              Accéder au Dashboard →
+            </button>
           </div>
 
           <div className="reflex-card-base" style={{ width: '100%', maxWidth: '580px', padding: '40px', backgroundColor: '#ffffff' }}>
@@ -1201,9 +1248,32 @@ export default function App() {
       {/* ========================================================================= */}
       {activeView === 'onboarding-assistant' && (
         <div style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '32px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-            <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
-            <span style={{ fontWeight: 800, fontSize: '20px', color: '#0b1c30' }}>Reflex</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '540px', marginBottom: '32px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
+              <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
+              <span style={{ fontWeight: 800, fontSize: '20px', color: '#0b1c30' }}>Reflex</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                localStorage.setItem('reflex_onboarded_completed', 'true');
+                supabase.auth.updateUser({ data: { onboarded: true } }).catch(() => {});
+                setActiveView('dashboard');
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#4f46e5',
+                fontWeight: 600,
+                fontSize: '13px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              Accéder au Dashboard →
+            </button>
           </div>
 
           <div className="reflex-card-base" style={{ width: '100%', maxWidth: '540px', padding: '40px', backgroundColor: '#ffffff' }}>
@@ -1265,9 +1335,32 @@ export default function App() {
       {/* ========================================================================= */}
       {activeView === 'onboarding-whatsapp' && (
         <div style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '32px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-            <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
-            <span style={{ fontWeight: 800, fontSize: '20px', color: '#0b1c30' }}>Reflex</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '540px', marginBottom: '32px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
+              <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
+              <span style={{ fontWeight: 800, fontSize: '20px', color: '#0b1c30' }}>Reflex</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                localStorage.setItem('reflex_onboarded_completed', 'true');
+                supabase.auth.updateUser({ data: { onboarded: true } }).catch(() => {});
+                setActiveView('dashboard');
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#4f46e5',
+                fontWeight: 600,
+                fontSize: '13px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              Accéder au Dashboard →
+            </button>
           </div>
 
           <div className="reflex-card-base" style={{ width: '100%', maxWidth: '520px', padding: '40px', backgroundColor: '#ffffff', textAlign: 'center' }}>
