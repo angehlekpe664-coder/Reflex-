@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
-  MessageSquare,
   ShoppingBag,
   CreditCard,
   Grid,
@@ -88,7 +87,7 @@ export default function App() {
 
   // Active Dashboard Sidebar Tab State
   const [activeSidebarTab, setActiveSidebarTab] = useState<
-    'Vue d\'ensemble' | 'Activité WhatsApp' | 'Commandes' | 'Paiements' | 'Catalogue' | 'Paramètres'
+    'Vue d\'ensemble' | 'Commandes' | 'Paiements' | 'Catalogue' | 'Paramètres'
   >('Vue d\'ensemble');
 
   // WhatsApp Official Meta Connection State
@@ -181,12 +180,6 @@ export default function App() {
       clearInterval(bgTimer);
     };
   }, []);
-
-  // Live WhatsApp Journal Log State
-  const [simChatHistory] = useState<Array<{ sender: 'client' | 'bot'; text: string; time: string }>>([
-    { sender: 'client', text: 'Bonjour, est-ce que vos perruques sont disponibles et quels sont vos prix ?', time: '14:20' },
-    { sender: 'bot', text: 'Bonjour ! Bienvenue chez Boutique Élégance Bénin. Oui ! Nous avons la "Perruque Brésilienne 18 pouces" à 45 000 FCFA. Souhaitez-vous passer commande ?\n\nLien de paiement Mobile Money : https://reflex-dashboard-lfp6.onrender.com/pay/ORD-229-892', time: '14:20' }
-  ]);
 
   // Backend Integration State (Default zeroed out for fresh PME accounts)
   const [liveStats, setLiveStats] = useState({
@@ -1543,7 +1536,7 @@ export default function App() {
 
             {dashMobileMenuOpen && (
               <div className="dashboard-mobile-drawer">
-                {(['Vue d\'ensemble', 'Activité WhatsApp', 'Commandes', 'Paiements', 'Catalogue', 'Paramètres'] as const).map(tab => (
+                {(['Vue d\'ensemble', 'Commandes', 'Paiements', 'Catalogue', 'Paramètres'] as const).map(tab => (
                   <button
                     key={tab}
                     className={`sidebar-link ${activeSidebarTab === tab ? 'active' : ''}`}
@@ -1579,12 +1572,6 @@ export default function App() {
                 onClick={() => setActiveSidebarTab('Vue d\'ensemble')}
               >
                 <LayoutDashboard size={18} /> Vue d'ensemble
-              </button>
-              <button
-                className={`sidebar-link ${activeSidebarTab === 'Activité WhatsApp' ? 'active' : ''}`}
-                onClick={() => setActiveSidebarTab('Activité WhatsApp')}
-              >
-                <MessageSquare size={18} /> Activité WhatsApp
               </button>
               <button
                 className={`sidebar-link ${activeSidebarTab === 'Commandes' ? 'active' : ''}`}
@@ -1627,8 +1614,7 @@ export default function App() {
               <div>
                 <h1 className="headline-lg" style={{ color: '#0b1c30', marginBottom: '4px' }}>
                   {activeSidebarTab === 'Vue d\'ensemble' && `Bonjour ${fullName || 'Alex'}, voici votre activité aujourd'hui.`}
-                  {activeSidebarTab === 'Activité WhatsApp' && 'Journal des Conversations WhatsApp Réelles'}
-                  {activeSidebarTab === 'Commandes' && 'Gestion des Commandes Clients'}
+                                    {activeSidebarTab === 'Commandes' && 'Gestion des Commandes Clients'}
                   {activeSidebarTab === 'Paiements' && 'Transactions & Reçus Mobile Money'}
                   {activeSidebarTab === 'Catalogue' && 'Gestion du Catalogue Produit'}
                   {activeSidebarTab === 'Paramètres' && 'Configuration de la PME & Assistant IA'}
@@ -1721,81 +1707,6 @@ export default function App() {
                     <div>
                       <div className="label-xs" style={{ color: '#45464d', marginBottom: '6px' }}>WELCOME MESSAGE</div>
                       <div style={{ fontSize: '12px', color: '#45464d', fontStyle: 'italic' }}>"{assistantConfig.welcomeMessage}"</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* TAB 2: JOURNAL DES CONVERSATIONS WHATSAPP RÉELLES (SANS SIMULATION) */}
-            {activeSidebarTab === 'Activité WhatsApp' && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: '24px' }}>
-                <div className="reflex-card-base" style={{ padding: '24px', display: 'flex', flexDirection: 'column', height: '620px', backgroundColor: '#ffffff' }}>
-                  <div style={{ paddingBottom: '16px', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={{ width: '40px', height: '40px', borderRadius: '12px', backgroundColor: '#10B981', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Bot size={22} />
-                      </div>
-                      <div>
-                        <div style={{ fontWeight: 700, fontSize: '16px', color: '#0b1c30' }}>Journal des Conversations WhatsApp Réelles</div>
-                        <div style={{ fontSize: '12px', color: '#64748b' }}>PME active : <strong>{companyData.name}</strong> ({companyData.phone || '+229 97 00 00 00'})</div>
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#ecfdf5', border: '1px solid #a7f3d0', padding: '6px 14px', borderRadius: '9999px', fontSize: '12px', color: '#047857', fontWeight: 600 }}>
-                      <Radio size={14} className="animate-pulse" /> Flux Webhook Direct
-                    </div>
-                  </div>
-
-                  <div style={{ flex: 1, padding: '20px 0', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                    {simChatHistory.map((chat, idx) => (
-                      <div key={idx} style={{ display: 'flex', justifyContent: chat.sender === 'client' ? 'flex-end' : 'flex-start' }}>
-                        <div style={{
-                          maxWidth: '80%',
-                          padding: '14px 18px',
-                          borderRadius: chat.sender === 'client' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                          backgroundColor: chat.sender === 'client' ? '#4F46E5' : '#F1F5F9',
-                          color: chat.sender === 'client' ? '#ffffff' : '#0F172A',
-                          fontSize: '14px',
-                          lineHeight: 1.5,
-                          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)'
-                        }}>
-                          <div style={{ fontSize: '11px', fontWeight: 700, marginBottom: '4px', opacity: 0.8 }}>
-                            {chat.sender === 'client' ? '💬 Message Client WhatsApp (Entrant)' : `🤖 Réponse IA Reflex (${companyData.name})`}
-                          </div>
-                          {chat.text}
-                          <div style={{ fontSize: '10px', textAlign: 'right', marginTop: '6px', opacity: 0.65 }}>{chat.time}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div style={{ backgroundColor: '#F8FAFC', padding: '14px 18px', borderRadius: '10px', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12.5px', color: '#475569' }}>
-                    <span>✨ Reçoit les messages WhatsApp en direct de vos clients via la Meta WhatsApp Business API.</span>
-                    <span style={{ fontWeight: 700, color: '#10B981' }}>● Synchronisé en Temps Réel</span>
-                  </div>
-                </div>
-
-                <div className="reflex-card-base" style={{ padding: '24px', backgroundColor: '#ffffff', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                  <h3 className="title-md" style={{ color: '#0b1c30', fontSize: '18px' }}>Directives IA & Métriques</h3>
-                  
-                  <div style={{ backgroundColor: '#ecfdf5', padding: '16px', borderRadius: '12px', border: '1px solid #a7f3d0' }}>
-                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#047857', marginBottom: '4px' }}>STATUT DE L'IA</div>
-                    <div style={{ fontSize: '15px', fontWeight: 800, color: '#065f46' }}>IA Autonome 24h/24 & 7j/7</div>
-                    <div style={{ fontSize: '12px', color: '#047857', marginTop: '4px' }}>Répond sans aucune intervention humaine aux demandes clients.</div>
-                  </div>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <div style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '10px' }}>
-                      <div className="label-xs" style={{ color: '#64748b' }}>BOUTIQUE ACTISTE</div>
-                      <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '14px' }}>{companyData.name}</div>
-                    </div>
-                    <div style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '10px' }}>
-                      <div className="label-xs" style={{ color: '#64748b' }}>TON COMMERCIAL DE L'IA</div>
-                      <div style={{ fontWeight: 700, color: '#4F46E5', fontSize: '14px' }}>{assistantConfig.tone}</div>
-                    </div>
-                    <div>
-                      <div className="label-xs" style={{ color: '#64748b' }}>CONSIGNE DE LIVRAISON</div>
-                      <div style={{ fontSize: '13px', color: '#334155' }}>{assistantConfig.deliveryInfo}</div>
                     </div>
                   </div>
                 </div>
