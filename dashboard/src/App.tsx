@@ -25,15 +25,29 @@ import {
   Shield,
   Receipt,
   MapPin,
-  Phone
+  Phone,
+  LogOut
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
 
 export default function App() {
+  // Instant OAuth & Session Check to avoid Landing Page Flash
+  const checkInitialView = (): 'landing' | 'dashboard' | 'onboarding-entreprise' | 'loading' => {
+    if (typeof window === 'undefined') return 'landing';
+    const isOAuth = window.location.hash.includes('access_token') || window.location.search.includes('code');
+    if (isOAuth) return 'loading';
+
+    const hasOnboarded = localStorage.getItem('reflex_onboarded_completed') === 'true';
+    const hasSession = localStorage.getItem('reflex_user_session') === 'true';
+
+    if (hasSession && hasOnboarded) return 'dashboard';
+    return 'landing';
+  };
+
   // Navigation Flow State
   const [activeView, setActiveView] = useState<
-    'landing' | 'auth' | 'onboarding-entreprise' | 'onboarding-catalogue' | 'onboarding-assistant' | 'onboarding-whatsapp' | 'dashboard' | 'mobile-dash' | 'payment-checkout'
-  >('landing');
+    'landing' | 'auth' | 'onboarding-entreprise' | 'onboarding-catalogue' | 'onboarding-assistant' | 'onboarding-whatsapp' | 'dashboard' | 'mobile-dash' | 'payment-checkout' | 'loading'
+  >(checkInitialView);
 
   // Selected Order for Checkout Payment
   const [currentCheckoutOrder] = useState({
@@ -257,25 +271,56 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
-  // Listen ONLY for explicit Supabase OAuth redirect (Google Sign-In return)
+  // Helper to determine if a user has already completed onboarding
+  const checkUserIsOnboarded = (userEmail?: string) => {
+    if (localStorage.getItem('reflex_onboarded_completed') === 'true') return true;
+    if (userEmail && localStorage.getItem(`reflex_onboarded_${userEmail}`) === 'true') return true;
+    return false;
+  };
+
+  // Listen for Supabase OAuth return & session state changes
   useEffect(() => {
     const isOAuthReturn = window.location.hash.includes('access_token') || window.location.search.includes('code');
-    
-    if (isOAuthReturn) {
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session?.user) {
-          setFullName(session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || '');
-          setEmail(session.user.email || '');
-          setActiveView('onboarding-entreprise');
-        }
-      });
-    }
+
+    const routeUserAfterAuth = (userEmail: string, userMetaName?: string) => {
+      const userFullName = userMetaName || userEmail.split('@')[0] || '';
+      setFullName(userFullName);
+      setEmail(userEmail);
+      localStorage.setItem('reflex_user_session', 'true');
+
+      // Clean OAuth URL params from browser history to avoid landing flash on reload
+      if (isOAuthReturn && window.history.replaceState) {
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+
+      if (checkUserIsOnboarded(userEmail)) {
+        setActiveView('dashboard');
+      } else {
+        setActiveView('onboarding-entreprise');
+      }
+    };
+
+    // Check existing Supabase session on app load
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user?.email) {
+        routeUserAfterAuth(
+          session.user.email,
+          session.user.user_metadata?.full_name || session.user.user_metadata?.name
+        );
+      } else if (isOAuthReturn) {
+        // Fallback timeout in case OAuth code exchange takes longer
+        setTimeout(() => {
+          setActiveView(prev => (prev === 'loading' ? 'landing' : prev));
+        }, 2500);
+      }
+    });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session?.user && isOAuthReturn) {
-        setFullName(session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || '');
-        setEmail(session.user.email || '');
-        setActiveView('onboarding-entreprise');
+      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') && session?.user?.email) {
+        routeUserAfterAuth(
+          session.user.email,
+          session.user.user_metadata?.full_name || session.user.user_metadata?.name
+        );
       }
     });
 
@@ -297,7 +342,17 @@ export default function App() {
     } catch {
       console.log('Mode démo local activé');
     }
+    localStorage.setItem('reflex_onboarded_completed', 'true');
+    if (email) localStorage.setItem(`reflex_onboarded_${email}`, 'true');
+    localStorage.setItem('reflex_user_session', 'true');
     setActiveView('dashboard');
+  };
+
+  // Sign out handler
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    localStorage.removeItem('reflex_user_session');
+    setActiveView('landing');
   };
 
   // Supabase Signup / Login Handler with Email Inbox Notice
@@ -324,10 +379,19 @@ export default function App() {
           password
         });
         if (error) throw error;
-        setActiveView('onboarding-entreprise');
+        localStorage.setItem('reflex_user_session', 'true');
+        if (checkUserIsOnboarded(email)) {
+          setActiveView('dashboard');
+        } else {
+          setActiveView('onboarding-entreprise');
+        }
       }
     } catch {
-      setActiveView('onboarding-entreprise');
+      if (checkUserIsOnboarded(email)) {
+        setActiveView('dashboard');
+      } else {
+        setActiveView('onboarding-entreprise');
+      }
     } finally {
       setAuthLoading(false);
     }
@@ -345,7 +409,11 @@ export default function App() {
       });
       if (error) throw error;
     } catch {
-      setActiveView('onboarding-entreprise');
+      if (checkUserIsOnboarded(email)) {
+        setActiveView('dashboard');
+      } else {
+        setActiveView('onboarding-entreprise');
+      }
     } finally {
       setAuthLoading(false);
     }
@@ -391,6 +459,15 @@ export default function App() {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--surface-bg)', fontFamily: 'var(--font-geist)' }}>
+
+      {/* 0. SMOOTH LOADING SCREEN DURING OAUTH/SESSION INITIALIZATION */}
+      {activeView === 'loading' && (
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#090d16', color: '#ffffff' }}>
+          <div style={{ width: '44px', height: '44px', border: '3px solid rgba(16, 185, 129, 0.2)', borderTopColor: '#10b981', borderRadius: '50%', animation: 'spin 0.8s linear infinite', marginBottom: '20px' }} />
+          <div className="font-outfit" style={{ fontSize: '18px', fontWeight: 600, color: '#ffffff' }}>Connexion en cours...</div>
+          <p style={{ fontSize: '13.5px', color: '#94a3b8', marginTop: '8px' }}>Validation de votre compte Reflex...</p>
+        </div>
+      )}
 
       {/* ========================================================================= */}
       {/* 1. STYLISH CONTEXTUAL LANDING PAGE WITH GENERATED BACKGROUNDS & OUTFIT FONTS */}
@@ -1360,6 +1437,9 @@ export default function App() {
                 <button className="sidebar-link" onClick={() => { setActiveView('landing'); setDashMobileMenuOpen(false); }} style={{ borderTop: '1px solid #E2E8F0', paddingTop: '12px', marginTop: '6px' }}>
                   <Globe size={16} /> Page d'accueil
                 </button>
+                <button className="sidebar-link" onClick={() => { handleSignOut(); setDashMobileMenuOpen(false); }} style={{ color: '#ef4444' }}>
+                  <LogOut size={16} color="#ef4444" /> Déconnexion
+                </button>
               </div>
             )}
           </div>
@@ -1416,6 +1496,9 @@ export default function App() {
             <div style={{ marginTop: 'auto', borderTop: '1px solid #E2E8F0', paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <button className="sidebar-link" onClick={() => setActiveView('landing')}>
                 <Globe size={16} /> Page d'accueil
+              </button>
+              <button className="sidebar-link" onClick={handleSignOut} style={{ color: '#ef4444' }}>
+                <LogOut size={16} color="#ef4444" /> Déconnexion
               </button>
             </div>
           </aside>
