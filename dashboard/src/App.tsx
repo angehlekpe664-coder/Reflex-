@@ -248,6 +248,21 @@ export default function App() {
   const [orderSearchQuery, setOrderSearchQuery] = useState('');
   const [orderStatusFilter, setOrderStatusFilter] = useState<'ALL' | 'PAID' | 'PENDING'>('ALL');
 
+  // Scroll-To-Top floating button state
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setShowScrollTop(true);
+      } else {
+        setShowScrollTop(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const [recentOrdersList, setRecentOrdersList] = useState<any[]>([]);
 
   const loadSampleDemoData = () => {
@@ -979,6 +994,36 @@ export default function App() {
               </div>
             </div>
           </footer>
+
+          {/* Floating Back to Top Button */}
+          {showScrollTop && (
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              style={{
+                position: 'fixed',
+                bottom: '24px',
+                right: '24px',
+                zIndex: 9999,
+                backgroundColor: '#10B981',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '50%',
+                width: '44px',
+                height: '44px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 'bold',
+                fontSize: '16px',
+                boxShadow: '0 10px 25px rgba(16, 185, 129, 0.4)',
+                cursor: 'pointer',
+                transition: 'transform 0.2s'
+              }}
+              aria-label="Remonter en haut"
+            >
+              ▲
+            </button>
+          )}
         </div>
       )}
 
@@ -1139,6 +1184,35 @@ export default function App() {
           </div>
 
           <div className="reflex-card-base" style={{ width: '100%', maxWidth: '540px', padding: '40px', backgroundColor: '#ffffff' }}>
+
+            {/* Onboarding Stepper Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '24px', width: '100%' }}>
+              {[
+                { step: 1, label: 'Entreprise' },
+                { step: 2, label: 'Catalogue' },
+                { step: 3, label: 'Assistant IA' },
+                { step: 4, label: 'WhatsApp' }
+              ].map((s) => (
+                <div key={s.step} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{
+                    width: '26px',
+                    height: '26px',
+                    borderRadius: '50%',
+                    backgroundColor: 1 >= s.step ? '#4F46E5' : '#E2E8F0',
+                    color: 1 >= s.step ? '#FFFFFF' : '#64748B',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 700,
+                    fontSize: '11.5px'
+                  }}>
+                    {s.step}
+                  </div>
+                  <span style={{ fontSize: '11.5px', fontWeight: 1 === s.step ? 700 : 500, color: 1 === s.step ? '#0B1C30' : '#94A3B8' }}>{s.label}</span>
+                  {s.step < 4 && <span style={{ color: '#CBD5E1', fontSize: '11px' }}>→</span>}
+                </div>
+              ))}
+            </div>
             <div style={{ textAlign: 'center', marginBottom: '28px' }}>
               <Building size={32} color="#4b41e1" style={{ marginBottom: '12px' }} />
               <h2 className="headline-lg-mobile" style={{ color: '#0b1c30', marginBottom: '8px' }}>
@@ -1238,6 +1312,35 @@ export default function App() {
           </div>
 
           <div className="reflex-card-base" style={{ width: '100%', maxWidth: '580px', padding: '40px', backgroundColor: '#ffffff' }}>
+
+            {/* Onboarding Stepper Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '24px', width: '100%' }}>
+              {[
+                { step: 1, label: 'Entreprise' },
+                { step: 2, label: 'Catalogue' },
+                { step: 3, label: 'Assistant IA' },
+                { step: 4, label: 'WhatsApp' }
+              ].map((s) => (
+                <div key={s.step} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{
+                    width: '26px',
+                    height: '26px',
+                    borderRadius: '50%',
+                    backgroundColor: 2 >= s.step ? '#4F46E5' : '#E2E8F0',
+                    color: 2 >= s.step ? '#FFFFFF' : '#64748B',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 700,
+                    fontSize: '11.5px'
+                  }}>
+                    {s.step}
+                  </div>
+                  <span style={{ fontSize: '11.5px', fontWeight: 2 === s.step ? 700 : 500, color: 2 === s.step ? '#0B1C30' : '#94A3B8' }}>{s.label}</span>
+                  {s.step < 4 && <span style={{ color: '#CBD5E1', fontSize: '11px' }}>→</span>}
+                </div>
+              ))}
+            </div>
             <div style={{ textAlign: 'center', marginBottom: '28px' }}>
               <Store size={32} color="#4b41e1" style={{ marginBottom: '12px' }} />
               <h2 className="headline-lg-mobile" style={{ color: '#0b1c30', marginBottom: '8px' }}>
@@ -1292,13 +1395,23 @@ export default function App() {
               </button>
             </div>
 
-            <button
-              onClick={() => setActiveView('onboarding-assistant')}
-              className="btn-primary-black"
-              style={{ width: '100%', padding: '14px', fontSize: '15px' }}
-            >
-              Suivant : Configurer l'Assistant IA <ArrowRight size={18} />
-            </button>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                type="button"
+                onClick={() => setActiveView('onboarding-entreprise')}
+                className="btn-outline-white"
+                style={{ flex: 1, padding: '12px', fontSize: '14px' }}
+              >
+                ← Précédent
+              </button>
+              <button
+                onClick={() => setActiveView('onboarding-assistant')}
+                className="btn-primary-black"
+                style={{ flex: 2, padding: '12px', fontSize: '14px' }}
+              >
+                Suivant : Assistant IA <ArrowRight size={16} />
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -1337,6 +1450,35 @@ export default function App() {
           </div>
 
           <div className="reflex-card-base" style={{ width: '100%', maxWidth: '540px', padding: '40px', backgroundColor: '#ffffff' }}>
+
+            {/* Onboarding Stepper Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '24px', width: '100%' }}>
+              {[
+                { step: 1, label: 'Entreprise' },
+                { step: 2, label: 'Catalogue' },
+                { step: 3, label: 'Assistant IA' },
+                { step: 4, label: 'WhatsApp' }
+              ].map((s) => (
+                <div key={s.step} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{
+                    width: '26px',
+                    height: '26px',
+                    borderRadius: '50%',
+                    backgroundColor: 1 >= s.step ? '#4F46E5' : '#E2E8F0',
+                    color: 1 >= s.step ? '#FFFFFF' : '#64748B',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 700,
+                    fontSize: '11.5px'
+                  }}>
+                    {s.step}
+                  </div>
+                  <span style={{ fontSize: '11.5px', fontWeight: 1 === s.step ? 700 : 500, color: 1 === s.step ? '#0B1C30' : '#94A3B8' }}>{s.label}</span>
+                  {s.step < 4 && <span style={{ color: '#CBD5E1', fontSize: '11px' }}>→</span>}
+                </div>
+              ))}
+            </div>
             <div style={{ textAlign: 'center', marginBottom: '28px' }}>
               <Sparkles size={32} color="#4b41e1" style={{ marginBottom: '12px' }} />
               <h2 className="headline-lg-mobile" style={{ color: '#0b1c30', marginBottom: '8px' }}>
@@ -1379,13 +1521,23 @@ export default function App() {
               </div>
             </div>
 
-            <button
-              onClick={() => setActiveView('onboarding-whatsapp')}
-              className="btn-primary-black"
-              style={{ width: '100%', padding: '14px', fontSize: '15px' }}
-            >
-              Suivant : Connexion WhatsApp <ArrowRight size={18} />
-            </button>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                type="button"
+                onClick={() => setActiveView('onboarding-catalogue')}
+                className="btn-outline-white"
+                style={{ flex: 1, padding: '12px', fontSize: '14px' }}
+              >
+                ← Précédent
+              </button>
+              <button
+                onClick={() => setActiveView('onboarding-whatsapp')}
+                className="btn-primary-black"
+                style={{ flex: 2, padding: '12px', fontSize: '14px' }}
+              >
+                Suivant : Connexion WhatsApp <ArrowRight size={16} />
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -1424,6 +1576,35 @@ export default function App() {
           </div>
 
           <div className="reflex-card-base" style={{ width: '100%', maxWidth: '520px', padding: '40px', backgroundColor: '#ffffff', textAlign: 'center' }}>
+
+            {/* Onboarding Stepper Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '24px', width: '100%' }}>
+              {[
+                { step: 1, label: 'Entreprise' },
+                { step: 2, label: 'Catalogue' },
+                { step: 3, label: 'Assistant IA' },
+                { step: 4, label: 'WhatsApp' }
+              ].map((s) => (
+                <div key={s.step} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{
+                    width: '26px',
+                    height: '26px',
+                    borderRadius: '50%',
+                    backgroundColor: 4 >= s.step ? '#4F46E5' : '#E2E8F0',
+                    color: 4 >= s.step ? '#FFFFFF' : '#64748B',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 700,
+                    fontSize: '11.5px'
+                  }}>
+                    {s.step}
+                  </div>
+                  <span style={{ fontSize: '11.5px', fontWeight: 4 === s.step ? 700 : 500, color: 4 === s.step ? '#0B1C30' : '#94A3B8' }}>{s.label}</span>
+                  {s.step < 4 && <span style={{ color: '#CBD5E1', fontSize: '11px' }}>→</span>}
+                </div>
+              ))}
+            </div>
             <div style={{ marginBottom: '24px' }}>
               <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: '#d1fae5', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
                 <CheckCircle size={36} />
@@ -1520,9 +1701,14 @@ export default function App() {
                     <span style={{ padding: '10px', backgroundColor: '#f8f9ff', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', fontWeight: 600, color: '#0b1c30' }}>+229</span>
                     <input
                       type="text"
+                      placeholder="97 00 00 00"
                       value={payerPhone}
-                      onChange={(e) => setPayerPhone(e.target.value)}
-                      style={{ flex: 1, padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px', fontWeight: 600 }}
+                      onChange={(e) => {
+                        const raw = e.target.value.replace(/\D/g, '').slice(0, 8);
+                        const formatted = raw.replace(/(\d{2})(?=\d)/g, '$1 ').trim();
+                        setPayerPhone(formatted);
+                      }}
+                      style={{ flex: 1, padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px', fontWeight: 600, letterSpacing: '0.05em' }}
                     />
                   </div>
                 </div>
