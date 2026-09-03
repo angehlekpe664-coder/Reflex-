@@ -25,7 +25,10 @@ import {
   Receipt,
   MapPin,
   Phone,
-  LogOut
+  LogOut,
+  Sun,
+  Moon,
+  Search,
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
 
@@ -217,31 +220,45 @@ export default function App() {
     conversionPercent: 0
   });
 
+  // Features 3, 4, 5: Dark Mode, Search/Filter, Toast Notifications
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('reflex_dark_mode') === 'true';
+    }
+    return false;
+  });
+
+  const toggleDarkMode = () => {
+    setDarkMode(prev => {
+      const next = !prev;
+      localStorage.setItem('reflex_dark_mode', String(next));
+      return next;
+    });
+  };
+
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'info' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => {
+      setToast(null);
+    }, 3200);
+  };
+
+  const [orderSearchQuery, setOrderSearchQuery] = useState('');
+  const [orderStatusFilter, setOrderStatusFilter] = useState<'ALL' | 'PAID' | 'PENDING'>('ALL');
+
   const [recentOrdersList, setRecentOrdersList] = useState<any[]>([]);
 
   const loadSampleDemoData = () => {
     setLiveStats({
-      conversations: 4302,
-      autoAiPercent: 87,
-      commandes: 34,
-      revenusFcfa: 1245000,
-      conversionPercent: 25
+      conversations: 0,
+      autoAiPercent: 0,
+      commandes: 0,
+      revenusFcfa: 0,
+      conversionPercent: 0
     });
-    setRecentOrdersList([
-      {
-        id: 'ORD-229-892',
-        name: 'Koffi Mensah',
-        phone: '+229 97 45 12 89',
-        time: '10:42 AM',
-        status: 'PAID',
-        amount: 45000,
-        item: 'Perruque Brésilienne 18 pouces',
-        avatar: 'KM',
-        chipText: 'Commande prête',
-        chipType: 'green',
-        summary: 'Paiement Mobile Money confirmé (45,000 FCFA).'
-      }
-    ]);
+    setRecentOrdersList([]);
   };
 
   // Real-time Backend API Polling
@@ -1545,7 +1562,16 @@ export default function App() {
       {/* 8. DASHBOARD DESKTOP & MOBILE WITH HAMBURGER DRAWER */}
       {/* ========================================================================= */}
       {activeView === 'dashboard' && (
-        <div>
+        <div className={darkMode ? 'dark-theme' : ''}>
+          {/* Toast Notification Container */}
+          {toast && (
+            <div className="toast-container">
+              <div className={`toast-notification toast-${toast.type}`}>
+                <CheckCircle size={18} />
+                <span>{toast.message}</span>
+              </div>
+            </div>
+          )}
           {/* Dashboard Mobile Header with Hamburger Menu */}
           <div className="dashboard-mobile-header">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
@@ -1578,6 +1604,10 @@ export default function App() {
                 ))}
                 <button className="sidebar-link" onClick={() => { setActiveView('landing'); setDashMobileMenuOpen(false); }} style={{ borderTop: '1px solid #E2E8F0', paddingTop: '12px', marginTop: '6px' }}>
                   <Globe size={16} /> Page d'accueil
+                </button>
+                <button className="sidebar-link" onClick={() => { toggleDarkMode(); setDashMobileMenuOpen(false); }}>
+                  {darkMode ? <Sun size={18} color="#F59E0B" /> : <Moon size={18} color="#6366F1" />}
+                  <span>{darkMode ? 'Mode Clair' : 'Mode Sombre'}</span>
                 </button>
                 <button className="sidebar-link" onClick={() => { handleSignOut(); setDashMobileMenuOpen(false); }} style={{ color: '#ef4444' }}>
                   <LogOut size={16} color="#ef4444" /> Déconnexion
@@ -1629,7 +1659,11 @@ export default function App() {
               </button>
             </nav>
 
-            <div style={{ marginTop: 'auto', borderTop: '1px solid #E2E8F0', paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ marginTop: 'auto', borderTop: '1px solid var(--border-subtle)', paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <button className="sidebar-link" onClick={toggleDarkMode} style={{ cursor: 'pointer' }}>
+                {darkMode ? <Sun size={18} color="#F59E0B" /> : <Moon size={18} color="#6366F1" />}
+                <span>{darkMode ? 'Mode Clair' : 'Mode Sombre'}</span>
+              </button>
               <button className="sidebar-link" onClick={() => setActiveView('landing')}>
                 <Globe size={16} /> Page d'accueil
               </button>
@@ -1743,72 +1777,148 @@ export default function App() {
               </div>
             )}
 
-            {/* TAB 3: COMMANDES */}
-            {activeSidebarTab === 'Commandes' && (
-              <div className="reflex-card-base" style={{ padding: '24px', backgroundColor: '#ffffff' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                  <h3 className="title-md" style={{ color: '#0b1c30' }}>Toutes les Commandes ({recentOrdersList.length})</h3>
-                  <button className="btn-primary-black" style={{ padding: '8px 16px', fontSize: '13px' }}>
-                    <Plus size={16} /> Ajouter une Commande
-                  </button>
-                </div>
+            {/* TAB 3: COMMANDES WITH RECHERCHE, FILTRES & EMPTY STATE */}
+            {activeSidebarTab === 'Commandes' && (() => {
+              const filteredOrders = recentOrdersList.filter(ord => {
+                const matchesSearch =
+                  (ord.id || '').toLowerCase().includes(orderSearchQuery.toLowerCase()) ||
+                  (ord.name || '').toLowerCase().includes(orderSearchQuery.toLowerCase()) ||
+                  (ord.phone || '').includes(orderSearchQuery) ||
+                  (ord.item || '').toLowerCase().includes(orderSearchQuery.toLowerCase());
 
-                {/* Desktop & Tablet Table View */}
-                <div className="table-responsive-container desktop-table-only">
-                  <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
-                    <thead>
-                      <tr style={{ borderBottom: '1px solid #E2E8F0', color: '#45464d', fontSize: '12px' }}>
-                        <th style={{ padding: '12px 14px' }}>RÉFÉRENCE</th>
-                        <th style={{ padding: '12px 14px' }}>CLIENT</th>
-                        <th style={{ padding: '12px 14px' }}>ARTICLE</th>
-                        <th style={{ padding: '12px 14px' }}>MONTANT</th>
-                        <th style={{ padding: '12px 14px' }}>STATUT</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {recentOrdersList.map((ord, idx) => (
-                        <tr key={idx} style={{ borderBottom: '1px solid #f8f9ff' }}>
-                          <td style={{ padding: '16px 14px', fontWeight: 600, fontFamily: 'var(--font-mono)' }}>{ord.id}</td>
-                          <td style={{ padding: '16px 14px' }}>
-                            <div style={{ fontWeight: 600, color: '#0b1c30' }}>{ord.name}</div>
-                            <div style={{ fontSize: '12px', color: '#45464d' }}>{ord.phone}</div>
-                          </td>
-                          <td style={{ padding: '16px 14px', color: '#0b1c30' }}>{ord.item}</td>
-                          <td style={{ padding: '16px 14px', fontWeight: 700, color: '#4b41e1', fontFamily: 'var(--font-mono)' }}>{ord.amount.toLocaleString()} FCFA</td>
-                          <td style={{ padding: '16px 14px' }}>
-                            <span className={`chip-status ${ord.chipType === 'green' ? 'chip-green' : 'chip-amber'}`}>{ord.chipText}</span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                const matchesStatus =
+                  orderStatusFilter === 'ALL' ||
+                  (orderStatusFilter === 'PAID' && (ord.chipType === 'green' || ord.status === 'PAID')) ||
+                  (orderStatusFilter === 'PENDING' && (ord.chipType === 'amber' || ord.status !== 'PAID'));
 
-                {/* Modern Mobile Cards View (< 768px) */}
-                <div className="mobile-cards-only" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  {recentOrdersList.map((ord, idx) => (
-                    <div key={idx} style={{ padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0', backgroundColor: '#F8FAFC', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '12px', fontWeight: 700, fontFamily: 'var(--font-mono)', color: '#4F46E5', backgroundColor: '#EEF2FF', padding: '4px 10px', borderRadius: '6px' }}>
-                          {ord.id}
-                        </span>
-                        <span className={`chip-status ${ord.chipType === 'green' ? 'chip-green' : 'chip-amber'}`} style={{ whiteSpace: 'nowrap' }}>
-                          {ord.chipText}
-                        </span>
-                      </div>
-                      <div>
-                        <div style={{ fontWeight: 700, fontSize: '16px', color: '#0b1c30' }}>{ord.name}</div>
-                        <div style={{ fontSize: '13px', color: '#64748b' }}>{ord.phone}</div>
-                      </div>
-                      <div style={{ borderTop: '1px dashed #CBD5E1', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '13px', color: '#334155', fontWeight: 500 }}>{ord.item}</span>
-                        <span style={{ fontSize: '16px', fontWeight: 800, color: '#10B981', fontFamily: 'var(--font-mono)' }}>{ord.amount.toLocaleString()} FCFA</span>
-                      </div>
+                return matchesSearch && matchesStatus;
+              });
+
+              return (
+                <div className="reflex-card-base" style={{ padding: '24px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+                    <h3 className="title-md">Toutes les Commandes ({filteredOrders.length})</h3>
+                    <button className="btn-primary-black" style={{ padding: '8px 16px', fontSize: '13px' }} onClick={() => showToast('Formulaire de création de commande ouvert', 'info')}>
+                      <Plus size={16} /> Ajouter une Commande
+                    </button>
+                  </div>
+
+                  {/* Search Bar & Filter Buttons */}
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px', alignItems: 'center' }}>
+                    <div style={{ position: 'relative', flex: 1, minWidth: '220px' }}>
+                      <Search size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', opacity: 0.6 }} />
+                      <input
+                        type="text"
+                        placeholder="Rechercher par client, téléphone, article..."
+                        value={orderSearchQuery}
+                        onChange={(e) => setOrderSearchQuery(e.target.value)}
+                        style={{ width: '100%', padding: '10px 14px 10px 40px', borderRadius: '10px', border: '1px solid var(--border-subtle)', fontSize: '13.5px', outline: 'none' }}
+                      />
                     </div>
-                  ))}
+
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        className={`chip-status ${orderStatusFilter === 'ALL' ? 'chip-green' : ''}`}
+                        onClick={() => setOrderStatusFilter('ALL')}
+                        style={{ cursor: 'pointer', padding: '8px 14px', border: '1px solid var(--border-subtle)' }}
+                      >
+                        Toutes ({recentOrdersList.length})
+                      </button>
+                      <button
+                        className={`chip-status ${orderStatusFilter === 'PAID' ? 'chip-green' : ''}`}
+                        onClick={() => setOrderStatusFilter('PAID')}
+                        style={{ cursor: 'pointer', padding: '8px 14px', border: '1px solid var(--border-subtle)' }}
+                      >
+                        Payées
+                      </button>
+                      <button
+                        className={`chip-status ${orderStatusFilter === 'PENDING' ? 'chip-amber' : ''}`}
+                        onClick={() => setOrderStatusFilter('PENDING')}
+                        style={{ cursor: 'pointer', padding: '8px 14px', border: '1px solid var(--border-subtle)' }}
+                      >
+                        En attente
+                      </button>
+                    </div>
+                  </div>
+
+                  {filteredOrders.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '48px 20px', borderRadius: '16px', border: '1px dashed var(--border-subtle)', margin: '10px 0' }}>
+                      <div style={{ width: '60px', height: '60px', borderRadius: '50%', backgroundColor: 'rgba(79, 70, 229, 0.1)', color: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                        <ShoppingBag size={30} />
+                      </div>
+                      <h4 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '6px' }}>Aucune commande pour le moment</h4>
+                      <p style={{ fontSize: '13.5px', color: '#64748b', maxWidth: '440px', margin: '0 auto 20px', lineHeight: 1.5 }}>
+                        Vos commandes capturées automatiquement par votre assistant IA WhatsApp s'afficheront ici dès qu'un client passe commande.
+                      </p>
+                      <button
+                        className="btn-gradient-ai"
+                        style={{ borderRadius: '10px', padding: '10px 20px', fontSize: '13.5px' }}
+                        onClick={() => showToast('Assistant WhatsApp IA prêt à enregistrer vos ventes', 'info')}
+                      >
+                        <Zap size={16} /> Tester l'IA WhatsApp
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Desktop & Tablet Table View */}
+                      <div className="table-responsive-container desktop-table-only">
+                        <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '1px solid #E2E8F0', color: '#45464d', fontSize: '12px' }}>
+                              <th style={{ padding: '12px 14px' }}>RÉFÉRENCE</th>
+                              <th style={{ padding: '12px 14px' }}>CLIENT</th>
+                              <th style={{ padding: '12px 14px' }}>ARTICLE</th>
+                              <th style={{ padding: '12px 14px' }}>MONTANT</th>
+                              <th style={{ padding: '12px 14px' }}>STATUT</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {filteredOrders.map((ord, idx) => (
+                              <tr key={idx} style={{ borderBottom: '1px solid #f8f9ff' }}>
+                                <td style={{ padding: '16px 14px', fontWeight: 600, fontFamily: 'var(--font-mono)' }}>{ord.id}</td>
+                                <td style={{ padding: '16px 14px' }}>
+                                  <div style={{ fontWeight: 600 }}>{ord.name}</div>
+                                  <div style={{ fontSize: '12px', color: '#64748b' }}>{ord.phone}</div>
+                                </td>
+                                <td style={{ padding: '16px 14px' }}>{ord.item}</td>
+                                <td style={{ padding: '16px 14px', fontWeight: 700, color: '#4b41e1', fontFamily: 'var(--font-mono)' }}>{ord.amount.toLocaleString()} FCFA</td>
+                                <td style={{ padding: '16px 14px' }}>
+                                  <span className={`chip-status ${ord.chipType === 'green' ? 'chip-green' : 'chip-amber'}`}>{ord.chipText}</span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Modern Mobile Cards View (< 768px) */}
+                      <div className="mobile-cards-only" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                        {filteredOrders.map((ord, idx) => (
+                          <div key={idx} style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--border-subtle)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <span style={{ fontSize: '12px', fontWeight: 700, fontFamily: 'var(--font-mono)', color: '#4F46E5', backgroundColor: 'rgba(79, 70, 229, 0.1)', padding: '4px 10px', borderRadius: '6px' }}>
+                                {ord.id}
+                              </span>
+                              <span className={`chip-status ${ord.chipType === 'green' ? 'chip-green' : 'chip-amber'}`} style={{ whiteSpace: 'nowrap' }}>
+                                {ord.chipText}
+                              </span>
+                            </div>
+                            <div>
+                              <div style={{ fontWeight: 700, fontSize: '16px' }}>{ord.name}</div>
+                              <div style={{ fontSize: '13px', color: '#64748b' }}>{ord.phone}</div>
+                            </div>
+                            <div style={{ borderTop: '1px dashed var(--border-subtle)', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <span style={{ fontSize: '13px', fontWeight: 500 }}>{ord.item}</span>
+                              <span style={{ fontSize: '16px', fontWeight: 800, color: '#10B981', fontFamily: 'var(--font-mono)' }}>{ord.amount.toLocaleString()} FCFA</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* TAB 4: PAIEMENTS */}
             {activeSidebarTab === 'Paiements' && (
