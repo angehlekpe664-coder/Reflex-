@@ -872,93 +872,113 @@ export default function App() {
             </div>
           </div>
 
-          {/* FOOTER PREMIUM RE-DESIGNED */}
-          <footer style={{
-            position: 'relative',
-            background: 'linear-gradient(180deg, #090d16 0%, #022c22 100%)',
-            color: '#ffffff',
-            padding: '80px 24px 40px',
-            borderTop: '1px solid rgba(16, 185, 129, 0.25)'
-          }}>
-            {/* Top Glowing Gradient Accent Line */}
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '3px',
-              background: 'linear-gradient(90deg, #10b981 0%, #06b6d4 50%, #6366f1 100%)',
-              boxShadow: '0 0 20px rgba(16, 185, 129, 0.8)'
-            }} />
+          {/* FOOTER RE-DESIGNED WITH CONCISE TEXT & RE-BUILT MOBILE VIEW */}
+          <footer className="landing-footer-section">
+            {/* Top Glowing Gradient Line */}
+            <div className="footer-glow-line" />
 
-            <div className="grid-responsive-footer" style={{ maxWidth: '1140px', margin: '0 auto', marginBottom: '60px' }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-                  <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '44px', width: 'auto', borderRadius: '12px', boxShadow: '0 0 20px rgba(16, 185, 129, 0.4)' }} />
-                  <span className="font-outfit" style={{ fontWeight: 800, fontSize: '26px', color: '#ffffff', letterSpacing: '-0.02em' }}>Reflex</span>
+            {/* Desktop Footer View (> 768px) */}
+            <div className="desktop-footer-only">
+              <div className="grid-responsive-footer" style={{ maxWidth: '1140px', margin: '0 auto 40px' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+                    <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '38px', borderRadius: '10px' }} />
+                    <span className="font-outfit" style={{ fontWeight: 800, fontSize: '24px', color: '#ffffff' }}>Reflex</span>
+                  </div>
+                  <p style={{ fontSize: '13.5px', color: '#94a3b8', lineHeight: 1.6, maxWidth: '300px', marginBottom: '16px' }}>
+                    L'IA commerciale WhatsApp n°1 pour les PMEs d'Afrique de l'Ouest.
+                  </p>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <span style={{ backgroundColor: 'rgba(255,255,255,0.06)', padding: '5px 10px', borderRadius: '6px', fontSize: '11.5px', color: '#10b981', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                      <MapPin size={12} color="#10b981" /> Cotonou
+                    </span>
+                    <span style={{ backgroundColor: 'rgba(255,255,255,0.06)', padding: '5px 10px', borderRadius: '6px', fontSize: '11.5px', color: '#06b6d4', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                      <Zap size={12} color="#06b6d4" /> 24/7
+                    </span>
+                  </div>
                 </div>
-                <p style={{ fontSize: '14.5px', color: '#94a3b8', lineHeight: 1.7, maxWidth: '340px', marginBottom: '24px' }}>
-                  L'intelligence artificielle commerciale n°1 pour les PMEs d'Afrique de l'Ouest. Automatisez vos ventes WhatsApp et encaissez par Mobile Money 24/7.
-                </p>
-                <div style={{ display: 'flex', gap: '12px' }}>
-                  <span style={{ backgroundColor: 'rgba(255,255,255,0.06)', padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', fontSize: '12px', color: '#10b981', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                    <MapPin size={13} color="#10b981" /> Cotonou, Bénin
-                  </span>
-                  <span style={{ backgroundColor: 'rgba(255,255,255,0.06)', padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', fontSize: '12px', color: '#06b6d4', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                    <Zap size={13} color="#06b6d4" /> 99.9% Uptime
-                  </span>
+
+                <div>
+                  <div className="font-outfit" style={{ fontSize: '15px', fontWeight: 700, marginBottom: '14px', color: '#ffffff' }}>Plateforme</div>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13.5px', color: '#cbd5e1' }}>
+                    <li style={{ cursor: 'pointer' }} onClick={() => setActiveView('landing')}>Fonctionnalités</li>
+                    <li style={{ cursor: 'pointer' }} onClick={() => setActiveView('payment-checkout')}>Paiement MoMo</li>
+                    <li style={{ cursor: 'pointer' }} onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}>Inscription</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <div className="font-outfit" style={{ fontSize: '15px', fontWeight: 700, marginBottom: '14px', color: '#ffffff' }}>Paiements</div>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13.5px', color: '#cbd5e1' }}>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#f59e0b' }} /> MTN Mobile Money</li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981' }} /> Moov Money</li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#06b6d4' }} /> Wave & Cartes</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <div className="font-outfit" style={{ fontSize: '15px', fontWeight: 700, marginBottom: '14px', color: '#ffffff' }}>Contact</div>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13.5px', color: '#cbd5e1' }}>
+                    <li style={{ color: '#10b981', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}><Mail size={14} /> support@reflex.bj</li>
+                    <li style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}><Phone size={14} /> +229 97 00 00 00</li>
+                  </ul>
                 </div>
               </div>
 
-              <div>
-                <div className="font-outfit" style={{ fontSize: '16px', fontWeight: 700, marginBottom: '20px', color: '#ffffff', letterSpacing: '-0.01em' }}>Plateforme</div>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', color: '#cbd5e1' }}>
-                  <li style={{ cursor: 'pointer', transition: 'color 0.2s' }} onClick={() => setActiveView('landing')}>Fonctionnalités IA</li>
-                  <li style={{ cursor: 'pointer', transition: 'color 0.2s' }} onClick={() => setActiveView('landing')}>Onboarding Zéro Friction</li>
-                  <li style={{ cursor: 'pointer', transition: 'color 0.2s' }} onClick={() => setActiveView('payment-checkout')}>Lien de Paiement MoMo</li>
-                  <li style={{ cursor: 'pointer', transition: 'color 0.2s' }} onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}>Inscription Gratuite</li>
-                </ul>
-              </div>
-
-              <div>
-                <div className="font-outfit" style={{ fontSize: '16px', fontWeight: 700, marginBottom: '20px', color: '#ffffff', letterSpacing: '-0.01em' }}>Encaissement</div>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', color: '#cbd5e1' }}>
-                  <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#f59e0b' }} /> MTN Mobile Money
-                  </li>
-                  <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981' }} /> Moov Money Flooz
-                  </li>
-                  <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#06b6d4' }} /> Wave & Carte Bancaire
-                  </li>
-                  <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#6366f1' }} /> Reçus Certifiés SHA-256
-                  </li>
-                </ul>
-              </div>
-
-              <div>
-                <div className="font-outfit" style={{ fontSize: '16px', fontWeight: 700, marginBottom: '20px', color: '#ffffff', letterSpacing: '-0.01em' }}>Assistance & Contact</div>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', color: '#cbd5e1' }}>
-                  <li style={{ color: '#10b981', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}><Mail size={15} color="#10b981" /> support@reflex.bj</li>
-                  <li style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}><Phone size={15} color="#cbd5e1" /> +229 97 00 00 00</li>
-                  <li style={{ color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '8px' }}><MapPin size={15} color="#94a3b8" /> Haie Vive, Cotonou, Bénin</li>
-                  <li style={{ color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '8px' }}><Shield size={15} color="#94a3b8" /> Support 24/7 Disponible</li>
-                </ul>
+              <div style={{ maxWidth: '1140px', margin: '0 auto', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', color: '#94a3b8' }}>
+                <div>© 2026 <strong>Reflex</strong>. Tous droits réservés.</div>
+                <div style={{ display: 'flex', gap: '16px' }}>
+                  <span style={{ cursor: 'pointer', color: '#cbd5e1' }}>Confidentialité</span>
+                  <span style={{ cursor: 'pointer', color: '#cbd5e1' }}>Conditions</span>
+                </div>
               </div>
             </div>
 
-            <div style={{ maxWidth: '1140px', margin: '0 auto', paddingTop: '28px', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13.5px', color: '#94a3b8', flexWrap: 'wrap', gap: '16px' }}>
-              <div>© 2026 <strong>Reflex Intelligent Automation</strong>. Tous droits réservés.</div>
-              <div style={{ display: 'flex', gap: '20px', fontSize: '13px' }}>
-                <span style={{ cursor: 'pointer', color: '#cbd5e1' }}>Confidentialité</span>
-                <span style={{ cursor: 'pointer', color: '#cbd5e1' }}>Conditions d'utilisation</span>
-                <span style={{ cursor: 'pointer', color: '#cbd5e1' }}>Conformité Meta API</span>
+            {/* Completely Re-Built Compact Mobile Footer View (< 768px) */}
+            <div className="mobile-footer-only">
+              <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                  <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '34px', borderRadius: '8px' }} />
+                  <span className="font-outfit" style={{ fontWeight: 800, fontSize: '22px', color: '#ffffff' }}>Reflex</span>
+                </div>
+                <p style={{ fontSize: '13px', color: '#94a3b8', margin: '0 auto 12px', maxWidth: '280px', lineHeight: 1.4 }}>
+                  L'IA commerciale WhatsApp n°1 pour les PMEs d'Afrique de l'Ouest.
+                </p>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
+                  <span style={{ backgroundColor: 'rgba(255,255,255,0.06)', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', color: '#10b981', fontWeight: 600 }}>📍 Cotonou</span>
+                  <span style={{ backgroundColor: 'rgba(255,255,255,0.06)', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', color: '#06b6d4', fontWeight: 600 }}>⚡ Service 24/7</span>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
+                <div style={{ backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '12px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#10b981', marginBottom: '6px', letterSpacing: '0.05em' }}>PLATEFORME</div>
+                  <div style={{ fontSize: '13px', color: '#cbd5e1', cursor: 'pointer', marginBottom: '4px' }} onClick={() => setActiveView('landing')}>Fonctionnalités</div>
+                  <div style={{ fontSize: '13px', color: '#cbd5e1', cursor: 'pointer' }} onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}>Inscription</div>
+                </div>
+
+                <div style={{ backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '12px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#06b6d4', marginBottom: '6px', letterSpacing: '0.05em' }}>PAIEMENTS</div>
+                  <div style={{ fontSize: '13px', color: '#cbd5e1', marginBottom: '4px' }}>MTN / Moov / Wave</div>
+                  <div style={{ fontSize: '13px', color: '#cbd5e1' }}>Reçus SHA-256</div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '12.5px', color: '#cbd5e1', marginBottom: '20px', flexWrap: 'wrap' }}>
+                <a href="mailto:support@reflex.bj" style={{ color: '#10b981', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}><Mail size={13} /> support@reflex.bj</a>
+                <a href="tel:+22997000000" style={{ color: '#cbd5e1', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}><Phone size={13} /> +229 97 00 00 00</a>
+              </div>
+
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '16px', textAlign: 'center', fontSize: '12px', color: '#64748b' }}>
+                <div>© 2026 <strong>Reflex</strong>. Tous droits réservés.</div>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', marginTop: '6px' }}>
+                  <span style={{ cursor: 'pointer', color: '#94a3b8' }}>Confidentialité</span>
+                  <span>•</span>
+                  <span style={{ cursor: 'pointer', color: '#94a3b8' }}>Conditions</span>
+                </div>
               </div>
             </div>
           </footer>
-
         </div>
       )}
 

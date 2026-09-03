@@ -1061,3 +1061,45 @@ body {
 .dark-theme .mobile-cards-only div {
   color: #f8fafc;
 }
+
+
+/* Landing Footer Responsive Styles */
+.landing-footer-section {
+  position: relative;
+  background: linear-gradient(180deg, #090d16 0%, #022c22 100%);
+  color: #ffffff;
+  padding: 60px 24px 32px;
+  border-top: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.footer-glow-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #10b981 0%, #06b6d4 50%, #6366f1 100%);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.8);
+}
+
+.desktop-footer-only {
+  display: block;
+}
+
+.mobile-footer-only {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .landing-footer-section {
+    padding: 36px 16px 24px !important;
+  }
+
+  .desktop-footer-only {
+    display: none !important;
+  }
+
+  .mobile-footer-only {
+    display: block !important;
+  }
+}
