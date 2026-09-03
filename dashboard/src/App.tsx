@@ -152,13 +152,15 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dashMobileMenuOpen, setDashMobileMenuOpen] = useState(false);
 
-  // Dynamic Rotating Hero Headlines & Multi-Image Backgrounds
+  // Dynamic Typewriter & Rotating Hero Headlines
   const rotatingHeadlines = [
-    { highlight: 'meilleur commercial 24/7.', subtitle: 'Reflex automatise vos réponses clients en wolof, fon et français, présente votre catalogue et encaisse par Mobile Money (MTN MoMo, Moov Money, Wave) avec reçus certifiés.' },
-    { highlight: 'machine à vendre automatique.', subtitle: 'Ne perdez plus aucune vente sur WhatsApp. L\'IA conseille vos clients, négocie au bon prix et génère les bons de commande en temps réel.' },
-    { highlight: 'caissier Mobile Money sans effort.', subtitle: 'Générez des liens d\'encaissement sécurisés et émettez automatiquement des reçus certifiés SHA-256 pour chaque vente réussie.' }
+    { highlight: "meilleur commercial 24/7.", subtitle: "Reflex automatise vos réponses clients en wolof, fon et français, présente votre catalogue et encaisse par Mobile Money (MTN MoMo, Moov Money, Wave) avec reçus certifiés." },
+    { highlight: "machine à vendre automatique.", subtitle: "Ne perdez plus aucune vente sur WhatsApp. L'IA conseille vos clients, négocie au bon prix et génère les bons de commande en temps réel." },
+    { highlight: "caissier Mobile Money 24/7.", subtitle: "Générez des liens d'encaissement sécurisés et émettez automatiquement des reçus certifiés SHA-256 pour chaque vente réussie." }
   ];
   const [headlineIndex, setHeadlineIndex] = useState(0);
+  const [displayText, setDisplayText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const heroBackgrounds = [
     '/hero_bg.png',
@@ -166,19 +168,44 @@ export default function App() {
   ];
   const [heroBgIndex, setHeroBgIndex] = useState(0);
 
+  // Smooth Typewriter (Machine à écrire + Effacement) Effect
   useEffect(() => {
-    const headlineTimer = setInterval(() => {
-      setHeadlineIndex((prev) => (prev + 1) % rotatingHeadlines.length);
-    }, 3800);
+    const currentTarget = rotatingHeadlines[headlineIndex].highlight;
+    let timer: any;
 
+    if (!isDeleting) {
+      if (displayText.length < currentTarget.length) {
+        timer = setTimeout(() => {
+          setDisplayText(currentTarget.slice(0, displayText.length + 1));
+        }, 55); // Speed per typed character
+      } else {
+        // Pausing phase: pause 2.6s so user can read comfortably
+        timer = setTimeout(() => {
+          setIsDeleting(true);
+        }, 2600);
+      }
+    } else {
+      if (displayText.length > 0) {
+        timer = setTimeout(() => {
+          setDisplayText(currentTarget.slice(0, displayText.length - 1));
+        }, 28); // Speed per deleted character
+      } else {
+        // Completed deletion: advance to next phrase
+        setIsDeleting(false);
+        setHeadlineIndex((prev) => (prev + 1) % rotatingHeadlines.length);
+      }
+    }
+
+    return () => clearTimeout(timer);
+  }, [displayText, isDeleting, headlineIndex]);
+
+  // Rotating background images
+  useEffect(() => {
     const bgTimer = setInterval(() => {
       setHeroBgIndex((prev) => (prev + 1) % heroBackgrounds.length);
     }, 7000);
 
-    return () => {
-      clearInterval(headlineTimer);
-      clearInterval(bgTimer);
-    };
+    return () => clearInterval(bgTimer);
   }, []);
 
   // Backend Integration State (Default zeroed out for fresh PME accounts)
@@ -567,8 +594,8 @@ export default function App() {
             )}
           </header>
 
-          {/* Hero Section with Multi-Image Crossfade Background & Dynamic Rotating Headline */}
-          <div style={{ padding: '100px 24px 90px', position: 'relative', overflow: 'hidden' }}>
+          {/* Hero Section with Multi-Image Crossfade Background & Dynamic Typewriter Headline */}
+          <div className="hero-section-padding" style={{ padding: '100px 24px 90px', position: 'relative', overflow: 'hidden' }}>
             <div className="hero-bg-crossfade" style={{ backgroundImage: `linear-gradient(180deg, rgba(9, 13, 22, 0.92) 0%, rgba(15, 23, 42, 0.97) 100%), url(${heroBackgrounds[heroBgIndex]})` }} />
             <div className="hero-radial-glow" />
 
@@ -582,16 +609,19 @@ export default function App() {
                 </span>
               </div>
 
-              {/* Dynamic Rotating Main Headline */}
-              <h1 className="display-lg" style={{ color: '#ffffff', fontSize: '58px', lineHeight: 1.12, marginBottom: '24px' }}>
-                Votre WhatsApp devient votre <br />
-                <span key={headlineIndex} className="animated-headline-text neon-gradient-title">
-                  {rotatingHeadlines[headlineIndex].highlight}
+              {/* Dynamic Typewriter Main Headline */}
+              <h1 className="display-lg" style={{ color: '#ffffff', marginBottom: '24px' }}>
+                Votre WhatsApp devient votre <br className="hero-br-desktop" />
+                <span className="typewriter-container">
+                  <span className="animated-headline-text neon-gradient-title">
+                    {displayText}
+                  </span>
+                  <span className="typewriter-cursor">|</span>
                 </span>
               </h1>
 
               {/* Dynamic Subtitle */}
-              <p key={`sub-${headlineIndex}`} className="animated-headline-text body-lg" style={{ color: '#cbd5e1', maxWidth: '780px', margin: '0 auto 44px', fontSize: '19.5px', lineHeight: 1.6 }}>
+              <p className="body-lg" style={{ color: '#cbd5e1', maxWidth: '780px', margin: '0 auto 44px', fontSize: '19.5px', lineHeight: 1.6, transition: 'opacity 0.3s ease' }}>
                 {rotatingHeadlines[headlineIndex].subtitle}
               </p>
 
