@@ -1420,7 +1420,7 @@ export default function App() {
 
                 <div style={{ marginBottom: '24px' }}>
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '10px', display: 'block' }}>Choisissez votre moyen de paiement Mobile Money</label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
                     <div
                       onClick={() => setSelectedMomoProvider('mtn')}
                       style={{ padding: '12px', border: `2px solid ${selectedMomoProvider === 'mtn' ? '#4b41e1' : '#E2E8F0'}`, borderRadius: '10px', cursor: 'pointer', textAlign: 'center', backgroundColor: selectedMomoProvider === 'mtn' ? '#eff4ff' : '#ffffff' }}
@@ -1723,40 +1723,67 @@ export default function App() {
                   </button>
                 </div>
 
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid #E2E8F0', color: '#45464d', fontSize: '12px' }}>
-                      <th style={{ padding: '12px' }}>RÉFÉRENCE</th>
-                      <th style={{ padding: '12px' }}>CLIENT</th>
-                      <th style={{ padding: '12px' }}>ARTICLE</th>
-                      <th style={{ padding: '12px' }}>MONTANT</th>
-                      <th style={{ padding: '12px' }}>STATUT</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentOrdersList.map((ord, idx) => (
-                      <tr key={idx} style={{ borderBottom: '1px solid #f8f9ff' }}>
-                        <td style={{ padding: '16px 12px', fontWeight: 600, fontFamily: 'var(--font-mono)' }}>{ord.id}</td>
-                        <td style={{ padding: '16px 12px' }}>
-                          <div style={{ fontWeight: 600, color: '#0b1c30' }}>{ord.name}</div>
-                          <div style={{ fontSize: '12px', color: '#45464d' }}>{ord.phone}</div>
-                        </td>
-                        <td style={{ padding: '16px 12px', color: '#0b1c30' }}>{ord.item}</td>
-                        <td style={{ padding: '16px 12px', fontWeight: 700, color: '#4b41e1', fontFamily: 'var(--font-mono)' }}>{ord.amount.toLocaleString()} FCFA</td>
-                        <td style={{ padding: '16px 12px' }}>
-                          <span className={`chip-status ${ord.chipType === 'green' ? 'chip-green' : 'chip-amber'}`}>{ord.chipText}</span>
-                        </td>
+                {/* Desktop & Tablet Table View */}
+                <div className="table-responsive-container desktop-table-only">
+                  <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid #E2E8F0', color: '#45464d', fontSize: '12px' }}>
+                        <th style={{ padding: '12px 14px' }}>RÉFÉRENCE</th>
+                        <th style={{ padding: '12px 14px' }}>CLIENT</th>
+                        <th style={{ padding: '12px 14px' }}>ARTICLE</th>
+                        <th style={{ padding: '12px 14px' }}>MONTANT</th>
+                        <th style={{ padding: '12px 14px' }}>STATUT</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {recentOrdersList.map((ord, idx) => (
+                        <tr key={idx} style={{ borderBottom: '1px solid #f8f9ff' }}>
+                          <td style={{ padding: '16px 14px', fontWeight: 600, fontFamily: 'var(--font-mono)' }}>{ord.id}</td>
+                          <td style={{ padding: '16px 14px' }}>
+                            <div style={{ fontWeight: 600, color: '#0b1c30' }}>{ord.name}</div>
+                            <div style={{ fontSize: '12px', color: '#45464d' }}>{ord.phone}</div>
+                          </td>
+                          <td style={{ padding: '16px 14px', color: '#0b1c30' }}>{ord.item}</td>
+                          <td style={{ padding: '16px 14px', fontWeight: 700, color: '#4b41e1', fontFamily: 'var(--font-mono)' }}>{ord.amount.toLocaleString()} FCFA</td>
+                          <td style={{ padding: '16px 14px' }}>
+                            <span className={`chip-status ${ord.chipType === 'green' ? 'chip-green' : 'chip-amber'}`}>{ord.chipText}</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Modern Mobile Cards View (< 768px) */}
+                <div className="mobile-cards-only" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  {recentOrdersList.map((ord, idx) => (
+                    <div key={idx} style={{ padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0', backgroundColor: '#F8FAFC', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '12px', fontWeight: 700, fontFamily: 'var(--font-mono)', color: '#4F46E5', backgroundColor: '#EEF2FF', padding: '4px 10px', borderRadius: '6px' }}>
+                          {ord.id}
+                        </span>
+                        <span className={`chip-status ${ord.chipType === 'green' ? 'chip-green' : 'chip-amber'}`} style={{ whiteSpace: 'nowrap' }}>
+                          {ord.chipText}
+                        </span>
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 700, fontSize: '16px', color: '#0b1c30' }}>{ord.name}</div>
+                        <div style={{ fontSize: '13px', color: '#64748b' }}>{ord.phone}</div>
+                      </div>
+                      <div style={{ borderTop: '1px dashed #CBD5E1', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '13px', color: '#334155', fontWeight: 500 }}>{ord.item}</span>
+                        <span style={{ fontSize: '16px', fontWeight: 800, color: '#10B981', fontFamily: 'var(--font-mono)' }}>{ord.amount.toLocaleString()} FCFA</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
             {/* TAB 4: PAIEMENTS */}
             {activeSidebarTab === 'Paiements' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
                   <div className="reflex-card-base" style={{ padding: '20px' }}>
                     <div className="label-sm" style={{ color: '#45464d', marginBottom: '6px' }}>TOTAL ENCAISSÉ</div>
                     <div style={{ fontSize: '28px', fontWeight: 700, color: '#10B981', fontFamily: 'var(--font-mono)' }}>1 245 000 FCFA</div>
@@ -1792,7 +1819,7 @@ export default function App() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 <div className="reflex-card-base" style={{ padding: '24px', backgroundColor: '#ffffff' }}>
                   <h3 className="title-md" style={{ color: '#0b1c30', marginBottom: '16px' }}>+ Ajouter un Produit</h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px' }}>
                     <input
                       type="text"
                       placeholder="Nom de l'article"
@@ -1822,7 +1849,7 @@ export default function App() {
 
                 <div className="reflex-card-base" style={{ padding: '24px', backgroundColor: '#ffffff' }}>
                   <h3 className="title-md" style={{ color: '#0b1c30', marginBottom: '16px' }}>Catalogue Actif ({productsList.length} articles)</h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
                     {productsList.map((prod, idx) => (
                       <div key={idx} style={{ padding: '20px', border: '1px solid #E2E8F0', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
