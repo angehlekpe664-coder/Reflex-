@@ -945,8 +945,8 @@ export default function App() {
                   L'IA commerciale WhatsApp n°1 pour les PMEs d'Afrique de l'Ouest.
                 </p>
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
-                  <span style={{ backgroundColor: 'rgba(255,255,255,0.06)', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', color: '#10b981', fontWeight: 600 }}>📍 Cotonou</span>
-                  <span style={{ backgroundColor: 'rgba(255,255,255,0.06)', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', color: '#06b6d4', fontWeight: 600 }}>⚡ Service 24/7</span>
+                  <span style={{ backgroundColor: 'rgba(255,255,255,0.06)', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', color: '#10b981', fontWeight: 600 }}><MapPin size={12} color="#10b981" style={{ display: "inline", marginRight: "4px" }} /> Cotonou</span>
+                  <span style={{ backgroundColor: 'rgba(255,255,255,0.06)', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', color: '#06b6d4', fontWeight: 600 }}><Zap size={12} color="#06b6d4" style={{ display: "inline", marginRight: "4px" }} /> Service 24/7</span>
                 </div>
               </div>
 
