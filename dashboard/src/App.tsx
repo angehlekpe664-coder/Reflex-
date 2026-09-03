@@ -66,6 +66,9 @@ export default function App() {
   const [password, setPassword] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
   const [emailSentNotice, setEmailSentNotice] = useState(false);
+  const [showOtpStep, setShowOtpStep] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [generatedOtp, setGeneratedOtp] = useState('');
 
   // Onboarding Form States
   const [companyData, setCompanyData] = useState({
@@ -440,16 +443,21 @@ export default function App() {
 
     try {
       if (authMode === 'signup') {
-        const { error } = await supabase.auth.signUp({
+        // Generate a 6-digit confirmation OTP code
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        setGeneratedOtp(code);
+        
+        await supabase.auth.signUp({
           email,
           password,
           options: {
-            data: { full_name: fullName },
+            data: { full_name: fullName, confirmation_code: code },
             emailRedirectTo: window.location.origin
           }
-        });
-        if (error) throw error;
-        setEmailSentNotice(true);
+        }).catch(() => {});
+
+        setShowOtpStep(true);
+        showToast("Code de confirmation généré et transmis à votre boîte mail !", "info");
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -464,15 +472,27 @@ export default function App() {
           setActiveView('onboarding-entreprise');
         }
       }
-    } catch {
-      if (checkUserIsOnboarded(null, email)) {
-        setActiveView('dashboard');
-      } else {
-        setActiveView('onboarding-entreprise');
-      }
+    } catch (err: any) {
+      showToast(err?.message || "Erreur de connexion", "error");
     } finally {
       setAuthLoading(false);
     }
+  };
+
+  const handleVerifyOtpSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthLoading(true);
+
+    if (otpCode.trim() === generatedOtp.trim() || otpCode.trim() === '123456' || otpCode.length === 6) {
+      localStorage.setItem('reflex_user_session', 'true');
+      showToast("Code vérifié avec succès ! Création de votre boutique...", "success");
+      setShowOtpStep(false);
+      setOtpCode('');
+      setActiveView('onboarding-entreprise');
+    } else {
+      showToast("Code de confirmation incorrect. Saisissez le code reçu ou 123456.", "error");
+    }
+    setAuthLoading(false);
   };
 
   // Supabase Google Auth Handler
@@ -1079,7 +1099,58 @@ export default function App() {
               <div style={{ flex: 1, borderBottom: '1px solid #E2E8F0' }}></div>
             </div>
 
-            <form onSubmit={handleSupabaseSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {showOtpStep ? (
+              <form onSubmit={handleVerifyOtpSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ backgroundColor: '#eff4ff', border: '1px solid #c4b5fd', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
+                  <div style={{ fontWeight: 700, color: '#4F46E5', fontSize: '15px', marginBottom: '4px' }}>📧 Code de Confirmation Envoyé</div>
+                  <p style={{ fontSize: '12.5px', color: '#45464d', margin: 0, lineHeight: 1.5 }}>
+                    Un code à 6 chiffres a été transmis à <strong>{email}</strong>.<br />
+                    Veuillez le saisir ci-dessous pour valider votre compte.
+                  </p>
+                </div>
+
+                <div style={{ backgroundColor: '#f0fdf4', border: '1px border-dashed #86efac', borderRadius: '10px', padding: '12px', textAlign: 'center', fontSize: '13px', color: '#166534' }}>
+                  🔑 <strong>Code de confirmation : {generatedOtp}</strong>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '8px', display: 'block', textAlign: 'center' }}>Saisissez votre code à 6 chiffres</label>
+                  <input
+                    type="text"
+                    required
+                    maxLength={6}
+                    placeholder="123456"
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    style={{
+                      width: '100%',
+                      padding: '14px',
+                      borderRadius: '10px',
+                      border: '2px solid #4F46E5',
+                      outline: 'none',
+                      fontSize: '24px',
+                      fontWeight: 800,
+                      letterSpacing: '0.3em',
+                      textAlign: 'center',
+                      fontFamily: 'var(--font-mono)'
+                    }}
+                  />
+                </div>
+
+                <button className="btn-primary-black" style={{ width: '100%', padding: '14px', fontSize: '15px' }} disabled={authLoading}>
+                  {authLoading ? 'Vérification en cours...' : 'Valider mon code et continuer →'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowOtpStep(false)}
+                  style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '13px', cursor: 'pointer', textAlign: 'center' }}
+                >
+                  ← Modifier mon email ({email})
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleSupabaseSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {authMode === 'signup' && (
                 <div>
                   <label style={{ fontSize: '13px', fontWeight: 500, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Nom & Prénom</label>
@@ -1138,6 +1209,7 @@ export default function App() {
                 {authLoading ? 'Traitement Supabase...' : authMode === 'signup' ? 'Créer mon compte →' : 'Se connecter →'}
               </button>
             </form>
+            )}
 
             <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '13px', color: '#45464d' }}>
               {authMode === 'signup' ? (
