@@ -334,7 +334,7 @@ export default function App() {
   // Submit Onboarding to Backend
   const handleFinalizeOnboarding = async () => {
     try {
-      await fetch('http://localhost:3000/api/onboarding', {
+      await fetch((import.meta.env.VITE_BACKEND_URL || 'https://reflex-zjf7.onrender.com') + '/api/onboarding', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
