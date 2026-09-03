@@ -1944,19 +1944,19 @@ export default function App() {
                       <h3 className="title-md" style={{ color: '#0b1c30', marginBottom: '16px' }}>Commandes Récentes</h3>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         {recentOrdersList.map((ord, idx) => (
-                          <div key={idx} className="reflex-card-base" style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                              <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#e5eeff', color: '#0b1c30', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>
+                          <div key={idx} className="reflex-card-base dashboard-order-card" style={{ padding: '16px 20px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
+                              <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(79, 70, 229, 0.12)', color: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, flexShrink: 0 }}>
                                 {ord.avatar}
                               </div>
-                              <div>
-                                <div style={{ fontWeight: 600, fontSize: '15px', color: '#0b1c30' }}>{ord.name} ({ord.phone})</div>
-                                <div style={{ fontSize: '12px', color: '#45464d' }}>{ord.summary}</div>
+                              <div style={{ minWidth: 0, flex: 1 }}>
+                                <div style={{ fontWeight: 600, fontSize: '14.5px', color: 'var(--text-main)' }}>{ord.name} ({ord.phone})</div>
+                                <div style={{ fontSize: '12px', color: 'var(--text-subtle)', marginTop: '2px' }}>{ord.summary}</div>
                               </div>
                             </div>
-                            <div style={{ textAlign: 'right' }}>
-                              <div style={{ fontWeight: 700, color: '#4b41e1', fontFamily: 'var(--font-mono)' }}>{ord.amount.toLocaleString()} FCFA</div>
-                              <span className={`chip-status ${ord.chipType === 'green' ? 'chip-green' : 'chip-amber'}`}>{ord.chipText}</span>
+                            <div className="dashboard-order-meta">
+                              <div style={{ fontWeight: 700, color: '#10B981', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', fontSize: '15px' }}>{ord.amount.toLocaleString()} FCFA</div>
+                              <span className={`chip-status ${ord.chipType === 'green' ? 'chip-green' : 'chip-amber'}`} style={{ whiteSpace: 'nowrap', display: 'inline-block' }}>{ord.chipText}</span>
                             </div>
                           </div>
                         ))}
@@ -2131,16 +2131,16 @@ export default function App() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
                   <div className="reflex-card-base" style={{ padding: '20px' }}>
-                    <div className="label-sm" style={{ color: '#45464d', marginBottom: '6px' }}>TOTAL ENCAISSÉ</div>
-                    <div style={{ fontSize: '28px', fontWeight: 700, color: '#10B981', fontFamily: 'var(--font-mono)' }}>1 245 000 FCFA</div>
+                    <div className="label-sm" style={{ color: 'var(--text-subtle)', marginBottom: '6px' }}>TOTAL ENCAISSÉ</div>
+                    <div style={{ fontSize: '26px', fontWeight: 700, color: '#10B981', fontFamily: 'var(--font-mono)' }}>1 245 000 FCFA</div>
                   </div>
                   <div className="reflex-card-base" style={{ padding: '20px' }}>
-                    <div className="label-sm" style={{ color: '#45464d', marginBottom: '6px' }}>TRANSACTIONS</div>
-                    <div style={{ fontSize: '28px', fontWeight: 700, color: '#0b1c30', fontFamily: 'var(--font-mono)' }}>34 Réussies</div>
+                    <div className="label-sm" style={{ color: 'var(--text-subtle)', marginBottom: '6px' }}>TRANSACTIONS</div>
+                    <div style={{ fontSize: '26px', fontWeight: 700, color: '#6366F1', fontFamily: 'var(--font-mono)' }}>34 Réussies</div>
                   </div>
                   <div className="reflex-card-base" style={{ padding: '20px' }}>
-                    <div className="label-sm" style={{ color: '#45464d', marginBottom: '6px' }}>OPÉRATEUR</div>
-                    <div style={{ fontSize: '20px', fontWeight: 700, color: '#4b41e1' }}>MTN / Moov / Wave</div>
+                    <div className="label-sm" style={{ color: 'var(--text-subtle)', marginBottom: '6px' }}>OPÉRATEUR</div>
+                    <div style={{ fontSize: '18px', fontWeight: 700, color: '#06B6D4' }}>MTN / Moov / Wave</div>
                   </div>
                 </div>
 
