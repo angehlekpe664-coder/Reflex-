@@ -68,7 +68,6 @@ export default function App() {
   const [emailSentNotice, setEmailSentNotice] = useState(false);
   const [showOtpStep, setShowOtpStep] = useState(false);
   const [otpCode, setOtpCode] = useState('');
-  const [generatedOtp, setGeneratedOtp] = useState('');
 
   // Onboarding Form States
   const [companyData, setCompanyData] = useState({
@@ -443,21 +442,16 @@ export default function App() {
 
     try {
       if (authMode === 'signup') {
-        // Generate a 6-digit confirmation OTP code
-        const code = Math.floor(100000 + Math.random() * 900000).toString();
-        setGeneratedOtp(code);
-        
-        await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            data: { full_name: fullName, confirmation_code: code },
-            emailRedirectTo: window.location.origin
+            data: { full_name: fullName }
           }
-        }).catch(() => {});
-
+        });
+        if (error) throw error;
         setShowOtpStep(true);
-        showToast("Code de confirmation généré et transmis à votre boîte mail !", "info");
+        showToast("E-mail envoyé par Supabase ! Vérifiez votre boîte mail.", "info");
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -473,26 +467,44 @@ export default function App() {
         }
       }
     } catch (err: any) {
-      showToast(err?.message || "Erreur de connexion", "error");
+      showToast(err?.message || "Erreur d'authentification Supabase", "error");
     } finally {
       setAuthLoading(false);
     }
   };
 
-  const handleVerifyOtpSubmit = (e: React.FormEvent) => {
+  const handleVerifyOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthLoading(true);
 
-    if (otpCode.trim() === generatedOtp.trim() || otpCode.trim() === '123456' || otpCode.length === 6) {
+    try {
+      // Direct call to official Supabase verifyOtp API
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token: otpCode.trim(),
+        type: 'signup'
+      });
+
+      if (error) {
+        // Retry with type 'email' fallback if signup OTP type differs
+        const { error: error2 } = await supabase.auth.verifyOtp({
+          email,
+          token: otpCode.trim(),
+          type: 'email'
+        });
+        if (error2) throw error2;
+      }
+
       localStorage.setItem('reflex_user_session', 'true');
-      showToast("Code vérifié avec succès ! Création de votre boutique...", "success");
+      showToast("Code vérifié avec succès par Supabase !", "success");
       setShowOtpStep(false);
       setOtpCode('');
       setActiveView('onboarding-entreprise');
-    } else {
-      showToast("Code de confirmation incorrect. Saisissez le code reçu ou 123456.", "error");
+    } catch (err: any) {
+      showToast(err?.message || "Code de confirmation invalide ou expiré.", "error");
+    } finally {
+      setAuthLoading(false);
     }
-    setAuthLoading(false);
   };
 
   // Supabase Google Auth Handler
@@ -1102,19 +1114,15 @@ export default function App() {
             {showOtpStep ? (
               <form onSubmit={handleVerifyOtpSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <div style={{ backgroundColor: '#eff4ff', border: '1px solid #c4b5fd', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
-                  <div style={{ fontWeight: 700, color: '#4F46E5', fontSize: '15px', marginBottom: '4px' }}>📧 Code de Confirmation Envoyé</div>
-                  <p style={{ fontSize: '12.5px', color: '#45464d', margin: 0, lineHeight: 1.5 }}>
-                    Un code à 6 chiffres a été transmis à <strong>{email}</strong>.<br />
-                    Veuillez le saisir ci-dessous pour valider votre compte.
+                  <div style={{ fontWeight: 700, color: '#4F46E5', fontSize: '15px', marginBottom: '4px' }}>📧 Email de confirmation envoyé</div>
+                  <p style={{ fontSize: '13px', color: '#45464d', margin: 0, lineHeight: 1.5 }}>
+                    Un e-mail contenant votre code à 6 chiffres a été envoyé par Supabase à <strong>{email}</strong>.<br />
+                    Vérifiez votre boîte de réception et vos spams.
                   </p>
                 </div>
 
-                <div style={{ backgroundColor: '#f0fdf4', border: '1px border-dashed #86efac', borderRadius: '10px', padding: '12px', textAlign: 'center', fontSize: '13px', color: '#166534' }}>
-                  🔑 <strong>Code de confirmation : {generatedOtp}</strong>
-                </div>
-
                 <div>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '8px', display: 'block', textAlign: 'center' }}>Saisissez votre code à 6 chiffres</label>
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '8px', display: 'block', textAlign: 'center' }}>Saisissez le code reçu par e-mail</label>
                   <input
                     type="text"
                     required
@@ -1138,7 +1146,7 @@ export default function App() {
                 </div>
 
                 <button className="btn-primary-black" style={{ width: '100%', padding: '14px', fontSize: '15px' }} disabled={authLoading}>
-                  {authLoading ? 'Vérification en cours...' : 'Valider mon code et continuer →'}
+                  {authLoading ? 'Vérification Supabase...' : 'Valider le code Supabase →'}
                 </button>
 
                 <button
@@ -1146,7 +1154,7 @@ export default function App() {
                   onClick={() => setShowOtpStep(false)}
                   style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '13px', cursor: 'pointer', textAlign: 'center' }}
                 >
-                  ← Modifier mon email ({email})
+                  ← Modifier l'adresse email ({email})
                 </button>
               </form>
             ) : (
