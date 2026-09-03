@@ -442,7 +442,7 @@ export default function App() {
 
     try {
       if (authMode === 'signup') {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -450,8 +450,15 @@ export default function App() {
           }
         });
         if (error) throw error;
-        setShowOtpStep(true);
-        showToast("E-mail envoyé par Supabase ! Vérifiez votre boîte mail.", "info");
+
+        if (data.session) {
+          localStorage.setItem('reflex_user_session', 'true');
+          showToast("Compte créé avec succès !", "success");
+          setActiveView('onboarding-entreprise');
+        } else {
+          setShowOtpStep(true);
+          showToast("E-mail envoyé par Supabase ! Vérifiez votre boîte mail.", "info");
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
