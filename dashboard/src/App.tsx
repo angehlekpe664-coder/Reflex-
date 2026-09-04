@@ -487,8 +487,8 @@ export default function App() {
 
   const handleVerifyOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!otpCode || otpCode.trim().length !== 6) {
-      showToast("Veuillez saisir les 6 chiffres de votre code de confirmation.", "error");
+    if (!otpCode || otpCode.trim().length < 6) {
+      showToast("Veuillez saisir votre code de confirmation (6 à 8 chiffres).", "error");
       return;
     }
     setAuthLoading(true);
@@ -1140,19 +1140,19 @@ export default function App() {
                   <input
                     type="text"
                     required
-                    maxLength={6}
-                    placeholder="123456"
+                    maxLength={8}
+                    placeholder="12345678"
                     value={otpCode}
-                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 8))}
                     style={{
                       width: '100%',
                       padding: '14px',
                       borderRadius: '10px',
                       border: '2px solid #4F46E5',
                       outline: 'none',
-                      fontSize: '24px',
+                      fontSize: '22px',
                       fontWeight: 800,
-                      letterSpacing: '0.3em',
+                      letterSpacing: '0.25em',
                       textAlign: 'center',
                       fontFamily: 'var(--font-mono)'
                     }}
