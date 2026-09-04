@@ -212,6 +212,49 @@ export default function App() {
     return () => clearInterval(bgTimer);
   }, []);
 
+  // Load Products & PME Profile from Supabase DB on user sign-in
+  useEffect(() => {
+    const fetchSupabaseUserData = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          // Fetch Products
+          const { data: dbProds } = await supabase.from('products').select('*');
+          if (dbProds && dbProds.length > 0) {
+            setProductsList(dbProds.map(p => ({
+              name: p.name,
+              price: Number(p.price_xof || p.price || 0),
+              category: p.category || 'Général',
+              description: p.description || ''
+            })));
+          }
+
+          // Fetch Orders
+          const { data: dbOrders } = await supabase.from('orders').select('*');
+          if (dbOrders && dbOrders.length > 0) {
+            setRecentOrdersList(dbOrders.map(o => ({
+              id: o.id || `ORD-${o.id}`,
+              name: o.customer_name || 'Client WhatsApp',
+              phone: o.customer_phone || '',
+              time: new Date(o.created_at || Date.now()).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+              status: o.status || 'PAID',
+              amount: Number(o.total_amount_xof || o.amount || 0),
+              item: o.item || 'Produit',
+              avatar: o.customer_name ? o.customer_name.substring(0, 2).toUpperCase() : 'WA',
+              chipText: o.status === 'PAID' ? 'Payé' : 'En attente',
+              chipType: o.status === 'PAID' ? 'green' : 'amber',
+              summary: o.summary || 'Commande enregistrée dans la base Supabase.'
+            })));
+          }
+        }
+      } catch (e) {
+        console.log('Supabase sync info:', e);
+      }
+    };
+
+    fetchSupabaseUserData();
+  }, []);
+
   // Backend Integration State (Default zeroed out for fresh PME accounts)
   const [liveStats, setLiveStats] = useState({
     conversations: 0,
@@ -559,15 +602,33 @@ export default function App() {
     }
   };
 
-  const handleAddProduct = () => {
+  const handleAddProduct = async () => {
     if (!newProduct.name || !newProduct.price) return;
-    setProductsList([...productsList, {
+    const prodItem = {
       name: newProduct.name,
       price: Number(newProduct.price),
       category: newProduct.category || 'Général',
       description: newProduct.description || ''
-    }]);
+    };
+
+    setProductsList(prev => [...prev, prodItem]);
     setNewProduct({ name: '', price: '', category: 'Mode', description: '' });
+    showToast(`Produit "${prodItem.name}" ajouté au catalogue !`, 'success');
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        await supabase.from('products').insert({
+          name: prodItem.name,
+          price_xof: prodItem.price,
+          category: prodItem.category,
+          description: prodItem.description,
+          is_active: true
+        });
+      }
+    } catch (err) {
+      console.log('Supabase product save info:', err);
+    }
   };
 
   const handleDeleteProduct = (index: number) => {
