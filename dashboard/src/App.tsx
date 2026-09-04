@@ -209,28 +209,7 @@ export default function App() {
     return () => clearInterval(bgTimer);
   }, []);
 
-  // Cloudflare Turnstile Captcha Auto-Render on Auth View Open
-  useEffect(() => {
-    if ((activeView as string) === 'auth' && !showOtpStep) {
-      const timer = setTimeout(() => {
-        if (typeof (window as any).turnstile !== 'undefined') {
-          try {
-            const container = document.getElementById('turnstile-widget-container');
-            if (container) {
-              container.innerHTML = '';
-              (window as any).turnstile.render('#turnstile-widget-container', {
-                sitekey: '0x4AAAAAAEnLp3-m1biy8CGz',
-                theme: 'light'
-              });
-            }
-          } catch (err) {
-            console.log('Turnstile render info:', err);
-          }
-        }
-      }, 150);
-      return () => clearTimeout(timer);
-    }
-  }, [activeView, showOtpStep, authMode]);
+
 
   // Load Products & PME Profile from Supabase DB on user sign-in
   useEffect(() => {
@@ -324,28 +303,7 @@ export default function App() {
       }
     };
     window.addEventListener('scroll', handleScroll);
-  // Cloudflare Turnstile Captcha Auto-Render on Auth View Open
-  useEffect(() => {
-    if ((activeView as string) === 'auth' && !showOtpStep) {
-      const timer = setTimeout(() => {
-        if (typeof (window as any).turnstile !== 'undefined') {
-          try {
-            const container = document.getElementById('turnstile-widget-container');
-            if (container) {
-              container.innerHTML = '';
-              (window as any).turnstile.render('#turnstile-widget-container', {
-                sitekey: '0x4AAAAAAEnLp3-m1biy8CGz',
-                theme: 'light'
-              });
-            }
-          } catch (err) {
-            console.log('Turnstile render info:', err);
-          }
-        }
-      }, 150);
-      return () => clearTimeout(timer);
-    }
-  }, [activeView, showOtpStep, authMode]);
+
 
   return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -417,28 +375,7 @@ export default function App() {
 
     fetchStats();
     const interval = setInterval(fetchStats, 3000);
-  // Cloudflare Turnstile Captcha Auto-Render on Auth View Open
-  useEffect(() => {
-    if ((activeView as string) === 'auth' && !showOtpStep) {
-      const timer = setTimeout(() => {
-        if (typeof (window as any).turnstile !== 'undefined') {
-          try {
-            const container = document.getElementById('turnstile-widget-container');
-            if (container) {
-              container.innerHTML = '';
-              (window as any).turnstile.render('#turnstile-widget-container', {
-                sitekey: '0x4AAAAAAEnLp3-m1biy8CGz',
-                theme: 'light'
-              });
-            }
-          } catch (err) {
-            console.log('Turnstile render info:', err);
-          }
-        }
-      }, 150);
-      return () => clearTimeout(timer);
-    }
-  }, [activeView, showOtpStep, authMode]);
+
 
   return () => clearInterval(interval);
   }, []);
@@ -512,28 +449,7 @@ export default function App() {
       }
     });
 
-  // Cloudflare Turnstile Captcha Auto-Render on Auth View Open
-  useEffect(() => {
-    if ((activeView as string) === 'auth' && !showOtpStep) {
-      const timer = setTimeout(() => {
-        if (typeof (window as any).turnstile !== 'undefined') {
-          try {
-            const container = document.getElementById('turnstile-widget-container');
-            if (container) {
-              container.innerHTML = '';
-              (window as any).turnstile.render('#turnstile-widget-container', {
-                sitekey: '0x4AAAAAAEnLp3-m1biy8CGz',
-                theme: 'light'
-              });
-            }
-          } catch (err) {
-            console.log('Turnstile render info:', err);
-          }
-        }
-      }, 150);
-      return () => clearTimeout(timer);
-    }
-  }, [activeView, showOtpStep, authMode]);
+
 
   return () => subscription.unsubscribe();
   }, []);
@@ -747,28 +663,7 @@ export default function App() {
     ]);
   };
 
-  // Cloudflare Turnstile Captcha Auto-Render on Auth View Open
-  useEffect(() => {
-    if (activeView === 'auth' && !showOtpStep) {
-      const timer = setTimeout(() => {
-        if (typeof (window as any).turnstile !== 'undefined') {
-          try {
-            const container = document.getElementById('turnstile-widget-container');
-            if (container) {
-              container.innerHTML = '';
-              (window as any).turnstile.render('#turnstile-widget-container', {
-                sitekey: '0x4AAAAAAEnLp3-m1biy8CGz',
-                theme: 'light'
-              });
-            }
-          } catch (err) {
-            console.log('Turnstile render info:', err);
-          }
-        }
-      }, 150);
-      return () => clearTimeout(timer);
-    }
-  }, [activeView, showOtpStep, authMode]);
+
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--surface-bg)', fontFamily: 'var(--font-geist)' }}>
@@ -1410,7 +1305,7 @@ export default function App() {
 
               {/* Cloudflare Turnstile Captcha Widget */}
               <div style={{ display: 'flex', justifyContent: 'center', margin: '12px 0', minHeight: '65px' }}>
-                <div id="turnstile-widget-container"></div>
+                <div className="cf-turnstile" data-sitekey="0x4AAAAAAEnLp3-m1biy8CGz" data-theme="light"></div>
               </div>
 
               <button className="btn-primary-black" style={{ width: '100%', padding: '12px', fontSize: '15px', marginTop: '4px' }} disabled={authLoading}>
