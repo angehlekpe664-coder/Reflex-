@@ -1296,9 +1296,12 @@ export default function App() {
                 </div>
               </div>
 
+              {/* Cloudflare Turnstile Captcha Widget */}
+              <div style={{ display: 'flex', justifyContent: 'center', margin: '12px 0' }}>
+                <div className="cf-turnstile" data-sitekey="0x4AAAAAAEnLp3-m1biy8CGz" data-theme="light"></div>
+              </div>
 
-
-              <button className="btn-primary-black" style={{ width: '100%', padding: '12px', fontSize: '15px', marginTop: '8px' }} disabled={authLoading}>
+              <button className="btn-primary-black" style={{ width: '100%', padding: '12px', fontSize: '15px', marginTop: '4px' }} disabled={authLoading}>
                 {authLoading ? (authMode === 'signup' ? 'Création du compte...' : 'Connexion...') : authMode === 'signup' ? 'Créer mon compte →' : 'Se connecter →'}
               </button>
             </form>
