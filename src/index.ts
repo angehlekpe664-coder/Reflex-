@@ -12,34 +12,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// In-Memory Store for Live Dashboard Integration
-const liveOrders: Array<any> = [
-  {
-    id: 'ORD-229-892',
-    customerName: 'Koffi Mensah',
-    phone: '+229 97 45 12 89',
-    time: '10:42 AM',
-    status: 'PAID',
-    amount: 45000,
-    item: 'Perruque Brésilienne 18 pouces',
-    deliveryAddress: 'Ganhi, Immeuble Horizon, Cotonou',
-    paymentRef: 'REFLEX-TXN-88902',
-    lastMsg: "C'est parfait, j'ai effectué le paiement via le lien. Quand pouvez-vous me livrer à Ganhi ?",
-    summary: {
-      intention: 'Achat de Perruque Brésilienne 18 pouces',
-      amount: 45000,
-      deliveryLocation: 'Ganhi, Immeuble Horizon, Cotonou',
-      paymentMethod: 'MTN Mobile Money',
-      conclusion: 'Le client Koffi Mensah a conclu l\'accord avec l\'IA et réglé la totalité du montant (45 000 FCFA). La livraison est requise cet après-midi à Ganhi.'
-    }
-  }
-];
+// In-Memory Store for Live Dashboard Integration (Clean Dynamic State)
+const liveOrders: Array<any> = [];
 
 const liveStats = {
-  totalRevenue: 1245000,
-  totalMessages: 4302,
-  reportsGenerated: 128,
-  conversionRate: 8.4
+  totalRevenue: 0,
+  totalMessages: 0,
+  reportsGenerated: 0,
+  conversionRate: 0
 };
 
 let currentPmeConfig = {
