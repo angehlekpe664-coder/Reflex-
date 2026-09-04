@@ -181,9 +181,8 @@ export default function App() {
       if (displayText.length < currentTarget.length) {
         timer = setTimeout(() => {
           setDisplayText(currentTarget.slice(0, displayText.length + 1));
-        }, 55); // Speed per typed character
+        }, 55);
       } else {
-        // Pausing phase: pause 2.6s so user can read comfortably
         timer = setTimeout(() => {
           setIsDeleting(true);
         }, 2600);
@@ -192,38 +191,14 @@ export default function App() {
       if (displayText.length > 0) {
         timer = setTimeout(() => {
           setDisplayText(currentTarget.slice(0, displayText.length - 1));
-        }, 28); // Speed per deleted character
+        }, 28);
       } else {
-        // Completed deletion: advance to next phrase
         setIsDeleting(false);
         setHeadlineIndex((prev) => (prev + 1) % rotatingHeadlines.length);
       }
     }
 
-  // Cloudflare Turnstile Captcha Auto-Render on Auth View Open
-  useEffect(() => {
-    if ((activeView as string) === 'auth' && !showOtpStep) {
-      const timer = setTimeout(() => {
-        if (typeof (window as any).turnstile !== 'undefined') {
-          try {
-            const container = document.getElementById('turnstile-widget-container');
-            if (container) {
-              container.innerHTML = '';
-              (window as any).turnstile.render('#turnstile-widget-container', {
-                sitekey: '0x4AAAAAAEnLp3-m1biy8CGz',
-                theme: 'light'
-              });
-            }
-          } catch (err) {
-            console.log('Turnstile render info:', err);
-          }
-        }
-      }, 150);
-      return () => clearTimeout(timer);
-    }
-  }, [activeView, showOtpStep, authMode]);
-
-  return () => clearTimeout(timer);
+    return () => clearTimeout(timer);
   }, [displayText, isDeleting, headlineIndex]);
 
   // Rotating background images
@@ -231,6 +206,8 @@ export default function App() {
     const bgTimer = setInterval(() => {
       setHeroBgIndex((prev) => (prev + 1) % heroBackgrounds.length);
     }, 7000);
+    return () => clearInterval(bgTimer);
+  }, []);
 
   // Cloudflare Turnstile Captcha Auto-Render on Auth View Open
   useEffect(() => {
@@ -254,9 +231,6 @@ export default function App() {
       return () => clearTimeout(timer);
     }
   }, [activeView, showOtpStep, authMode]);
-
-  return () => clearInterval(bgTimer);
-  }, []);
 
   // Load Products & PME Profile from Supabase DB on user sign-in
   useEffect(() => {
