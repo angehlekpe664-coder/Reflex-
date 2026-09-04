@@ -286,14 +286,22 @@ export default function App() {
           const data = await response.json();
           if (data.stats) {
             setLiveStats({
-              conversations: data.stats.totalMessages || 4302,
-              autoAiPercent: 87,
-              commandes: data.recentOrders ? data.recentOrders.length + 33 : 34,
-              revenusFcfa: data.stats.totalRevenue || 1245000,
-              conversionPercent: Math.min(Math.round(data.stats.conversionRate * 3), 100) || 25
+              conversations: data.stats.totalMessages || 0,
+              autoAiPercent: data.stats.totalMessages > 0 ? (data.stats.autoAiPercent || 100) : 0,
+              commandes: data.recentOrders ? data.recentOrders.length : (data.stats.ordersCount || 0),
+              revenusFcfa: data.stats.totalRevenue || 0,
+              conversionPercent: data.stats.conversionRate || 0
+            });
+          } else {
+            setLiveStats({
+              conversations: 0,
+              autoAiPercent: 0,
+              commandes: 0,
+              revenusFcfa: 0,
+              conversionPercent: 0
             });
           }
-          if (data.recentOrders && data.recentOrders.length > 0) {
+          if (data.recentOrders && Array.isArray(data.recentOrders) && data.recentOrders.length > 0) {
             const mappedOrders = data.recentOrders.map((ord: any) => ({
               id: ord.id || `ORD-${Math.floor(Math.random() * 1000)}`,
               name: ord.customerName || 'Client WhatsApp',
@@ -310,7 +318,14 @@ export default function App() {
           }
         }
       } catch {
-        // Fallback live state active
+        setLiveStats({
+          conversations: 0,
+          autoAiPercent: 0,
+          commandes: 0,
+          revenusFcfa: 0,
+          conversionPercent: 0
+        });
+        setRecentOrdersList([]);
       }
     };
 
@@ -2221,11 +2236,11 @@ export default function App() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
                   <div className="reflex-card-base" style={{ padding: '20px' }}>
                     <div className="label-sm" style={{ color: 'var(--text-subtle)', marginBottom: '6px' }}>TOTAL ENCAISSÉ</div>
-                    <div style={{ fontSize: '26px', fontWeight: 700, color: '#10B981', fontFamily: 'var(--font-mono)' }}>1 245 000 FCFA</div>
+                    <div style={{ fontSize: '26px', fontWeight: 700, color: '#10B981', fontFamily: 'var(--font-mono)' }}>{liveStats.revenusFcfa.toLocaleString()} FCFA</div>
                   </div>
                   <div className="reflex-card-base" style={{ padding: '20px' }}>
                     <div className="label-sm" style={{ color: 'var(--text-subtle)', marginBottom: '6px' }}>TRANSACTIONS</div>
-                    <div style={{ fontSize: '26px', fontWeight: 700, color: '#6366F1', fontFamily: 'var(--font-mono)' }}>34 Réussies</div>
+                    <div style={{ fontSize: '26px', fontWeight: 700, color: '#6366F1', fontFamily: 'var(--font-mono)' }}>{liveStats.commandes} Réussies</div>
                   </div>
                   <div className="reflex-card-base" style={{ padding: '20px' }}>
                     <div className="label-sm" style={{ color: 'var(--text-subtle)', marginBottom: '6px' }}>OPÉRATEUR</div>
@@ -2233,18 +2248,30 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="reflex-card-base" style={{ padding: '24px', backgroundColor: '#ffffff' }}>
-                  <h3 className="title-md" style={{ color: '#0b1c30', marginBottom: '16px' }}>Historique des Paiements Encaissés</h3>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', border: '1px solid #E2E8F0', borderRadius: '8px' }}>
-                    <div>
-                      <div style={{ fontWeight: 600, color: '#0b1c30' }}>Transaction #REFLEX-TXN-88902</div>
-                      <div style={{ fontSize: '12px', color: '#45464d' }}>Client: Koffi Mensah • MTN Mobile Money (+229 97 45 12 89)</div>
+                <div className="reflex-card-base" style={{ padding: '24px' }}>
+                  <h3 className="title-md" style={{ color: 'var(--text-main)', marginBottom: '16px' }}>Historique des Paiements Encaissés</h3>
+                  {recentOrdersList.filter(o => o.chipType === 'green' || o.status === 'PAID').length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {recentOrdersList.filter(o => o.chipType === 'green' || o.status === 'PAID').map((ord, idx) => (
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', border: '1px solid var(--border-subtle)', borderRadius: '8px' }}>
+                          <div>
+                            <div style={{ fontWeight: 600, color: 'var(--text-main)' }}>Transaction {ord.id}</div>
+                            <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>Client: {ord.name} • Mobile Money ({ord.phone})</div>
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontWeight: 700, color: '#10B981', fontSize: '16px', fontFamily: 'var(--font-mono)' }}>+{ord.amount.toLocaleString()} FCFA</div>
+                            <div style={{ fontSize: '11px', color: '#10B981', fontWeight: 600 }}>Reçu SHA-256 Validé</div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontWeight: 700, color: '#10B981', fontSize: '16px' }}>+45 000 FCFA</div>
-                      <div style={{ fontSize: '11px', color: '#45464d' }}>Reçu SHA-256 Validé</div>
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '36px 20px', color: 'var(--text-subtle)' }}>
+                      <CreditCard size={32} style={{ margin: '0 auto 12px', opacity: 0.5, color: '#4F46E5' }} />
+                      <div style={{ fontWeight: 600, fontSize: '14.5px', color: 'var(--text-main)', marginBottom: '4px' }}>Aucun paiement encaissé pour l'instant</div>
+                      <div style={{ fontSize: '12.5px' }}>Dès qu'un règlement Mobile Money est effectué par un client, le reçu SHA-256 et la transaction apparaîtront immédiatement ici.</div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             )}
