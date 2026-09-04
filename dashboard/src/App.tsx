@@ -200,7 +200,30 @@ export default function App() {
       }
     }
 
-    return () => clearTimeout(timer);
+  // Cloudflare Turnstile Captcha Auto-Render on Auth View Open
+  useEffect(() => {
+    if ((activeView as string) === 'auth' && !showOtpStep) {
+      const timer = setTimeout(() => {
+        if (typeof (window as any).turnstile !== 'undefined') {
+          try {
+            const container = document.getElementById('turnstile-widget-container');
+            if (container) {
+              container.innerHTML = '';
+              (window as any).turnstile.render('#turnstile-widget-container', {
+                sitekey: '0x4AAAAAAEnLp3-m1biy8CGz',
+                theme: 'light'
+              });
+            }
+          } catch (err) {
+            console.log('Turnstile render info:', err);
+          }
+        }
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [activeView, showOtpStep, authMode]);
+
+  return () => clearTimeout(timer);
   }, [displayText, isDeleting, headlineIndex]);
 
   // Rotating background images
@@ -209,7 +232,30 @@ export default function App() {
       setHeroBgIndex((prev) => (prev + 1) % heroBackgrounds.length);
     }, 7000);
 
-    return () => clearInterval(bgTimer);
+  // Cloudflare Turnstile Captcha Auto-Render on Auth View Open
+  useEffect(() => {
+    if ((activeView as string) === 'auth' && !showOtpStep) {
+      const timer = setTimeout(() => {
+        if (typeof (window as any).turnstile !== 'undefined') {
+          try {
+            const container = document.getElementById('turnstile-widget-container');
+            if (container) {
+              container.innerHTML = '';
+              (window as any).turnstile.render('#turnstile-widget-container', {
+                sitekey: '0x4AAAAAAEnLp3-m1biy8CGz',
+                theme: 'light'
+              });
+            }
+          } catch (err) {
+            console.log('Turnstile render info:', err);
+          }
+        }
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [activeView, showOtpStep, authMode]);
+
+  return () => clearInterval(bgTimer);
   }, []);
 
   // Load Products & PME Profile from Supabase DB on user sign-in
@@ -304,7 +350,30 @@ export default function App() {
       }
     };
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+  // Cloudflare Turnstile Captcha Auto-Render on Auth View Open
+  useEffect(() => {
+    if ((activeView as string) === 'auth' && !showOtpStep) {
+      const timer = setTimeout(() => {
+        if (typeof (window as any).turnstile !== 'undefined') {
+          try {
+            const container = document.getElementById('turnstile-widget-container');
+            if (container) {
+              container.innerHTML = '';
+              (window as any).turnstile.render('#turnstile-widget-container', {
+                sitekey: '0x4AAAAAAEnLp3-m1biy8CGz',
+                theme: 'light'
+              });
+            }
+          } catch (err) {
+            console.log('Turnstile render info:', err);
+          }
+        }
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [activeView, showOtpStep, authMode]);
+
+  return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const [recentOrdersList, setRecentOrdersList] = useState<any[]>([]);
@@ -374,7 +443,30 @@ export default function App() {
 
     fetchStats();
     const interval = setInterval(fetchStats, 3000);
-    return () => clearInterval(interval);
+  // Cloudflare Turnstile Captcha Auto-Render on Auth View Open
+  useEffect(() => {
+    if ((activeView as string) === 'auth' && !showOtpStep) {
+      const timer = setTimeout(() => {
+        if (typeof (window as any).turnstile !== 'undefined') {
+          try {
+            const container = document.getElementById('turnstile-widget-container');
+            if (container) {
+              container.innerHTML = '';
+              (window as any).turnstile.render('#turnstile-widget-container', {
+                sitekey: '0x4AAAAAAEnLp3-m1biy8CGz',
+                theme: 'light'
+              });
+            }
+          } catch (err) {
+            console.log('Turnstile render info:', err);
+          }
+        }
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [activeView, showOtpStep, authMode]);
+
+  return () => clearInterval(interval);
   }, []);
 
   // Helper to determine if a user has already completed onboarding
@@ -446,7 +538,30 @@ export default function App() {
       }
     });
 
-    return () => subscription.unsubscribe();
+  // Cloudflare Turnstile Captcha Auto-Render on Auth View Open
+  useEffect(() => {
+    if ((activeView as string) === 'auth' && !showOtpStep) {
+      const timer = setTimeout(() => {
+        if (typeof (window as any).turnstile !== 'undefined') {
+          try {
+            const container = document.getElementById('turnstile-widget-container');
+            if (container) {
+              container.innerHTML = '';
+              (window as any).turnstile.render('#turnstile-widget-container', {
+                sitekey: '0x4AAAAAAEnLp3-m1biy8CGz',
+                theme: 'light'
+              });
+            }
+          } catch (err) {
+            console.log('Turnstile render info:', err);
+          }
+        }
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [activeView, showOtpStep, authMode]);
+
+  return () => subscription.unsubscribe();
   }, []);
 
   // Submit Onboarding to Backend
@@ -657,6 +772,29 @@ export default function App() {
       ...prev
     ]);
   };
+
+  // Cloudflare Turnstile Captcha Auto-Render on Auth View Open
+  useEffect(() => {
+    if (activeView === 'auth' && !showOtpStep) {
+      const timer = setTimeout(() => {
+        if (typeof (window as any).turnstile !== 'undefined') {
+          try {
+            const container = document.getElementById('turnstile-widget-container');
+            if (container) {
+              container.innerHTML = '';
+              (window as any).turnstile.render('#turnstile-widget-container', {
+                sitekey: '0x4AAAAAAEnLp3-m1biy8CGz',
+                theme: 'light'
+              });
+            }
+          } catch (err) {
+            console.log('Turnstile render info:', err);
+          }
+        }
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [activeView, showOtpStep, authMode]);
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--surface-bg)', fontFamily: 'var(--font-geist)' }}>
@@ -1297,8 +1435,8 @@ export default function App() {
               </div>
 
               {/* Cloudflare Turnstile Captcha Widget */}
-              <div style={{ display: 'flex', justifyContent: 'center', margin: '12px 0' }}>
-                <div className="cf-turnstile" data-sitekey="0x4AAAAAAEnLp3-m1biy8CGz" data-theme="light"></div>
+              <div style={{ display: 'flex', justifyContent: 'center', margin: '12px 0', minHeight: '65px' }}>
+                <div id="turnstile-widget-container"></div>
               </div>
 
               <button className="btn-primary-black" style={{ width: '100%', padding: '12px', fontSize: '15px', marginTop: '4px' }} disabled={authLoading}>
@@ -2168,7 +2306,9 @@ export default function App() {
                 return matchesSearch && matchesStatus;
               });
 
-              return (
+
+
+  return (
                 <div className="reflex-card-base" style={{ padding: '24px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
                     <h3 className="title-md">Toutes les Commandes ({filteredOrders.length})</h3>
