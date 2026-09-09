@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Send, CheckCheck, Sparkles, CreditCard, ShieldCheck } from 'lucide-react';
 import { translations, type LanguageCode } from '../translations';
 
@@ -52,6 +52,11 @@ export function WhatsAppSimulator({ currentLang, onCheckout }: { currentLang: La
   const [messages, setMessages] = useState<Message[]>(defaultMessages);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+
+  // Sync initial messages when currentLang changes
+  useEffect(() => {
+    setMessages(defaultMessages);
+  }, [currentLang]);
 
   const handleSend = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -181,7 +186,7 @@ export function WhatsAppSimulator({ currentLang, onCheckout }: { currentLang: La
           alignItems: 'center',
           gap: '4px'
         }}>
-          <ShieldCheck size={12} /> MODE DÉMO LIVE
+          <ShieldCheck size={12} /> {isEn ? 'LIVE DEMO MODE' : 'MODE DÉMO LIVE'}
         </div>
       </div>
 
@@ -229,7 +234,7 @@ export function WhatsAppSimulator({ currentLang, onCheckout }: { currentLang: La
                 gap: '8px'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                  <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>PAIEMENT MOBILE MONEY</span>
+                  <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>{isEn ? 'MOBILE MONEY CHECKOUT' : 'PAIEMENT MOBILE MONEY'}</span>
                   <CreditCard size={14} color="#FF5500" />
                 </div>
                 <div style={{ fontSize: '15px', fontWeight: 800, color: '#ffffff' }}>
@@ -259,7 +264,7 @@ export function WhatsAppSimulator({ currentLang, onCheckout }: { currentLang: La
                     transition: 'transform 0.15s'
                   }}
                 >
-                  <CreditCard size={14} /> Payer par Mobile Money
+                  <CreditCard size={14} /> {isEn ? 'Pay via Mobile Money' : 'Payer par Mobile Money'}
                 </button>
               </div>
             )}
@@ -292,7 +297,7 @@ export function WhatsAppSimulator({ currentLang, onCheckout }: { currentLang: La
             alignItems: 'center',
             gap: '8px'
           }}>
-            <Sparkles size={14} className="animate-spin" /> Reflex est en train de répondre...
+            <Sparkles size={14} className="animate-spin" /> {isEn ? 'Reflex is typing...' : 'Reflex est en train de répondre...'}
           </div>
         )}
       </div>
@@ -319,7 +324,8 @@ export function WhatsAppSimulator({ currentLang, onCheckout }: { currentLang: La
             padding: '10px 14px',
             color: '#ffffff',
             fontSize: '13.5px',
-            outline: 'none'
+            outline: 'none',
+            minWidth: 0
           }}
         />
         <button
@@ -336,6 +342,8 @@ export function WhatsAppSimulator({ currentLang, onCheckout }: { currentLang: La
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
             boxShadow: '0 4px 12px rgba(255,85,0,0.3)'
           }}
         >
