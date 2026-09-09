@@ -800,22 +800,39 @@ body {
 }
 
 
-/* Typewriter Cursor & Smooth Animations */
-.typewriter-container {
-  display: inline-flex;
+/* Typewriter Cursor & Zero Layout Shift Bounding Box System */
+.hero-headline-fixed-box {
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 100%;
+}
+
+.hero-subtitle-fixed-box {
+  min-height: 84px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.typewriter-container {
+  display: inline-block;
   position: relative;
-  min-height: 1.2em;
+  min-height: 1.25em;
+  min-width: 240px;
+  text-align: center;
+  vertical-align: bottom;
 }
 
 .typewriter-cursor {
   display: inline-block;
-  margin-left: 3px;
-  color: #06b6d4;
+  margin-left: 4px;
+  color: #FF5500;
   font-weight: 300;
   animation: typewriterCursorBlink 0.8s step-end infinite;
-  text-shadow: 0 0 10px rgba(6, 182, 212, 0.8);
 }
 
 @keyframes typewriterCursorBlink {
@@ -1329,42 +1346,58 @@ body {
 }
 
 /* ========================================================================= */
-/* MOBILE RESPONSIVE UI/UX & MOTION DESIGN ENHANCEMENTS                      */
+/* MOBILE RESPONSIVE UI/UX & ZERO LAYOUT SHIFT ENHANCEMENTS                  */
 /* ========================================================================= */
 
 @media (max-width: 768px) {
+  .hero-headline-fixed-box {
+    min-height: 105px !important;
+  }
+
+  .hero-subtitle-fixed-box {
+    min-height: 115px !important;
+  }
+
   .display-lg {
-    font-size: 30px !important;
-    line-height: 1.22 !important;
-    letter-spacing: -0.02em !important;
+    font-size: 26px !important;
+    line-height: 1.25 !important;
+    letter-spacing: -0.01em !important;
+    margin-bottom: 12px !important;
   }
 
   .headline-lg {
-    font-size: 22px !important;
+    font-size: 20px !important;
     line-height: 1.3 !important;
   }
 
+  .body-lg {
+    font-size: 14.5px !important;
+    line-height: 1.5 !important;
+  }
+
   .hero-section-padding {
-    padding: 50px 16px 40px !important;
+    padding: 40px 16px 36px !important;
   }
 
   .hero-cta-container {
     flex-direction: column !important;
     width: 100% !important;
-    gap: 12px !important;
+    gap: 10px !important;
   }
 
   .hero-cta-container button,
   .hero-cta-container a {
     width: 100% !important;
     justify-content: center !important;
-    padding: 14px 20px !important;
-    font-size: 15.5px !important;
+    padding: 14px 18px !important;
+    font-size: 15px !important;
+    min-height: 48px !important;
+    box-sizing: border-box !important;
   }
 
   .feature-card-hover {
-    padding: 20px !important;
-    border-left: 4px solid #FF5500 !important;
+    padding: 20px 16px !important;
+    border-left: 3px solid #FF5500 !important;
   }
 
   .main-header {
@@ -1372,9 +1405,34 @@ body {
   }
 
   .mobile-menu-drawer {
-    background: #0B1727 !important;
+    background: #0F172A !important;
     border-bottom: 2px solid #FF5500 !important;
-    box-shadow: 0 12px 35px rgba(0,0,0,0.6) !important;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7) !important;
+  }
+
+  /* Prevent elements breaking out of mobile cards */
+  div, p, span, h1, h2, h3, h4, h5, h6, label, button, a {
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+  }
+
+  .reflex-card-base,
+  .reflex-card-ai,
+  .dashboard-order-card {
+    padding: 16px 14px !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .grid-responsive-stats {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  .grid-responsive-main {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
   }
 }
 

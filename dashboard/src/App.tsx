@@ -839,21 +839,25 @@ export default function App() {
                 </span>
               </div>
 
-              {/* Dynamic Typewriter Main Headline */}
-              <h1 className="display-lg" style={{ color: '#ffffff', marginBottom: '24px' }}>
-                Votre WhatsApp devient votre <br className="hero-br-desktop" />
-                <span className="typewriter-container">
-                  <span className="animated-headline-text neon-orange-title">
-                    {displayText}
+              {/* Dynamic Typewriter Main Headline with Zero Layout Shift Bounding Box */}
+              <div className="hero-headline-fixed-box">
+                <h1 className="display-lg" style={{ color: '#ffffff', margin: 0 }}>
+                  Votre WhatsApp devient votre <br className="hero-br-desktop" />
+                  <span className="typewriter-container">
+                    <span className="animated-headline-text neon-orange-title">
+                      {displayText}
+                    </span>
+                    <span className="typewriter-cursor" style={{ color: '#FF5500' }}>|</span>
                   </span>
-                  <span className="typewriter-cursor" style={{ color: '#FF5500' }}>|</span>
-                </span>
-              </h1>
+                </h1>
+              </div>
 
-              {/* Dynamic Subtitle */}
-              <p className="body-lg" style={{ color: '#cbd5e1', maxWidth: '780px', margin: '0 auto 44px', fontSize: '19.5px', lineHeight: 1.6, transition: 'opacity 0.3s ease' }}>
-                {rotatingHeadlines[headlineIndex].subtitle}
-              </p>
+              {/* Dynamic Subtitle with Zero Layout Shift Bounding Box */}
+              <div className="hero-subtitle-fixed-box" style={{ margin: '16px auto 36px', maxWidth: '780px' }}>
+                <p className="body-lg" style={{ color: '#cbd5e1', margin: 0, fontSize: '18px', lineHeight: 1.6 }}>
+                  {rotatingHeadlines[headlineIndex].subtitle}
+                </p>
+              </div>
 
               {/* CTA Buttons with Motion Scale */}
               <div className="hero-cta-container">
