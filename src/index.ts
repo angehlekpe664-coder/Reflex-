@@ -7,12 +7,45 @@ import { aiService } from './services/ai.service.js';
 import { databaseService } from './services/supabase.service.js';
 import { paymentService } from './services/payment.service.js';
 import { pdfReportService } from './services/pdf.service.js';
+import { whatsappQueueService } from './services/queue.service.js';
+import { inventoryService } from './services/inventory.service.js';
+import { verifyMetaWebhookSignature, verifyPaymentWebhookSignature } from './middleware/webhookAuth.js';
+import { requireAuth } from './middleware/auth.js';
 
 const app = express();
 app.use(cors());
-app.use(express.json());
 
-// In-Memory Store for Live Dashboard Integration (Clean Dynamic State)
+// Middleware pour conserver le corps brut (raw body) pour la vérification HMAC Meta Signature
+app.use(express.json({
+  verify: (req: any, _res, buf) => {
+    req.rawBody = buf.toString();
+  }
+}));
+
+// Simple Rate Limiting Middleware (Protection contre le Spam / DoS)
+const requestCounts = new Map<string, { count: number; resetTime: number }>();
+const rateLimitWindowMs = 60 * 1000; // 1 minute
+const maxRequestsPerWindow = 120; // 120 requêtes/min
+
+app.use((req, res, next) => {
+  const ip = req.ip || req.socket.remoteAddress || 'unknown';
+  const now = Date.now();
+  const record = requestCounts.get(ip);
+
+  if (!record || now > record.resetTime) {
+    requestCounts.set(ip, { count: 1, resetTime: now + rateLimitWindowMs });
+    return next();
+  }
+
+  record.count += 1;
+  if (record.count > maxRequestsPerWindow) {
+    return res.status(429).json({ error: 'Trop de requêtes. Veuillez patienter une minute.' });
+  }
+
+  next();
+});
+
+// In-Memory Store for Live Dashboard Integration
 const liveOrders: Array<any> = [];
 
 const liveStats = {
@@ -72,7 +105,7 @@ app.post('/api/onboarding', async (req, res) => {
   }
 });
 
-// Route OAuth Callback Meta Embedded Signup (Officiel)
+// Route OAuth Callback Meta Embedded Signup
 app.post('/api/auth/meta/callback', async (req, res) => {
   try {
     const { code, wabaId, pmePhone } = req.body;
@@ -82,7 +115,6 @@ app.post('/api/auth/meta/callback', async (req, res) => {
 
     console.log(`🔒 Traitement OAuth Meta pour WABA ${wabaId}...`);
 
-    // 1. Échange du code contre un System User Access Token auprès de Meta Graph API
     const tokenResponse = await axios.get(`https://graph.facebook.com/v20.0/oauth/access_token`, {
       params: {
         client_id: config.meta.appId,
@@ -92,8 +124,6 @@ app.post('/api/auth/meta/callback', async (req, res) => {
     });
 
     const accessToken = tokenResponse.data.access_token;
-
-    // 2. Récupération automatique du Phone Number ID et du numéro affiché
     let phoneNumberId = config.whatsapp.phoneNumberId;
     let displayPhone = pmePhone || currentPmeConfig.phone;
 
@@ -110,7 +140,6 @@ app.post('/api/auth/meta/callback', async (req, res) => {
       console.log('💡 Utilisation des identifiants par défaut pour le numéro.');
     }
 
-    // 3. Souscription automatique du Webhook Reflex sur l'application WABA
     try {
       await axios.post(
         `https://graph.facebook.com/v20.0/${wabaId}/subscribed_apps`,
@@ -121,7 +150,6 @@ app.post('/api/auth/meta/callback', async (req, res) => {
       console.log('💡 Webhook déjà abonné ou en attente.');
     }
 
-    // 4. Sauvegarde sécurisée des identifiants en BD Supabase
     const targetPhone = pmePhone || currentPmeConfig.phone;
     await databaseService.saveMetaConnection(
       targetPhone,
@@ -131,9 +159,8 @@ app.post('/api/auth/meta/callback', async (req, res) => {
       displayPhone
     );
 
-    console.log(`🎉 Connexion WhatsApp Business réussie pour WABA ${wabaId} (Phone ID: ${phoneNumberId}) !`);
+    console.log(`🎉 Connexion WhatsApp Business réussie pour WABA ${wabaId} !`);
 
-    // 5. Réponse sécurisée au frontend (SANS EXPOSER DE TOKEN)
     res.json({
       success: true,
       message: 'Compte WhatsApp Business connecté avec succès à Reflex !',
@@ -187,8 +214,9 @@ app.get('/webhook/whatsapp', (req, res) => {
   return res.sendStatus(400);
 });
 
-// Route 2 : Réception des messages WhatsApp entrants (Event Webhook Meta direct Multi-Tenant)
-app.post('/webhook/whatsapp', async (req, res) => {
+// Route 2 : Réception des messages WhatsApp entrants (Event Webhook Meta direct Multi-Tenant avec Queue Asynchrone & Signature HMAC)
+app.post('/webhook/whatsapp', verifyMetaWebhookSignature, (req, res) => {
+  // Réponse HTTP 200 OK IMMÉDIATE sous 50ms (Exigence stricte Meta)
   res.status(200).send('EVENT_RECEIVED');
 
   try {
@@ -214,92 +242,132 @@ app.post('/webhook/whatsapp', async (req, res) => {
       userText = "[Message reçu : média/pièce jointe]";
     }
 
-    console.log(`📩 [WhatsApp Direct] Message de ${customerName} (${fromPhone}) pour le numéro Meta ID ${metaPhoneNumberId} : "${userText}"`);
+    console.log(`📩 [WhatsApp Direct] Message de ${customerName} (${fromPhone}) : "${userText}" -> Transmis à la Queue Asynchrone`);
 
-    // 1. Identification dynamique de la PME
-    const pmeRecord = await databaseService.getPmeByPhoneNumberIdOrPhone(metaPhoneNumberId);
-
-    const pmeContext = {
-      name: pmeRecord?.pme?.name || currentPmeConfig.name,
-      description: pmeRecord?.pme?.description || currentPmeConfig.description,
-      tone: pmeRecord?.pme?.tone || currentPmeConfig.tone,
-      welcomeMessage: pmeRecord?.pme?.welcome_message || currentPmeConfig.welcomeMessage,
-      deliveryInfo: pmeRecord?.pme?.delivery_info || currentPmeConfig.deliveryInfo,
-      catalogue: pmeRecord?.catalogue || currentPmeConfig.catalogue
-    };
-
-    const pmeId = pmeRecord?.pme?.id || 'mock-pme-123';
-    const isAiActive = pmeRecord?.pme?.is_ai_active !== false;
-
-    if (!isAiActive) {
-      console.log(`🛑 L'IA est désactivée pour la PME "${pmeContext.name}". Ignoré.`);
-      return;
-    }
-
-    // 2. Enregistrement / Récupération du client en base
-    const customer = await databaseService.upsertCustomer(pmeId, fromPhone, customerName);
-
-    if (customer?.is_human_takeover) {
-      console.log(`👤 Mode Prise en Main Humaine actif pour ${fromPhone}. L'IA laisse la main à l'équipe commercial.`);
-      if (customer.id) {
-        await databaseService.saveChatMessage(pmeId, customer.id, 'user', userText);
-      }
-      return;
-    }
-
-    // 3. Récupération de l'historique de conversation
-    const chatHistory = customer?.id
-      ? await databaseService.getChatHistory(pmeId, customer.id, 8)
-      : [];
-
-    // 4. Enregistrement du message utilisateur
-    if (customer?.id) {
-      await databaseService.saveChatMessage(pmeId, customer.id, 'user', userText);
-    }
-
-    // 5. Génération de la réponse IA autonome
-    const aiResponse = await aiService.generateResponse(
-      userText,
-      chatHistory,
-      pmeContext
-    );
-
-    // 6. Enregistrement de la réponse assistant
-    if (customer?.id) {
-      await databaseService.saveChatMessage(pmeId, customer.id, 'assistant', aiResponse);
-    }
-
-    // 7. Statistique globale
-    liveStats.totalMessages += 1;
-
-    // 8. Envoi de la réponse sur WhatsApp Meta
-    await whatsappService.sendTextMessage(
+    // Transmission à la file d'attente asynchrone sans bloquer la réponse Meta
+    whatsappQueueService.enqueue({
+      customerName,
       fromPhone,
-      aiResponse,
-      {
-        phoneNumberId: pmeRecord?.pme?.meta_phone_number_id || config.whatsapp.phoneNumberId,
-        token: pmeRecord?.pme?.meta_access_token || config.whatsapp.token
-      }
-    );
-
-    console.log(`🤖 [Réponse IA] Envoyée avec succès à ${fromPhone}`);
+      metaPhoneNumberId,
+      userText,
+      currentPmeConfig,
+      liveStats
+    });
 
   } catch (error) {
-    console.error('Erreur lors du traitement du Webhook WhatsApp:', error);
+    console.error('Erreur lors de la réception du Webhook WhatsApp:', error);
   }
 });
 
-// Route 3 : Integration Webhook pour n8n (Recevoir les événements n8n -> Reflex Dashboard)
+// Webhook FedaPay Real-time Notification
+app.post('/api/payments/fedapay/webhook', verifyPaymentWebhookSignature, async (req, res) => {
+  res.status(200).json({ received: true });
+
+  try {
+    const event = req.body;
+    console.log(`💳 [Webhook FedaPay] Événement reçu:`, event?.name || 'transaction.updated');
+
+    const transaction = event?.entity || event?.transaction;
+    const status = transaction?.status || event?.status;
+    const orderId = transaction?.custom_metadata?.orderId || transaction?.reference || `ORD-${Date.now()}`;
+    const amount = Number(transaction?.amount || 0);
+
+    if (status === 'approved' || status === 'transferred' || status === 'SUCCESS') {
+      console.log(`🎉 Paiement FedaPay confirmé pour la commande ${orderId} (${amount} FCFA)`);
+
+      // 1. Mettre à jour le statut en BD
+      await databaseService.updateOrderStatus(orderId, 'PAID', transaction?.id || 'FEDAPAY-TXN');
+
+      // 2. Mettre à jour le store live
+      const existingOrder = liveOrders.find(o => o.id === orderId);
+      if (existingOrder) {
+        existingOrder.status = 'PAID';
+      } else {
+        liveOrders.unshift({
+          id: orderId,
+          customerName: transaction?.customer?.firstname || 'Client WhatsApp',
+          phone: transaction?.customer?.phone_number?.number || '+229 97000000',
+          time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+          status: 'PAID',
+          amount,
+          item: 'Commande Reflex PME',
+          deliveryAddress: 'Cotonou, Bénin',
+          paymentRef: `FEDAPAY-${transaction?.id || Date.now()}`
+        });
+      }
+
+      liveStats.totalRevenue += amount;
+
+      // 3. Décrémentation du stock
+      await inventoryService.decrementStock('mock-pme-123', existingOrder?.item || 'Produit', 1);
+
+      // 4. Envoi automatique de la confirmation et du reçu PDF par WhatsApp
+      const customerPhone = existingOrder?.phone || transaction?.customer?.phone_number?.number;
+      if (customerPhone) {
+        const receiptUrl = `https://reflex-zjf7.onrender.com/api/reports/pdf/${orderId}`;
+        const confirmMsg = `✅ *PAIEMENT CONFIRMÉ - REFLEX*\n\n` +
+          `Merci ! Votre paiement de *${amount.toLocaleString()} FCFA* a été validé avec succès.\n\n` +
+          `📄 Téléchargez votre reçu officiel ici :\n${receiptUrl}`;
+
+        await whatsappService.sendTextMessage(customerPhone, confirmMsg);
+      }
+    }
+  } catch (err) {
+    console.error('Erreur traitement Webhook FedaPay:', err);
+  }
+});
+
+// Webhook Kkiapay Real-time Notification
+app.post('/api/payments/kkiapay/webhook', verifyPaymentWebhookSignature, async (req, res) => {
+  res.status(200).json({ received: true });
+
+  try {
+    const event = req.body;
+    console.log(`💳 [Webhook Kkiapay] Événement reçu:`, event?.isSuccess ? 'SUCCESS' : 'FAILED');
+
+    if (event?.isSuccess || event?.status === 'SUCCESS') {
+      const orderId = event?.transactionId || event?.customState || `ORD-${Date.now()}`;
+      const amount = Number(event?.amount || 0);
+
+      console.log(`🎉 Paiement Kkiapay confirmé pour la commande ${orderId} (${amount} FCFA)`);
+
+      await databaseService.updateOrderStatus(orderId, 'PAID', event?.transactionId || 'KKIAPAY-TXN');
+
+      const existingOrder = liveOrders.find(o => o.id === orderId);
+      if (existingOrder) {
+        existingOrder.status = 'PAID';
+      }
+
+      liveStats.totalRevenue += amount;
+      await inventoryService.decrementStock('mock-pme-123', existingOrder?.item || 'Produit', 1);
+
+      const customerPhone = existingOrder?.phone || event?.phone;
+      if (customerPhone) {
+        const receiptUrl = `https://reflex-zjf7.onrender.com/api/reports/pdf/${orderId}`;
+        const confirmMsg = `✅ *PAIEMENT CONFIRMÉ - REFLEX*\n\n` +
+          `Votre paiement Kkiapay de *${amount.toLocaleString()} FCFA* a été validé avec succès !\n\n` +
+          `📄 Votre reçu de paiement :\n${receiptUrl}`;
+
+        await whatsappService.sendTextMessage(customerPhone, confirmMsg);
+      }
+    }
+  } catch (err) {
+    console.error('Erreur traitement Webhook Kkiapay:', err);
+  }
+});
+
+// Route 3 : Integration Webhook pour n8n
 app.post('/api/webhook/n8n', (req, res) => {
   try {
-    const { from, userMessage, aiResponse, orderIntent, amount, customerName, address } = req.body;
+    const { from, userMessage, amount, customerName, address, orderIntent } = req.body;
     console.log(`⚡ Événement reçu depuis n8n pour ${from || 'Client WhatsApp'}`);
 
     liveStats.totalMessages += 1;
 
     if (orderIntent && amount) {
+      const orderId = `ORD-229-${Math.floor(100 + Math.random() * 900)}`;
       const newOrder = {
-        id: `ORD-229-${Math.floor(100 + Math.random() * 900)}`,
+        id: orderId,
         customerName: customerName || `Client (${from || 'WhatsApp'})`,
         phone: from || '+229 97 00 00 00',
         time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
@@ -313,7 +381,7 @@ app.post('/api/webhook/n8n', (req, res) => {
           intention: orderIntent,
           amount: Number(amount),
           deliveryLocation: address || 'Cotonou, Bénin',
-          paymentMethod: 'MTN Mobile Money / Wave',
+          paymentMethod: 'Mobile Money',
           conclusion: `L'IA a conclu le marché avec ${customerName || 'le client'} pour ${orderIntent}. Montant: ${amount} FCFA.`
         }
       };
@@ -321,6 +389,9 @@ app.post('/api/webhook/n8n', (req, res) => {
       liveOrders.unshift(newOrder);
       liveStats.totalRevenue += Number(amount);
       liveStats.reportsGenerated += 1;
+
+      // Sauvegarde en BD
+      databaseService.saveOrder(newOrder);
     }
 
     res.json({ success: true, message: 'Événement n8n synchronisé avec le Dashboard Reflex' });
@@ -330,27 +401,39 @@ app.post('/api/webhook/n8n', (req, res) => {
   }
 });
 
-// Route 4 : REST API Stats pour le Dashboard Reflex React
-app.get('/api/dashboard/stats', (_req, res) => {
+// Route 4 : REST API Stats pour le Dashboard Reflex React (Protégée par auth JWT en production)
+app.get('/api/dashboard/stats', requireAuth, (_req, res) => {
   res.json({
     stats: liveStats,
     recentOrders: liveOrders
   });
 });
 
-// Route FedaPay Live Payment Link Creation
+// Route FedaPay Payment Link Creation
 app.post('/api/payments/fedapay/create', async (req, res) => {
   try {
     const { amount, description, customerName, customerPhone, orderId } = req.body;
+    const finalOrderId = orderId || `ORD-${Date.now()}`;
+
     const paymentUrl = await paymentService.createFedaPayLink({
       amount: Number(amount) || 1000,
       description: description || 'Commande Reflex PME',
       customerName: customerName || 'Client WhatsApp',
       customerPhone: customerPhone || '97000000',
-      orderId: orderId || `ORD-${Date.now()}`
+      orderId: finalOrderId
     });
 
-    res.json({ success: true, paymentUrl, orderId });
+    // Enregistrer la commande en attente
+    await databaseService.saveOrder({
+      id: finalOrderId,
+      customerPhone: customerPhone || '97000000',
+      customerName: customerName || 'Client WhatsApp',
+      amount: Number(amount) || 1000,
+      item: description || 'Commande Reflex PME',
+      status: 'PENDING'
+    });
+
+    res.json({ success: true, paymentUrl, orderId: finalOrderId });
   } catch (error: any) {
     console.error('Erreur API FedaPay Route:', error);
     res.status(500).json({ success: false, error: 'Erreur lors de la génération du lien de paiement.' });
@@ -361,22 +444,33 @@ app.post('/api/payments/fedapay/create', async (req, res) => {
 app.post('/api/payments/kkiapay/create', async (req, res) => {
   try {
     const { amount, description, customerName, customerPhone, orderId } = req.body;
+    const finalOrderId = orderId || `ORD-${Date.now()}`;
+
     const paymentUrl = await paymentService.createKkiapayLink({
       amount: Number(amount) || 1000,
       description: description || 'Commande Reflex PME',
       customerName: customerName || 'Client WhatsApp',
       customerPhone: customerPhone || '97000000',
-      orderId: orderId || `ORD-${Date.now()}`
+      orderId: finalOrderId
     });
 
-    res.json({ success: true, paymentUrl, orderId });
+    await databaseService.saveOrder({
+      id: finalOrderId,
+      customerPhone: customerPhone || '97000000',
+      customerName: customerName || 'Client WhatsApp',
+      amount: Number(amount) || 1000,
+      item: description || 'Commande Reflex PME',
+      status: 'PENDING'
+    });
+
+    res.json({ success: true, paymentUrl, orderId: finalOrderId });
   } catch (error: any) {
     console.error('Erreur API Kkiapay Route:', error);
     res.status(500).json({ success: false, error: 'Erreur lors de la génération du lien Kkiapay.' });
   }
 });
 
-// Route 5 : Téléchargement dynamique du Rapport PDF de Vente Conclue par l'IA
+// Route 5 : Téléchargement dynamique du Rapport PDF
 app.get('/api/reports/pdf/:orderId', async (req, res) => {
   const { orderId } = req.params;
   const order = liveOrders.find((o) => o.id === orderId) || liveOrders[0];
@@ -410,9 +504,35 @@ app.get('/health', (_req, res) => {
     status: 'online',
     service: 'Reflex WhatsApp PME SaaS API Engine',
     pdfEngineActive: true,
+    hmacAuthActive: true,
+    asyncQueueActive: true,
     timestamp: new Date().toISOString(),
   });
 });
+
+// Tâche planifiée automatique : Relance des paniers / paiements abandonnés (toutes les 5 minutes)
+setInterval(async () => {
+  try {
+    const unpaidOrders = await databaseService.getUnpaidOrdersForReminder(15);
+    if (unpaidOrders && unpaidOrders.length > 0) {
+      console.log(`⏰ [Relance Automatique] ${unpaidOrders.length} commande(s) non payée(s) trouvée(s).`);
+
+      for (const order of unpaidOrders) {
+        if (order.customer_phone) {
+          const reminderMsg = `Bonjour ${order.customer_name || ''} ! 👋\n\n` +
+            `Votre commande *${order.items_description || 'Reflex PME'}* de *${(order.total_amount || 0).toLocaleString()} FCFA* est toujours en attente de règlement.\n\n` +
+            `Finalisez votre achat en 1 clic via Mobile Money. Besoin d'aide ? Répondez simplement à ce message !`;
+
+          await whatsappService.sendTextMessage(order.customer_phone, reminderMsg);
+          await databaseService.markReminderSent(order.order_number);
+          console.log(`📲 Message de relance envoyé à ${order.customer_phone} pour la commande ${order.order_number}`);
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Erreur Cron Relance Automatique:', err);
+  }
+}, 5 * 60 * 1000); // 5 minutes
 
 const server = app.listen(config.port, () => {
   console.log(`🚀 Serveur Reflex WhatsApp PME démarré sur le port ${config.port}`);
@@ -427,5 +547,3 @@ server.on('error', (err: any) => {
     console.error('Erreur serveur:', err);
   }
 });
-
-

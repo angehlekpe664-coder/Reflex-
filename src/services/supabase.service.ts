@@ -301,6 +301,112 @@ export class DatabaseService {
       return false;
     }
   }
+
+  /**
+   * Sauvegarde une nouvelle commande
+   */
+  async saveOrder(orderData: {
+    id: string;
+    pmeId?: string;
+    customerPhone?: string;
+    phone?: string;
+    customerName: string;
+    amount: number;
+    item: string;
+    deliveryAddress?: string;
+    paymentRef?: string;
+    status?: string;
+  }) {
+    if (!config.supabaseUrl || config.supabaseUrl.includes('dummy')) {
+      return true;
+    }
+
+    try {
+      await supabase.from('orders').upsert({
+        order_number: orderData.id,
+        pme_id: orderData.pmeId || null,
+        customer_phone: orderData.customerPhone || orderData.phone || '',
+        customer_name: orderData.customerName,
+        total_amount: orderData.amount,
+        items_description: orderData.item,
+        delivery_address: orderData.deliveryAddress || 'Cotonou, Bénin',
+        payment_reference: orderData.paymentRef,
+        status: orderData.status || 'PENDING'
+      });
+      return true;
+    } catch (err) {
+      console.error('Erreur saveOrder:', err);
+      return false;
+    }
+  }
+
+  /**
+   * Mettre à jour le statut d'une commande
+   */
+  async updateOrderStatus(orderId: string, status: string, paymentRef?: string) {
+    if (!config.supabaseUrl || config.supabaseUrl.includes('dummy')) {
+      return true;
+    }
+
+    try {
+      const updates: any = { status };
+      if (paymentRef) updates.payment_reference = paymentRef;
+
+      await supabase
+        .from('orders')
+        .update(updates)
+        .eq('order_number', orderId);
+      return true;
+    } catch (err) {
+      console.error('Erreur updateOrderStatus:', err);
+      return false;
+    }
+  }
+
+  /**
+   * Récupère les commandes non payées créées depuis plus de X minutes pour la relance automatique
+   */
+  async getUnpaidOrdersForReminder(minutesThreshold = 15) {
+    if (!config.supabaseUrl || config.supabaseUrl.includes('dummy')) {
+      return [];
+    }
+
+    try {
+      const thresholdTime = new Date(Date.now() - minutesThreshold * 60 * 1000).toISOString();
+      const { data: orders } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('status', 'PENDING')
+        .eq('reminder_sent', false)
+        .lt('created_at', thresholdTime);
+
+      return orders || [];
+    } catch (err) {
+      console.error('Erreur getUnpaidOrdersForReminder:', err);
+      return [];
+    }
+  }
+
+  /**
+   * Marquer la relance de commande comme envoyée
+   */
+  async markReminderSent(orderId: string) {
+    if (!config.supabaseUrl || config.supabaseUrl.includes('dummy')) {
+      return true;
+    }
+
+    try {
+      await supabase
+        .from('orders')
+        .update({ reminder_sent: true })
+        .eq('order_number', orderId);
+      return true;
+    } catch (err) {
+      console.error('Erreur markReminderSent:', err);
+      return false;
+    }
+  }
 }
 
 export const databaseService = new DatabaseService();
+
