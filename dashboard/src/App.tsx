@@ -202,50 +202,11 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dashMobileMenuOpen, setDashMobileMenuOpen] = useState(false);
 
-  // Dynamic Typewriter & Rotating Hero Headlines
-  const rotatingHeadlines = [
-    { highlight: "meilleur commercial 24/7.", subtitle: "Reflex automatise vos réponses clients en wolof, fon et français, présente votre catalogue et encaisse par Mobile Money (MTN MoMo, Moov Money, Wave) avec reçus certifiés." },
-    { highlight: "machine à vendre automatique.", subtitle: "Ne perdez plus aucune vente sur WhatsApp. L'IA conseille vos clients, négocie au bon prix et génère les bons de commande en temps réel." },
-    { highlight: "caissier Mobile Money 24/7.", subtitle: "Générez des liens d'encaissement sécurisés et émettez automatiquement des reçus certifiés SHA-256 pour chaque vente réussie." }
-  ];
-  const [headlineIndex, setHeadlineIndex] = useState(0);
-  const [displayText, setDisplayText] = useState('');
-  const [isDeleting, setIsDeleting] = useState(false);
-
   const heroBackgrounds = [
     '/hero_bg.png',
     '/pme_store.png'
   ];
   const [heroBgIndex, setHeroBgIndex] = useState(0);
-
-  // Smooth Typewriter (Machine à écrire + Effacement) Effect
-  useEffect(() => {
-    const currentTarget = rotatingHeadlines[headlineIndex].highlight;
-    let timer: any;
-
-    if (!isDeleting) {
-      if (displayText.length < currentTarget.length) {
-        timer = setTimeout(() => {
-          setDisplayText(currentTarget.slice(0, displayText.length + 1));
-        }, 55);
-      } else {
-        timer = setTimeout(() => {
-          setIsDeleting(true);
-        }, 2600);
-      }
-    } else {
-      if (displayText.length > 0) {
-        timer = setTimeout(() => {
-          setDisplayText(currentTarget.slice(0, displayText.length - 1));
-        }, 28);
-      } else {
-        setIsDeleting(false);
-        setHeadlineIndex((prev) => (prev + 1) % rotatingHeadlines.length);
-      }
-    }
-
-    return () => clearTimeout(timer);
-  }, [displayText, isDeleting, headlineIndex]);
 
   // Rotating background images
   useEffect(() => {
@@ -839,25 +800,15 @@ export default function App() {
                 </span>
               </div>
 
-              {/* Dynamic Typewriter Main Headline with Zero Layout Shift Bounding Box */}
-              <div className="hero-headline-fixed-box">
-                <h1 className="display-lg" style={{ color: '#ffffff', margin: 0 }}>
-                  Votre WhatsApp devient votre <br className="hero-br-desktop" />
-                  <span className="typewriter-container">
-                    <span className="animated-headline-text neon-orange-title">
-                      {displayText}
-                    </span>
-                    <span className="typewriter-cursor" style={{ color: '#FF5500' }}>|</span>
-                  </span>
-                </h1>
-              </div>
+              {/* Rock-Solid Hero Main Headline & Subtitle (Zero Layout Shift) */}
+              <h1 className="display-lg" style={{ color: '#ffffff', marginBottom: '20px', lineHeight: 1.25 }}>
+                Votre WhatsApp devient votre <br className="hero-br-desktop" />
+                <span className="neon-orange-title">machine à vendre 24/7.</span>
+              </h1>
 
-              {/* Dynamic Subtitle with Zero Layout Shift Bounding Box */}
-              <div className="hero-subtitle-fixed-box" style={{ margin: '16px auto 36px', maxWidth: '780px' }}>
-                <p className="body-lg" style={{ color: '#cbd5e1', margin: 0, fontSize: '18px', lineHeight: 1.6 }}>
-                  {rotatingHeadlines[headlineIndex].subtitle}
-                </p>
-              </div>
+              <p className="body-lg" style={{ color: '#cbd5e1', maxWidth: '820px', margin: '0 auto 40px', fontSize: '18.5px', lineHeight: 1.6 }}>
+                Reflex automatise vos réponses clients en wolof, fon et français, présente votre catalogue et encaisse par Mobile Money (MTN MoMo, Moov, Wave) avec des reçus certifiés.
+              </p>
 
               {/* CTA Buttons with Motion Scale */}
               <div className="hero-cta-container">
