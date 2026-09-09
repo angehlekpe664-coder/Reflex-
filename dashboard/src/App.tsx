@@ -56,7 +56,7 @@ function TurnstileContainer({ onVerify, onError }: { onVerify?: (token: string) 
         }}
         onError={(err) => {
           console.warn('Turnstile onError:', err);
-          setErrorMsg('Erreur Turnstile. Vérifiez la clé ou les noms d\'hôte Cloudflare.');
+          setErrorMsg('Erreur de vérification Turnstile. Veuillez réessayer.');
           if (onError) onError(err);
         }}
         onExpire={() => {
@@ -844,57 +844,38 @@ export default function App() {
             </div>
           </div>
 
-          {/* VIDEO DEMO PLACEHOLDER SECTION */}
-          <div id="demo-video" style={{ maxWidth: '1080px', margin: '0 auto 100px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
-            <div className="glass-card-dark" style={{ padding: '48px 36px', borderRadius: '28px', border: '1px solid rgba(255, 85, 0, 0.35)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)', textAlign: 'center' }}>
-              <div style={{ marginBottom: '32px' }}>
-                <span className="font-outfit" style={{ backgroundColor: 'rgba(255, 85, 0, 0.15)', color: '#FF5500', padding: '6px 18px', borderRadius: '9999px', fontSize: '13px', fontWeight: 700, border: '1px solid rgba(255, 85, 0, 0.3)', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                  <Play size={14} color="#FF5500" /> DÉMO VIDÉO REFLEX
-                </span>
-                <h2 className="headline-lg" style={{ color: '#ffffff', marginTop: '16px', marginBottom: '10px' }}>
-                  Découvrez l'IA Reflex en action
-                </h2>
-                <p style={{ fontSize: '15px', color: '#cbd5e1', maxWidth: '640px', margin: '0 auto' }}>
-                  Une vidéo de démonstration complète sera intégrée très prochainement pour illustrer l'autonomie de l'IA sur WhatsApp et les encaissements Mobile Money.
-                </p>
-              </div>
-
-              {/* Video Showcase Mockup Container */}
+          {/* VIDEO DEMO SHOWCASE SECTION */}
+          <div id="demo-video" style={{ maxWidth: '1080px', margin: '0 auto 80px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
+            <div className="glass-card-dark" style={{ padding: '24px', borderRadius: '24px', border: '1px solid rgba(255, 85, 0, 0.35)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)', textAlign: 'center' }}>
+              {/* Clean Video Player Frame */}
               <div style={{
-                maxWidth: '820px',
+                maxWidth: '920px',
                 margin: '0 auto',
                 aspectRatio: '16/9',
                 backgroundColor: '#020617',
-                borderRadius: '20px',
-                border: '2px dashed rgba(255, 85, 0, 0.4)',
+                borderRadius: '16px',
+                border: '1px solid rgba(255, 85, 0, 0.3)',
                 display: 'flex',
-                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 position: 'relative',
                 overflow: 'hidden',
-                boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
-                padding: '24px'
+                boxShadow: '0 20px 40px rgba(0,0,0,0.5)'
               }}>
                 <div style={{
-                  width: '76px',
-                  height: '76px',
+                  width: '80px',
+                  height: '80px',
                   borderRadius: '50%',
                   backgroundColor: '#FF5500',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  marginBottom: '20px',
-                  boxShadow: '0 0 35px rgba(255, 85, 0, 0.65)'
+                  boxShadow: '0 0 40px rgba(255, 85, 0, 0.7)',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s ease'
                 }}>
-                  <Play size={34} color="#ffffff" fill="#ffffff" style={{ marginLeft: '4px' }} />
+                  <Play size={36} color="#ffffff" fill="#ffffff" style={{ marginLeft: '4px' }} />
                 </div>
-                <h3 className="font-outfit" style={{ color: '#ffffff', fontSize: '20px', fontWeight: 700, marginBottom: '8px' }}>
-                  Vidéo de Démonstration Prochainement Disponible
-                </h3>
-                <p style={{ color: '#94a3b8', fontSize: '14px', maxWidth: '500px', margin: 0, lineHeight: 1.5 }}>
-                  Le tutoriel interactif présentera les réponses automatiques, la prise de commande et l'encaissement par MTN MoMo, Moov Money et Wave.
-                </p>
               </div>
             </div>
           </div>
@@ -1011,8 +992,8 @@ export default function App() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {[
                 {
-                  q: "Comment fonctionne la protection Cloudflare Turnstile sur Reflex ?",
-                  a: "Cloudflare Turnstile protège votre formulaire d'inscription contre les bots sans embêter vos clients avec des puzzzels d'images. C'est instantané, invisible et 100% sécurisé."
+                  q: "Comment fonctionne la protection anti-bot sur Reflex ?",
+                  a: "La protection Turnstile sécurise votre formulaire d'inscription contre le spam et les robots sans embêter vos clients avec des puzzles d'images. C'est instantané et 100% sécurisé."
                 },
                 {
                   q: "L'IA peut-elle comprendre le wolof, le fon et le français ?",
@@ -1521,15 +1502,15 @@ export default function App() {
                 textTransform: 'uppercase',
                 border: '1px solid rgba(255,255,255,0.3)'
               }}>
-                <Sparkles size={14} color="#FFD700" /> Cloudflare & Reflex Connect 2026
+                <Sparkles size={14} color="#FFD700" /> REFLEX AUTOMATION IA 2026
               </div>
 
-              <h2 style={{ fontSize: '38px', fontWeight: 900, lineHeight: 1.12, marginBottom: '16px', letterSpacing: '-0.8px' }}>
-                Where the Internet's builders connect.
+              <h2 style={{ fontSize: '36px', fontWeight: 900, lineHeight: 1.15, marginBottom: '16px', letterSpacing: '-0.5px' }}>
+                L'IA Commerciale WhatsApp N°1 pour votre PME.
               </h2>
 
               <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.92)', lineHeight: 1.6, marginBottom: '24px' }}>
-                October 19–21, 2026 · Moscone West, San Francisco & Cotonou, Bénin
+                Automatisez vos ventes 24/7, conseillez vos clients et encaissez par Mobile Money avec des reçus certifiés.
               </p>
 
               <button
