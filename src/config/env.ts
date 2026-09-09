@@ -18,7 +18,8 @@ export const config = {
     verifyToken: process.env.WHATSAPP_VERIFY_TOKEN || 'mon_token_verification',
   },
   fedapay: {
-    secretKey: process.env.FEDAPAY_SECRET_KEY || '',
-    environment: process.env.FEDAPAY_ENVIRONMENT || 'sandbox',
+    publicKey: process.env.FEDAPAY_PUBLIC_KEY || 'pk_live_JVbKBkCuJMTpnwgwiKi09Hom',
+    secretKey: process.env.FEDAPAY_SECRET_KEY || 'sk_live_jQV5A57A9GMJ_mzbK1YtoR3E',
+    environment: process.env.FEDAPAY_ENVIRONMENT || 'live',
   },
 };

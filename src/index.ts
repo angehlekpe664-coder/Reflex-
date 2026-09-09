@@ -338,6 +338,25 @@ app.get('/api/dashboard/stats', (_req, res) => {
   });
 });
 
+// Route FedaPay Live Payment Link Creation
+app.post('/api/payments/fedapay/create', async (req, res) => {
+  try {
+    const { amount, description, customerName, customerPhone, orderId } = req.body;
+    const paymentUrl = await paymentService.createFedaPayLink({
+      amount: Number(amount) || 1000,
+      description: description || 'Commande Reflex PME',
+      customerName: customerName || 'Client WhatsApp',
+      customerPhone: customerPhone || '97000000',
+      orderId: orderId || `ORD-${Date.now()}`
+    });
+
+    res.json({ success: true, paymentUrl, orderId });
+  } catch (error: any) {
+    console.error('Erreur API FedaPay Route:', error);
+    res.status(500).json({ success: false, error: 'Erreur lors de la génération du lien FedaPay.' });
+  }
+});
+
 // Route 5 : Téléchargement dynamique du Rapport PDF de Vente Conclue par l'IA
 app.get('/api/reports/pdf/:orderId', async (req, res) => {
   const { orderId } = req.params;

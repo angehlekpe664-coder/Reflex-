@@ -18,50 +18,65 @@ export class PaymentService {
       ? 'https://api.fedapay.com/v1'
       : 'https://sandbox-api.fedapay.com/v1';
 
+    const secretKey = config.fedapay.secretKey;
+
     try {
+      console.log(`💳 Initialisation transaction FedaPay (${config.fedapay.environment}) pour ${data.amount} FCFA...`);
+
       // 1. Créer la transaction FedaPay
       const response = await axios.post(
         `${baseUrl}/transactions`,
         {
-          amount: data.amount,
+          amount: Math.round(data.amount),
           currency: { iso: 'XOF' },
-          description: data.description,
-          callback_url: 'https://votre-domaine.com/api/payments/webhook',
+          description: data.description || `Commande Reflex ${data.orderId}`,
+          callback_url: `https://reflex-dashboard-lfp6.onrender.com/#pay-${data.orderId}`,
           customer: {
             firstname: data.customerName || 'Client',
             phone_number: {
-              number: data.customerPhone,
+              number: data.customerPhone ? data.customerPhone.replace(/\s+/g, '') : '97000000',
               country: 'BJ' // Bénin par défaut
             }
           }
         },
         {
           headers: {
-            Authorization: `Bearer ${config.fedapay.secretKey}`,
+            Authorization: `Bearer ${secretKey}`,
+            'x-api-key': secretKey,
             'Content-Type': 'application/json',
           }
         }
       );
 
-      const transactionId = response.data.v1?.transaction?.id;
+      const transaction = response.data.v1?.transaction || response.data.transaction || response.data.v1 || response.data;
+      const transactionId = transaction?.id;
 
-      // 2. Générer le lien de paiement
+      if (!transactionId) {
+        throw new Error('ID de transaction non retourné par FedaPay');
+      }
+
+      // 2. Générer le jeton et le lien de paiement direct FedaPay
       const tokenResponse = await axios.post(
         `${baseUrl}/transactions/${transactionId}/token`,
         {},
         {
           headers: {
-            Authorization: `Bearer ${config.fedapay.secretKey}`,
+            Authorization: `Bearer ${secretKey}`,
+            'x-api-key': secretKey,
             'Content-Type': 'application/json',
           }
         }
       );
 
-      return tokenResponse.data.token?.url || `https://pay.fedapay.com/${transactionId}`;
+      const tokenData = tokenResponse.data.token || tokenResponse.data.v1?.token || tokenResponse.data;
+      const checkoutUrl = tokenData?.url || `https://pay.fedapay.com/${transactionId}`;
+
+      console.log(`✅ Lien FedaPay Live généré : ${checkoutUrl}`);
+      return checkoutUrl;
     } catch (error: any) {
-      console.error('Erreur de création de paiement FedaPay:', error?.response?.data || error.message);
-      // Mode Fallback pour simulation de test
-      return `https://pay.fedapay.com/demo-link-order-${data.orderId}`;
+      console.error('⚠️ Erreur création paiement FedaPay Live:', error?.response?.data || error.message);
+      // Lien direct hébergé Reflex pour le client
+      return `https://reflex-dashboard-lfp6.onrender.com/#pay-${data.orderId}`;
     }
   }
 }
