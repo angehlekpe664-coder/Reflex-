@@ -36,6 +36,10 @@ import {
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
 import { Turnstile } from '@marsidev/react-turnstile';
+import { translations } from './translations';
+import { WhatsAppSimulator } from './components/WhatsAppSimulator';
+import { ReceiptModal } from './components/ReceiptModal';
+import { SkeletonCard, SkeletonTable } from './components/SkeletonLoader';
 
 // Cloudflare Turnstile Captcha Component for Auth Modal
 function TurnstileContainer({ onVerify, onError }: { onVerify?: (token: string) => void; onError?: (err: any) => void }) {
@@ -137,6 +141,13 @@ export default function App() {
   const [activeSidebarTab, setActiveSidebarTab] = useState<
     'Vue d\'ensemble' | 'Commandes' | 'Paiements' | 'Catalogue' | 'Paramètres'
   >('Vue d\'ensemble');
+  const [isTabLoading, setIsTabLoading] = useState(false);
+
+  const switchTab = (tab: 'Vue d\'ensemble' | 'Commandes' | 'Paiements' | 'Catalogue' | 'Paramètres') => {
+    setIsTabLoading(true);
+    setActiveSidebarTab(tab);
+    setTimeout(() => setIsTabLoading(false), 220);
+  };
 
   // WhatsApp Official Meta Connection State
   const [waConnectionStatus, setWaConnectionStatus] = useState<'DISCONNECTED' | 'CONNECTING' | 'CONNECTED'>('CONNECTED');
@@ -301,6 +312,41 @@ export default function App() {
 
   const [orderSearchQuery, setOrderSearchQuery] = useState('');
   const [orderStatusFilter, setOrderStatusFilter] = useState<'ALL' | 'PAID' | 'PENDING'>('ALL');
+
+  // Interactive Language Switcher State (FR, EN, FON, WO)
+  const [currentLang, setCurrentLang] = useState<'FR' | 'EN' | 'FON' | 'WO'>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('reflex_language') as any) || 'FR';
+    }
+    return 'FR';
+  });
+  const t = translations[currentLang] || translations.FR;
+  const [langMenuOpen, setLangMenuOpen] = useState(false);
+  const [receiptModalOpen, setReceiptModalOpen] = useState(false);
+  const [selectedReceiptOrder, setSelectedReceiptOrder] = useState<any>({
+    id: 'ORD-229-892',
+    pmeName: 'Boutique Élégance Bénin',
+    item: 'Perruque Brésilienne 18 pouces',
+    amount: 45000,
+    customerPhone: '97 45 12 89',
+    customerName: 'Koffi Mensah',
+    deliveryAddress: 'Cotonou, Quartier Cadjehoun'
+  });
+
+  const availableLanguages = [
+    { code: 'FR', label: 'Français', flag: '🇫🇷' },
+    { code: 'EN', label: 'English', flag: '🇬🇧' },
+    { code: 'FON', label: 'Fongbe', flag: '🇧🇯' },
+    { code: 'WO', label: 'Wolof', flag: '🇸🇳' },
+  ];
+
+  const handleSelectLanguage = (langCode: 'FR' | 'EN' | 'FON' | 'WO') => {
+    setCurrentLang(langCode);
+    localStorage.setItem('reflex_language', langCode);
+    setLangMenuOpen(false);
+    const langObj = availableLanguages.find(l => l.code === langCode);
+    showToast(`Langue sélectionnée : ${langObj?.flag} ${langObj?.label}`, 'info');
+  };
 
   // Scroll-To-Top floating button state
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -724,6 +770,31 @@ export default function App() {
               <a href="#demo-video" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>Démo Vidéo</a>
               <a href="#faq" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>FAQ</a>
 
+              {/* Interactive Language Selector Dropdown */}
+              <div style={{ position: 'relative' }}>
+                <div
+                  onClick={() => setLangMenuOpen(!langMenuOpen)}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600, color: '#ffffff', cursor: 'pointer', backgroundColor: 'rgba(255, 255, 255, 0.08)', padding: '6px 14px', borderRadius: '9999px', border: '1px solid rgba(255, 255, 255, 0.15)', userSelect: 'none' }}
+                >
+                  <Globe size={14} color="#FF5500" /> {availableLanguages.find(l => l.code === currentLang)?.flag} {availableLanguages.find(l => l.code === currentLang)?.code} ▾
+                </div>
+
+                {langMenuOpen && (
+                  <div style={{ position: 'absolute', top: '120%', right: 0, backgroundColor: '#0F172A', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '12px', padding: '6px', display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 12px 35px rgba(0,0,0,0.6)', zIndex: 100, minWidth: '150px' }}>
+                    {availableLanguages.map(l => (
+                      <div
+                        key={l.code}
+                        onClick={() => handleSelectLanguage(l.code as any)}
+                        style={{ padding: '8px 12px', borderRadius: '8px', fontSize: '13px', color: currentLang === l.code ? '#FF5500' : '#ffffff', fontWeight: currentLang === l.code ? 700 : 500, backgroundColor: currentLang === l.code ? 'rgba(255,85,0,0.15)' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                      >
+                        <span>{l.flag}</span>
+                        <span>{l.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <span
                 style={{ fontSize: '14.5px', fontWeight: 600, color: '#ffffff', cursor: 'pointer', transition: 'color 0.2s' }}
                 onClick={() => { setAuthMode('login'); setActiveView('auth'); }}
@@ -796,18 +867,18 @@ export default function App() {
               <div className="glow-orange-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '8px 22px', borderRadius: '9999px', marginBottom: '32px' }}>
                 <Sparkles size={16} color="#FF5500" className="animate-pulse" />
                 <span className="font-outfit" style={{ fontSize: '13.5px', fontWeight: 700, color: '#FF8800', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                  L'IA Commerciale WhatsApp N°1 en Afrique de l'Ouest
+                  {t.heroBadge}
                 </span>
               </div>
 
               {/* Rock-Solid Hero Main Headline & Subtitle (Zero Layout Shift) */}
               <h1 className="display-lg" style={{ color: '#ffffff', marginBottom: '20px', lineHeight: 1.25 }}>
-                Votre WhatsApp devient votre <br className="hero-br-desktop" />
-                <span className="neon-orange-title">machine à vendre 24/7.</span>
+                {t.heroTitle1} <br className="hero-br-desktop" />
+                <span className="neon-orange-title">{t.heroTitleHighlight}</span>
               </h1>
 
               <p className="body-lg" style={{ color: '#cbd5e1', maxWidth: '820px', margin: '0 auto 40px', fontSize: '18.5px', lineHeight: 1.6 }}>
-                Reflex automatise vos réponses clients en wolof, fon et français, présente votre catalogue et encaisse par Mobile Money (MTN MoMo, Moov, Wave) avec des reçus certifiés.
+                {t.heroSub}
               </p>
 
               {/* CTA Buttons with Motion Scale */}
@@ -817,14 +888,15 @@ export default function App() {
                   style={{ padding: '16px 38px', fontSize: '17px', borderRadius: '12px' }}
                   onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
                 >
-                  Commencer gratuitement <ArrowRight size={20} />
+                  {t.ctaStartNow} <ArrowRight size={20} />
                 </button>
                 
                 <a
-                  href="#demo-video"
+                  href="#demo-simulator"
                   style={{ padding: '16px 32px', fontSize: '17px', borderRadius: '12px', color: '#ffffff', border: '1px solid rgba(255, 85, 0, 0.4)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: 'rgba(255, 85, 0, 0.08)', backdropFilter: 'blur(10px)', transition: 'all 0.2s ease' }}
                 >
-                  <Play size={20} color="#FF5500" fill="#FF5500" /> Voir la Démo Vidéo
+                  <Play size={18} color="#FF5500" fill="#FF5500" />
+                  {t.ctaWatchDemo}
                 </a>
               </div>
 
@@ -878,6 +950,30 @@ export default function App() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* INTERACTIVE WHATSAPP CHAT SIMULATOR */}
+          <div id="demo-simulator" style={{ maxWidth: '1140px', margin: '0 auto 100px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
+            <div style={{ textAlign: 'center', marginBottom: '36px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 700, color: '#FF5500', backgroundColor: 'rgba(255,85,0,0.12)', padding: '6px 16px', borderRadius: '9999px', border: '1px solid rgba(255,85,0,0.3)', marginBottom: '14px' }}>
+                <Sparkles size={14} className="animate-pulse" />
+                <span>{t.simulatorBadge}</span>
+              </div>
+              <h2 className="font-outfit" style={{ fontSize: '32px', fontWeight: 800, color: '#ffffff', marginBottom: '12px' }}>
+                {t.simulatorTitle}
+              </h2>
+              <p style={{ color: '#94a3b8', fontSize: '16px', maxWidth: '640px', margin: '0 auto' }}>
+                {t.simulatorSub}
+              </p>
+            </div>
+
+            <WhatsAppSimulator
+              currentLang={currentLang}
+              onCheckout={() => {
+                showToast("Ouverture de l'écran de paiement Mobile Money...", "info");
+                setActiveView('payment-checkout');
+              }}
+            />
           </div>
 
           {/* MOBILE MONEY PAYMENT DEMO BAR */}
@@ -1462,8 +1558,28 @@ export default function App() {
 
             {/* Top Right Language & Switch Action */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '12px', position: 'relative', zIndex: 2 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', fontWeight: 600, color: 'rgba(255,255,255,0.95)', cursor: 'pointer', backgroundColor: 'rgba(0,0,0,0.2)', padding: '5px 14px', borderRadius: '20px', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.25)' }}>
-                <Globe size={13} /> Français ▾
+              <div style={{ position: 'relative' }}>
+                <div
+                  onClick={() => setLangMenuOpen(!langMenuOpen)}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', fontWeight: 600, color: 'rgba(255,255,255,0.95)', cursor: 'pointer', backgroundColor: 'rgba(0,0,0,0.2)', padding: '5px 14px', borderRadius: '20px', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.25)', userSelect: 'none' }}
+                >
+                  <Globe size={13} /> {availableLanguages.find(l => l.code === currentLang)?.flag} {availableLanguages.find(l => l.code === currentLang)?.label} ▾
+                </div>
+
+                {langMenuOpen && (
+                  <div style={{ position: 'absolute', top: '110%', right: 0, backgroundColor: '#0F172A', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px', padding: '6px', display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', zIndex: 100, minWidth: '150px' }}>
+                    {availableLanguages.map(l => (
+                      <div
+                        key={l.code}
+                        onClick={() => handleSelectLanguage(l.code as any)}
+                        style={{ padding: '8px 12px', borderRadius: '8px', fontSize: '13px', color: currentLang === l.code ? '#FF5500' : '#ffffff', fontWeight: currentLang === l.code ? 700 : 500, backgroundColor: currentLang === l.code ? 'rgba(255,85,0,0.15)' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                      >
+                        <span>{l.flag}</span>
+                        <span>{l.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               <button
                 type="button"
@@ -2043,7 +2159,7 @@ export default function App() {
               <>
                 <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '20px', marginBottom: '24px', textAlign: 'center' }}>
                   <span className="font-outfit" style={{ backgroundColor: 'rgba(255, 85, 0, 0.15)', color: '#FF5500', padding: '5px 14px', borderRadius: '9999px', fontSize: '12px', fontWeight: 700, border: '1px solid rgba(255, 85, 0, 0.3)' }}>
-                    PROPULSÉ PAR FEDAPAY MOBILE MONEY
+                    PROPULSÉ PAR REFLEX MOBILE MONEY
                   </span>
                   <h2 className="font-outfit" style={{ fontSize: '24px', fontWeight: 800, color: '#ffffff', marginTop: '12px', marginBottom: '4px' }}>{currentCheckoutOrder.pmeName}</h2>
                   <div style={{ fontSize: '13.5px', color: '#cbd5e1' }}>Règlement de la Commande : <strong style={{ color: '#FF5500' }}>{currentCheckoutOrder.id}</strong></div>
@@ -2064,7 +2180,7 @@ export default function App() {
                 {/* Mobile Money Provider Choice */}
                 <div style={{ marginBottom: '24px' }}>
                   <label style={{ fontSize: '13.5px', fontWeight: 600, color: '#ffffff', marginBottom: '10px', display: 'block' }}>
-                    Mode d'encaissement Mobile Money FedaPay
+                    Mode d'encaissement Mobile Money
                   </label>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
                     <div
@@ -2079,8 +2195,8 @@ export default function App() {
                         transition: 'all 0.2s ease'
                       }}
                     >
-                      <div style={{ fontWeight: 800, fontSize: '13px', color: '#FFCC00' }}>MTN MoMo</div>
-                      <div style={{ fontSize: '11px', color: '#cbd5e1', marginTop: '2px' }}>*139#</div>
+                      <div style={{ fontWeight: 800, color: '#FFCC00', fontSize: '13px' }}>MTN MoMo</div>
+                      <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>*139#</div>
                     </div>
 
                     <div
@@ -2095,8 +2211,8 @@ export default function App() {
                         transition: 'all 0.2s ease'
                       }}
                     >
-                      <div style={{ fontWeight: 800, fontSize: '13px', color: '#38BDF8' }}>Moov Money</div>
-                      <div style={{ fontSize: '11px', color: '#cbd5e1', marginTop: '2px' }}>*155#</div>
+                      <div style={{ fontWeight: 800, color: '#38BDF8', fontSize: '13px' }}>Moov Money</div>
+                      <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>*155#</div>
                     </div>
 
                     <div
@@ -2111,8 +2227,8 @@ export default function App() {
                         transition: 'all 0.2s ease'
                       }}
                     >
-                      <div style={{ fontWeight: 800, fontSize: '13px', color: '#1DC3F4' }}>Wave App</div>
-                      <div style={{ fontSize: '11px', color: '#cbd5e1', marginTop: '2px' }}>Direct</div>
+                      <div style={{ fontWeight: 800, color: '#1DC3F4', fontSize: '13px' }}>Wave App</div>
+                      <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>Scannez & Payez</div>
                     </div>
                   </div>
                 </div>
@@ -2130,7 +2246,7 @@ export default function App() {
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '13px', fontWeight: 600, color: '#ffffff', marginBottom: '6px', display: 'block' }}>Numéro Mobile Money (Bénin / Afrique Ouest)</label>
+                    <label style={{ fontSize: '13px', fontWeight: 600, color: '#ffffff', marginBottom: '6px', display: 'block' }}>Numéro Mobile Money du Payer (+229)</label>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <span style={{ padding: '12px 14px', backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', fontSize: '14px', fontWeight: 700, color: '#FF5500' }}>+229</span>
                       <input
@@ -2153,7 +2269,7 @@ export default function App() {
                   style={{ width: '100%', padding: '16px', fontSize: '16.5px', fontWeight: 800, borderRadius: '12px' }}
                   onClick={handleProcessPayment}
                 >
-                  Payer {currentCheckoutOrder.amount.toLocaleString()} FCFA via FedaPay ({selectedMomoProvider.toUpperCase()}) →
+                  Payer {currentCheckoutOrder.amount.toLocaleString()} FCFA via Mobile Money ({selectedMomoProvider.toUpperCase()}) →
                 </button>
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '12px', color: '#cbd5e1', marginTop: '18px' }}>
@@ -2168,11 +2284,11 @@ export default function App() {
 
                 <h2 className="font-outfit" style={{ fontSize: '26px', fontWeight: 800, color: '#ffffff', marginBottom: '8px' }}>Paiement Réussi !</h2>
                 <p style={{ fontSize: '14px', color: '#cbd5e1', marginBottom: '24px', lineHeight: 1.6 }}>
-                  Votre règlement de <strong style={{ color: '#10B981' }}>{currentCheckoutOrder.amount.toLocaleString()} FCFA</strong> a été encaissé avec succès via FedaPay. Le reçu officiel a été envoyé sur votre WhatsApp.
+                  Votre règlement de <strong style={{ color: '#10B981' }}>{currentCheckoutOrder.amount.toLocaleString()} FCFA</strong> a été encaissé avec succès via Mobile Money. Le reçu officiel a été envoyé sur votre WhatsApp.
                 </p>
 
                 <div style={{ backgroundColor: 'rgba(255,255,255,0.04)', border: '1px dashed rgba(255,85,0,0.4)', borderRadius: '14px', padding: '18px', textAlign: 'left', marginBottom: '24px', fontSize: '12.5px' }}>
-                  <div style={{ fontWeight: 800, color: '#FF5500', fontSize: '13.5px', marginBottom: '6px' }}>Reçu Officiel Reflex FedaPay #{currentCheckoutOrder.id}</div>
+                  <div style={{ fontWeight: 800, color: '#FF5500', fontSize: '13.5px', marginBottom: '6px' }}>Reçu Officiel Reflex Mobile Money #{currentCheckoutOrder.id}</div>
                   <div style={{ color: '#ffffff', marginBottom: '3px' }}>Client : {currentCheckoutOrder.customerName} (+229 {payerPhone})</div>
                   <div style={{ color: '#cbd5e1', marginBottom: '3px' }}>Boutique : {currentCheckoutOrder.pmeName}</div>
                   <div style={{ color: '#cbd5e1', marginBottom: '4px' }}>Date : {new Date().toLocaleDateString('fr-FR')} à {new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>
@@ -2181,14 +2297,24 @@ export default function App() {
 
                 <button
                   className="btn-orange-primary"
-                  style={{ width: '100%', padding: '14px', fontSize: '15px', marginBottom: '12px' }}
+                  style={{ width: '100%', padding: '14px', fontSize: '15px', marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                  onClick={() => {
+                    setSelectedReceiptOrder(currentCheckoutOrder);
+                    setReceiptModalOpen(true);
+                  }}
+                >
+                  <Receipt size={18} /> Télécharger le Reçu PDF Certifié
+                </button>
+
+                <button
+                  style={{ width: '100%', padding: '12px', fontSize: '14px', borderRadius: '12px', color: '#ffffff', backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', fontWeight: 600, marginBottom: '8px' }}
                   onClick={() => { setPaymentSuccess(false); setActiveView('landing'); }}
                 >
                   Retourner à l'accueil
                 </button>
 
                 <button
-                  style={{ width: '100%', padding: '14px', fontSize: '15px', borderRadius: '12px', color: '#ffffff', backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', fontWeight: 700 }}
+                  style={{ width: '100%', padding: '12px', fontSize: '14px', borderRadius: '12px', color: '#94a3b8', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', fontWeight: 500 }}
                   onClick={() => { setPaymentSuccess(false); setActiveView('dashboard'); }}
                 >
                   Accéder au Dashboard Marchand →
@@ -2270,31 +2396,31 @@ export default function App() {
             <nav className="dashboard-sidebar-nav">
               <button
                 className={`sidebar-link ${activeSidebarTab === 'Vue d\'ensemble' ? 'active' : ''}`}
-                onClick={() => setActiveSidebarTab('Vue d\'ensemble')}
+                onClick={() => switchTab('Vue d\'ensemble')}
               >
                 <LayoutDashboard size={18} /> Vue d'ensemble
               </button>
               <button
                 className={`sidebar-link ${activeSidebarTab === 'Commandes' ? 'active' : ''}`}
-                onClick={() => setActiveSidebarTab('Commandes')}
+                onClick={() => switchTab('Commandes')}
               >
                 <ShoppingBag size={18} /> Commandes
               </button>
               <button
                 className={`sidebar-link ${activeSidebarTab === 'Paiements' ? 'active' : ''}`}
-                onClick={() => setActiveSidebarTab('Paiements')}
+                onClick={() => switchTab('Paiements')}
               >
-                <CreditCard size={18} /> Paiements (FedaPay)
+                <CreditCard size={18} /> Paiements
               </button>
               <button
                 className={`sidebar-link ${activeSidebarTab === 'Catalogue' ? 'active' : ''}`}
-                onClick={() => setActiveSidebarTab('Catalogue')}
+                onClick={() => switchTab('Catalogue')}
               >
                 <Grid size={18} /> Catalogue ({productsList.length})
               </button>
               <button
                 className={`sidebar-link ${activeSidebarTab === 'Paramètres' ? 'active' : ''}`}
-                onClick={() => setActiveSidebarTab('Paramètres')}
+                onClick={() => switchTab('Paramètres')}
               >
                 <Settings size={18} /> Paramètres
               </button>
@@ -2320,7 +2446,7 @@ export default function App() {
                 <h1 className="headline-lg" style={{ color: '#ffffff', marginBottom: '4px' }}>
                   {activeSidebarTab === 'Vue d\'ensemble' && `Bonjour ${fullName || 'Alex'}, voici votre activité aujourd'hui.`}
                   {activeSidebarTab === 'Commandes' && 'Gestion des Commandes Clients'}
-                  {activeSidebarTab === 'Paiements' && 'Transactions & Reçus FedaPay'}
+                  {activeSidebarTab === 'Paiements' && 'Transactions & Reçus Mobile Money'}
                   {activeSidebarTab === 'Catalogue' && 'Gestion du Catalogue Produit'}
                   {activeSidebarTab === 'Paramètres' && 'Configuration de la PME & Assistant IA'}
                 </h1>
@@ -2337,8 +2463,19 @@ export default function App() {
               </div>
             </div>
 
-            {/* TAB 1: VUE D'ENSEMBLE */}
-            {activeSidebarTab === 'Vue d\'ensemble' && (
+            {isTabLoading ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '10px 0' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+                  <SkeletonCard />
+                  <SkeletonCard />
+                  <SkeletonCard />
+                </div>
+                <SkeletonTable />
+              </div>
+            ) : (
+              <>
+                {/* TAB 1: VUE D'ENSEMBLE */}
+                {activeSidebarTab === 'Vue d\'ensemble' && (
               <div>
                 <div className="grid-responsive-stats">
                   <div className="reflex-card-base" style={{ padding: '20px' }}>
@@ -2354,7 +2491,7 @@ export default function App() {
                     <div style={{ fontSize: '28px', fontWeight: 700, color: '#ffffff', fontFamily: 'var(--font-mono)' }}>{liveStats.commandes}</div>
                   </div>
                   <div className="reflex-card-base" style={{ padding: '20px' }}>
-                    <div className="label-sm" style={{ color: '#94a3b8', marginBottom: '8px', textTransform: 'uppercase' }}>REVENUS FEDAPAY (FCFA)</div>
+                    <div className="label-sm" style={{ color: '#94a3b8', marginBottom: '8px', textTransform: 'uppercase' }}>REVENUS MOBILE MONEY (FCFA)</div>
                     <div style={{ fontSize: '28px', fontWeight: 700, color: '#ffffff', fontFamily: 'var(--font-mono)' }}>{liveStats.revenusFcfa.toLocaleString()}</div>
                   </div>
                   <div className="reflex-card-base" style={{ padding: '20px' }}>
@@ -2371,7 +2508,7 @@ export default function App() {
                         <h3 className="title-md" style={{ color: '#ffffff', fontSize: '18px' }}>Résumé intelligent de l'activité de {companyData.name}</h3>
                       </div>
                       <p className="body-md" style={{ color: '#cbd5e1', lineHeight: 1.6 }}>
-                        Reflex a traité {liveStats.conversations} messages pour <strong style={{ color: '#ffffff' }}>{companyData.name}</strong> avec un taux d'automatisation de {liveStats.autoAiPercent}%. L'IA utilise le ton <em>"{assistantConfig.tone}"</em> et présente vos {productsList.length} produits du catalogue avec les encaissements directs FedaPay.
+                        Reflex a traité {liveStats.conversations} messages pour <strong style={{ color: '#ffffff' }}>{companyData.name}</strong> avec un taux d'automatisation de {liveStats.autoAiPercent}%. L'IA utilise le ton <em>"{assistantConfig.tone}"</em> et présente vos {productsList.length} produits du catalogue avec les encaissements directs Mobile Money.
                       </p>
                     </div>
 
@@ -2795,12 +2932,21 @@ export default function App() {
                 </div>
               </div>
             )}
+            </>
+            )}
 
           </main>
         </div>
       </div>
     )}
 
-    </div>
+    {/* Global Receipt PDF Modal */}
+    <ReceiptModal
+      isOpen={receiptModalOpen}
+      onClose={() => setReceiptModalOpen(false)}
+      currentLang={currentLang}
+      order={selectedReceiptOrder}
+    />
+  </div>
   );
 }

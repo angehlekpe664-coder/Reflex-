@@ -79,6 +79,16 @@ export class PaymentService {
       return `https://reflex-dashboard-lfp6.onrender.com/#pay-${data.orderId}`;
     }
   }
+
+  /**
+   * Génère un lien de paiement Kkiapay (Mobile Money MTN, Moov, Wave)
+   */
+  async createKkiapayLink(data: PaymentRequest): Promise<string> {
+    const key = config.kkiapay.publicKey;
+    const checkoutUrl = `https://widget.kkiapay.me?amount=${Math.round(data.amount)}&key=${key}&callback=https://reflex-dashboard-lfp6.onrender.com/#pay-${data.orderId}`;
+    console.log(`✅ Lien Kkiapay généré : ${checkoutUrl}`);
+    return checkoutUrl;
+  }
 }
 
 export const paymentService = new PaymentService();

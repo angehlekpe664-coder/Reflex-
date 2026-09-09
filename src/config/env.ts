@@ -22,4 +22,10 @@ export const config = {
     secretKey: process.env.FEDAPAY_SECRET_KEY || 'sk_live_jQV5A57A9GMJ_mzbK1YtoR3E',
     environment: process.env.FEDAPAY_ENVIRONMENT || 'live',
   },
+  kkiapay: {
+    publicKey: process.env.KKIAPAY_PUBLIC_KEY || '0efb5b708b2911f1a8dd67bbdaba00dc',
+    privateKey: process.env.KKIAPAY_PRIVATE_KEY || 'tpk_0efb82818b2911f1a8dd67bbdaba00dc',
+    secretKey: process.env.KKIAPAY_SECRET_KEY || 'tsk_0efb82828b2911f1a8dd67bbdaba00dc',
+    environment: process.env.KKIAPAY_ENVIRONMENT || 'sandbox',
+  },
 };
