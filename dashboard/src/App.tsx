@@ -315,9 +315,10 @@ export default function App() {
   // Features 3, 4, 5: Dark Mode, Search/Filter, Toast Notifications
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('reflex_dark_mode') === 'true';
+      const saved = localStorage.getItem('reflex_dark_mode');
+      if (saved !== null) return saved === 'true';
     }
-    return false;
+    return true;
   });
 
   const toggleDarkMode = () => {
@@ -2266,7 +2267,7 @@ export default function App() {
       {/* 8. DASHBOARD DESKTOP & MOBILE WITH HAMBURGER DRAWER */}
       {/* ========================================================================= */}
       {activeView === 'dashboard' && (
-        <div className={darkMode ? 'dark-theme' : ''}>
+        <div className="dark-theme" style={{ backgroundColor: '#0B1727', minHeight: '100vh', color: '#ffffff' }}>
           {/* Toast Notification Container */}
           {toast && (
             <div className="toast-container">
@@ -2570,7 +2571,7 @@ export default function App() {
                       <div className="table-responsive-container desktop-table-only">
                         <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
                           <thead>
-                            <tr style={{ borderBottom: '1px solid #E2E8F0', color: '#45464d', fontSize: '12px' }}>
+                            <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)', color: '#94a3b8', fontSize: '12px' }}>
                               <th style={{ padding: '12px 14px' }}>RÉFÉRENCE</th>
                               <th style={{ padding: '12px 14px' }}>CLIENT</th>
                               <th style={{ padding: '12px 14px' }}>ARTICLE</th>
@@ -2580,7 +2581,7 @@ export default function App() {
                           </thead>
                           <tbody>
                             {filteredOrders.map((ord, idx) => (
-                              <tr key={idx} style={{ borderBottom: '1px solid #f8f9ff' }}>
+                              <tr key={idx} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                                 <td style={{ padding: '16px 14px', fontWeight: 600, fontFamily: 'var(--font-mono)' }}>{ord.id}</td>
                                 <td style={{ padding: '16px 14px' }}>
                                   <div style={{ fontWeight: 600 }}>{ord.name}</div>
@@ -2846,13 +2847,13 @@ export default function App() {
                     <button className="btn-primary-black" style={{ padding: '12px 24px', fontSize: '14px' }} onClick={handleFinalizeOnboarding}>
                       Enregistrer la configuration PME
                     </button>
-                    <button style={{ padding: '12px 20px', fontSize: '14px', backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '8px', color: '#0f172a', fontWeight: 600, cursor: 'pointer' }} onClick={loadSampleDemoData}>
+                    <button style={{ padding: '12px 20px', fontSize: '14px', backgroundColor: '#1E293B', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px', color: '#ffffff', fontWeight: 600, cursor: 'pointer' }} onClick={loadSampleDemoData}>
                       Charger données démo
                     </button>
                   </div>
                   {connectedWabaId && (
-                    <div style={{ marginTop: '12px', fontSize: '12px', color: '#64748b' }}>
-                      ID WABA Actif : <code style={{ backgroundColor: '#f1f5f9', padding: '2px 6px', borderRadius: '4px' }}>{connectedWabaId}</code>
+                    <div style={{ marginTop: '12px', fontSize: '12px', color: '#94a3b8' }}>
+                      ID WABA Actif : <code style={{ backgroundColor: '#1E293B', padding: '2px 6px', borderRadius: '4px', color: '#FF5500' }}>{connectedWabaId}</code>
                     </div>
                   )}
                 </div>
