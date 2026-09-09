@@ -8,7 +8,6 @@ import {
   Sparkles,
   Menu,
   ArrowRight,
-  Bot,
   Radio,
   User,
   Mail,
@@ -29,15 +28,57 @@ import {
   Sun,
   Moon,
   Search,
+  Eye,
+  EyeOff,
+  ChevronDown,
+  ChevronUp,
+  MessageSquare,
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
+import { Turnstile } from '@marsidev/react-turnstile';
+
+// Cloudflare Turnstile Captcha Component for Auth Modal
+function TurnstileContainer({ onVerify, onError }: { onVerify?: (token: string) => void; onError?: (err: any) => void }) {
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY || '0x4AAAAAAEnLp3-m1biy8CGz';
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '14px 0', minHeight: '65px' }}>
+      <Turnstile
+        siteKey={siteKey}
+        options={{
+          theme: 'light',
+          appearance: 'always'
+        }}
+        onSuccess={(token) => {
+          setErrorMsg(null);
+          if (onVerify) onVerify(token);
+        }}
+        onError={(err) => {
+          console.warn('Turnstile onError:', err);
+          setErrorMsg('Erreur Turnstile. Vérifiez la clé ou les noms d\'hôte Cloudflare.');
+          if (onError) onError(err);
+        }}
+        onExpire={() => {
+          if (onVerify) onVerify('');
+        }}
+      />
+      {errorMsg && (
+        <div style={{ color: '#e53e3e', fontSize: '12px', marginTop: '4px', textAlign: 'center' }}>
+          {errorMsg}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function App() {
   // Instant OAuth & Session Check to avoid Landing Page Flash
-  const checkInitialView = (): 'landing' | 'dashboard' | 'onboarding-entreprise' | 'loading' => {
+  const checkInitialView = (): 'landing' | 'dashboard' | 'onboarding-entreprise' | 'loading' | 'payment-checkout' => {
     if (typeof window === 'undefined') return 'landing';
     const isOAuth = window.location.hash.includes('access_token') || window.location.search.includes('code');
     if (isOAuth) return 'loading';
+    if (window.location.hash.includes('pay') || window.location.pathname.includes('pay')) return 'payment-checkout';
     return 'landing';
   };
 
@@ -47,13 +88,14 @@ export default function App() {
   >(checkInitialView);
 
   // Selected Order for Checkout Payment
-  const [currentCheckoutOrder] = useState({
+  const [currentCheckoutOrder, setCurrentCheckoutOrder] = useState({
     id: 'ORD-229-892',
     pmeName: 'Boutique Élégance Bénin',
     item: 'Perruque Brésilienne 18 pouces',
     amount: 45000,
-    customerPhone: '+229 97 45 12 89',
-    customerName: 'Koffi Mensah'
+    customerPhone: '97 45 12 89',
+    customerName: 'Koffi Mensah',
+    deliveryAddress: 'Cotonou, Quartier Cadjehoun'
   });
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [selectedMomoProvider, setSelectedMomoProvider] = useState<'mtn' | 'moov' | 'wave'>('mtn');
@@ -67,6 +109,8 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(false);
   const [showOtpStep, setShowOtpStep] = useState(false);
   const [otpCode, setOtpCode] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberDevice, setRememberDevice] = useState(true);
 
   // Onboarding Form States
   const [companyData, setCompanyData] = useState({
@@ -96,6 +140,8 @@ export default function App() {
 
   // WhatsApp Official Meta Connection State
   const [waConnectionStatus, setWaConnectionStatus] = useState<'DISCONNECTED' | 'CONNECTING' | 'CONNECTED'>('CONNECTED');
+
+
   const [connectedWabaId, setConnectedWabaId] = useState<string | null>(null);
 
   const handleLaunchMetaEmbeddedSignup = () => {
@@ -208,6 +254,9 @@ export default function App() {
     }, 7000);
     return () => clearInterval(bgTimer);
   }, []);
+
+  // FAQ Accordion Open Index State
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
 
 
@@ -678,46 +727,50 @@ export default function App() {
       )}
 
       {/* ========================================================================= */}
-      {/* 1. STYLISH CONTEXTUAL LANDING PAGE WITH GENERATED BACKGROUNDS & OUTFIT FONTS */}
+      {/* 1. STYLISH CONTEXTUAL LANDING PAGE WITH CLOUDFLARE COLORS & MOTION DESIGN */}
       {/* ========================================================================= */}
       {activeView === 'landing' && (
-        <div className="landing-page-wrapper">
+        <div className="landing-page-wrapper" style={{ backgroundColor: '#090d16', color: '#ffffff', minHeight: '100vh', overflowX: 'hidden' }}>
 
-          {/* Dancing Multi-Color & Spinning WhatsApp Background */}
+          {/* Cloudflare Tech Dot Grid & Motion Background System */}
           <div className="whatsapp-motion-container">
-            {/* Giant Spinning WhatsApp Icons */}
+            <div className="tech-dot-grid"></div>
+
+            {/* Giant Spinning WhatsApp Orbs */}
             <svg className="wa-bg-spin-giant" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.205 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
             <svg className="wa-bg-spin-left" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.205 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
 
-            {/* Floating Multi-Color Dancing Icons */}
+            {/* Floating Dancing Icons */}
             <svg className="wa-float-icon wa-float-1" width="60" height="60" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.205 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
             <svg className="wa-float-icon wa-float-2" width="75" height="75" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.205 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
-            <svg className="wa-float-icon wa-float-3" width="50" height="50" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.205 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
-            <svg className="wa-float-icon wa-float-4" width="65" height="65" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.205 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
           </div>
 
-          {/* Top Navigation Bar */}
-          <header className="main-header">
+          {/* Top Navigation Bar with Glassmorphic Blur */}
+          <header className="main-header" style={{ background: 'rgba(9, 13, 22, 0.92)', borderBottom: '1px solid rgba(255, 85, 0, 0.3)', backdropFilter: 'blur(16px)', boxShadow: '0 4px 30px rgba(255, 85, 0, 0.15)', position: 'sticky', top: 0, zIndex: 100 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-              <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '42px', width: 'auto', borderRadius: '10px', boxShadow: '0 4px 12px rgba(37, 211, 102, 0.3)' }} />
+              <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '40px', width: 'auto', borderRadius: '10px', boxShadow: '0 4px 14px rgba(255, 85, 0, 0.4)' }} />
               <span className="font-outfit" style={{ fontWeight: 800, fontSize: '24px', color: '#ffffff', letterSpacing: '-0.02em' }}>Reflex</span>
             </div>
 
-            <div className="nav-desktop-links">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: '#10B981', backgroundColor: 'rgba(255,255,255,0.06)', padding: '6px 14px', borderRadius: '9999px', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <div className="nav-desktop-links" style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: '#FF5500', backgroundColor: 'rgba(255, 85, 0, 0.12)', padding: '6px 14px', borderRadius: '9999px', border: '1px solid rgba(255, 85, 0, 0.35)' }}>
                 <Radio size={14} className="animate-pulse" />
                 <span>Service Actif 24/7</span>
               </div>
 
+              <a href="#features" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>Fonctionnalités</a>
+              <a href="#demo-video" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>Démo Vidéo</a>
+              <a href="#faq" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>FAQ</a>
+
               <span
-                style={{ fontSize: '15px', fontWeight: 500, color: '#cbd5e1', cursor: 'pointer', transition: 'color 0.2s' }}
+                style={{ fontSize: '14.5px', fontWeight: 600, color: '#ffffff', cursor: 'pointer', transition: 'color 0.2s' }}
                 onClick={() => { setAuthMode('login'); setActiveView('auth'); }}
               >
                 Se connecter
               </span>
 
               <button
-                className="btn-gradient-ai"
+                className="btn-orange-primary"
                 style={{ borderRadius: '10px', padding: '10px 22px', fontSize: '14px' }}
                 onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
               >
@@ -731,10 +784,14 @@ export default function App() {
 
             {mobileMenuOpen && (
               <div className="mobile-menu-drawer open">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: '#10B981', backgroundColor: 'rgba(255,255,255,0.06)', padding: '8px 14px', borderRadius: '9999px', border: '1px solid rgba(255,255,255,0.1)', width: 'fit-content' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: '#FF5500', backgroundColor: 'rgba(255,85,0,0.1)', padding: '8px 14px', borderRadius: '9999px', border: '1px solid rgba(255,85,0,0.2)', width: 'fit-content' }}>
                   <Radio size={14} className="animate-pulse" />
                   <span>Service Actif 24/7</span>
                 </div>
+
+                <a href="#features" onClick={() => setMobileMenuOpen(false)} style={{ color: '#ffffff', textDecoration: 'none', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>Fonctionnalités</a>
+                <a href="#demo-video" onClick={() => setMobileMenuOpen(false)} style={{ color: '#ffffff', textDecoration: 'none', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>Démo Vidéo</a>
+                <a href="#faq" onClick={() => setMobileMenuOpen(false)} style={{ color: '#ffffff', textDecoration: 'none', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>FAQ</a>
 
                 <button
                   className="btn-outline-white"
@@ -745,7 +802,7 @@ export default function App() {
                 </button>
 
                 <button
-                  className="btn-gradient-ai"
+                  className="btn-orange-primary"
                   style={{ width: '100%', justifyContent: 'center' }}
                   onClick={() => { setMobileMenuOpen(false); setAuthMode('signup'); setActiveView('auth'); }}
                 >
@@ -755,18 +812,29 @@ export default function App() {
             )}
           </header>
 
-          {/* Hero Section with Multi-Image Crossfade Background & Dynamic Typewriter Headline */}
+          {/* Hero Section with Cloudflare Electric Orange Ambient Glow & Typewriter Motion */}
           <div className="hero-section-padding" style={{ padding: '100px 24px 90px', position: 'relative', overflow: 'hidden' }}>
-            <div className="hero-bg-crossfade" style={{ backgroundImage: `linear-gradient(180deg, rgba(9, 13, 22, 0.92) 0%, rgba(15, 23, 42, 0.97) 100%), url(${heroBackgrounds[heroBgIndex]})` }} />
-            <div className="hero-radial-glow" />
+            <div className="hero-bg-crossfade" style={{ backgroundImage: `linear-gradient(180deg, rgba(9, 13, 22, 0.93) 0%, rgba(15, 23, 42, 0.97) 100%), url(${heroBackgrounds[heroBgIndex]})` }} />
+            <div style={{
+              position: 'absolute',
+              top: '5%',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: '850px',
+              height: '520px',
+              background: 'radial-gradient(circle, rgba(255, 85, 0, 0.28) 0%, rgba(243, 128, 32, 0.12) 50%, rgba(11, 23, 39, 0) 80%)',
+              filter: 'blur(110px)',
+              pointerEvents: 'none',
+              zIndex: 1
+            }} />
 
             <div style={{ maxWidth: '980px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 10 }}>
               
-              {/* Context Badge */}
-              <div className="glow-pill-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '8px 22px', borderRadius: '9999px', marginBottom: '32px' }}>
-                <Sparkles size={16} color="#00f2fe" className="animate-pulse" />
-                <span className="font-outfit" style={{ fontSize: '13.5px', fontWeight: 700, color: '#00f2fe', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                  L'IA Commerciale N°1 des PMEs en Afrique de l'Ouest
+              {/* Context Badge with Shimmer Glow */}
+              <div className="glow-orange-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '8px 22px', borderRadius: '9999px', marginBottom: '32px' }}>
+                <Sparkles size={16} color="#FF5500" className="animate-pulse" />
+                <span className="font-outfit" style={{ fontSize: '13.5px', fontWeight: 700, color: '#FF8800', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                  L'IA Commerciale WhatsApp N°1 en Afrique de l'Ouest
                 </span>
               </div>
 
@@ -774,10 +842,10 @@ export default function App() {
               <h1 className="display-lg" style={{ color: '#ffffff', marginBottom: '24px' }}>
                 Votre WhatsApp devient votre <br className="hero-br-desktop" />
                 <span className="typewriter-container">
-                  <span className="animated-headline-text neon-gradient-title">
+                  <span className="animated-headline-text neon-orange-title">
                     {displayText}
                   </span>
-                  <span className="typewriter-cursor">|</span>
+                  <span className="typewriter-cursor" style={{ color: '#FF5500' }}>|</span>
                 </span>
               </h1>
 
@@ -786,63 +854,134 @@ export default function App() {
                 {rotatingHeadlines[headlineIndex].subtitle}
               </p>
 
-              {/* CTA Buttons */}
+              {/* CTA Buttons with Motion Scale */}
               <div className="hero-cta-container">
                 <button
-                  className="btn-gradient-ai"
-                  style={{ padding: '16px 36px', fontSize: '17px', borderRadius: '12px' }}
+                  className="btn-orange-primary"
+                  style={{ padding: '16px 38px', fontSize: '17px', borderRadius: '12px' }}
                   onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
                 >
                   Commencer gratuitement <ArrowRight size={20} />
                 </button>
                 
                 <a
-                  href="#demo-showcase"
-                  style={{ padding: '16px 32px', fontSize: '17px', borderRadius: '12px', color: '#ffffff', border: '1px solid rgba(255,255,255,0.2)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)' }}
+                  href="#demo-video"
+                  style={{ padding: '16px 32px', fontSize: '17px', borderRadius: '12px', color: '#ffffff', border: '1px solid rgba(255, 85, 0, 0.4)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: 'rgba(255, 85, 0, 0.08)', backdropFilter: 'blur(10px)', transition: 'all 0.2s ease' }}
                 >
-                  <Play size={20} color="#00f2fe" fill="#00f2fe" /> Voir la Démo Interactive
+                  <Play size={20} color="#FF5500" fill="#FF5500" /> Voir la Démo Vidéo
                 </a>
               </div>
 
               {/* Trust Badges Bar */}
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '32px', flexWrap: 'wrap', opacity: 0.85 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#cbd5e1' }}>
-                  <CheckCircle size={16} color="#10B981" /> <span>Installation en 3 minutes</span>
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '32px', flexWrap: 'wrap', opacity: 0.95, marginTop: '20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', color: '#cbd5e1' }}>
+                  <CheckCircle size={16} color="#FF5500" /> <span>Installation en 3 minutes</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#cbd5e1' }}>
-                  <Shield size={16} color="#10B981" /> <span>Paiements Certifiés SHA-256</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', color: '#cbd5e1' }}>
+                  <Shield size={16} color="#FF5500" /> <span>Paiements Certifiés SHA-256</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#cbd5e1' }}>
-                  <Zap size={16} color="#F59E0B" /> <span>Réponses IA en &lt; 3s</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', color: '#cbd5e1' }}>
+                  <Zap size={16} color="#FF8800" /> <span>Réponses IA en &lt; 2s</span>
                 </div>
               </div>
 
             </div>
           </div>
 
-          {/* 4 KEY FEATURES GRID WITH GLASSMORPHISM */}
-          <div style={{ maxWidth: '1140px', margin: '0 auto 100px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
+          {/* VIDEO DEMO PLACEHOLDER SECTION */}
+          <div id="demo-video" style={{ maxWidth: '1080px', margin: '0 auto 100px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
+            <div className="glass-card-dark" style={{ padding: '48px 36px', borderRadius: '28px', border: '1px solid rgba(255, 85, 0, 0.35)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)', textAlign: 'center' }}>
+              <div style={{ marginBottom: '32px' }}>
+                <span className="font-outfit" style={{ backgroundColor: 'rgba(255, 85, 0, 0.15)', color: '#FF5500', padding: '6px 18px', borderRadius: '9999px', fontSize: '13px', fontWeight: 700, border: '1px solid rgba(255, 85, 0, 0.3)', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                  <Play size={14} color="#FF5500" /> DÉMO VIDÉO REFLEX
+                </span>
+                <h2 className="headline-lg" style={{ color: '#ffffff', marginTop: '16px', marginBottom: '10px' }}>
+                  Découvrez l'IA Reflex en action
+                </h2>
+                <p style={{ fontSize: '15px', color: '#cbd5e1', maxWidth: '640px', margin: '0 auto' }}>
+                  Une vidéo de démonstration complète sera intégrée très prochainement pour illustrer l'autonomie de l'IA sur WhatsApp et les encaissements Mobile Money.
+                </p>
+              </div>
+
+              {/* Video Showcase Mockup Container */}
+              <div style={{
+                maxWidth: '820px',
+                margin: '0 auto',
+                aspectRatio: '16/9',
+                backgroundColor: '#020617',
+                borderRadius: '20px',
+                border: '2px dashed rgba(255, 85, 0, 0.4)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative',
+                overflow: 'hidden',
+                boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+                padding: '24px'
+              }}>
+                <div style={{
+                  width: '76px',
+                  height: '76px',
+                  borderRadius: '50%',
+                  backgroundColor: '#FF5500',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: '20px',
+                  boxShadow: '0 0 35px rgba(255, 85, 0, 0.65)'
+                }}>
+                  <Play size={34} color="#ffffff" fill="#ffffff" style={{ marginLeft: '4px' }} />
+                </div>
+                <h3 className="font-outfit" style={{ color: '#ffffff', fontSize: '20px', fontWeight: 700, marginBottom: '8px' }}>
+                  Vidéo de Démonstration Prochainement Disponible
+                </h3>
+                <p style={{ color: '#94a3b8', fontSize: '14px', maxWidth: '500px', margin: 0, lineHeight: 1.5 }}>
+                  Le tutoriel interactif présentera les réponses automatiques, la prise de commande et l'encaissement par MTN MoMo, Moov Money et Wave.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* MOBILE MONEY PAYMENT DEMO BAR */}
+          <div style={{ maxWidth: '1140px', margin: '0 auto 100px', padding: '0 24px' }}>
+            <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.75)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.12)', padding: '28px 36px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '20px' }}>
+              <div>
+                <div className="font-outfit" style={{ fontSize: '18px', fontWeight: 700, color: '#ffffff' }}>Prise en charge intégrale des paiements d'Afrique de l'Ouest</div>
+                <div style={{ fontSize: '13.5px', color: '#94a3b8', marginTop: '4px' }}>MTN Mobile Money (*139#), Moov Money (*155#), Wave et Cartes bancaires avec reçus certifiés SHA-256.</div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+                <span style={{ backgroundColor: '#FFCC00', color: '#000000', fontWeight: 800, padding: '8px 16px', borderRadius: '10px', fontSize: '13px', boxShadow: '0 4px 12px rgba(255,204,0,0.25)' }}>MTN MoMo (*139#)</span>
+                <span style={{ backgroundColor: '#0055A5', color: '#ffffff', fontWeight: 800, padding: '8px 16px', borderRadius: '10px', fontSize: '13px', boxShadow: '0 4px 12px rgba(0,85,165,0.25)' }}>Moov Money (*155#)</span>
+                <span style={{ backgroundColor: '#1DC3F4', color: '#ffffff', fontWeight: 800, padding: '8px 16px', borderRadius: '10px', fontSize: '13px', boxShadow: '0 4px 12px rgba(29,195,244,0.25)' }}>Wave App</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 4 KEY FEATURES GRID WITH GLASSMORPHISM & MOTION HOVER */}
+          <div id="features" style={{ maxWidth: '1140px', margin: '0 auto 100px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
             <div style={{ textAlign: 'center', marginBottom: '52px' }}>
-              <span className="font-outfit" style={{ color: '#00f2fe', fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>FONCTIONNALITÉS CLÉS</span>
+              <span className="font-outfit" style={{ color: '#FF8800', fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>FONCTIONNALITÉS CLÉS</span>
               <h2 className="headline-lg" style={{ color: '#ffffff', marginTop: '8px' }}>
-                Tout pour faire exploser votre chiffre d'affaires sur WhatsApp
+                Tout pour automatiser vos ventes WhatsApp
               </h2>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px' }}>
               
-              <div className="glass-card-dark" style={{ padding: '28px', borderRadius: '18px', border: '1px solid rgba(0, 242, 254, 0.2)', transition: 'transform 0.3s ease' }}>
-                <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, rgba(0, 242, 254, 0.2), rgba(79, 172, 254, 0.2))', color: '#00f2fe', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', border: '1px solid rgba(0, 242, 254, 0.3)' }}>
+              <div className="feature-card-hover">
+                <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, rgba(255, 85, 0, 0.25), rgba(230, 57, 0, 0.25))', color: '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', border: '1px solid rgba(255, 85, 0, 0.35)' }}>
                   <Zap size={26} />
                 </div>
                 <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff', marginBottom: '10px' }}>IA Commerciale 24/7</h3>
                 <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.6 }}>
-                  Réponses instantanées adaptées au ton de votre boutique. L'IA présente vos produits et vend sans interruption.
+                  Réponses instantanées adaptées au ton de votre boutique. L'IA présente vos produits et vend sans interruption en wolof, fon et français.
                 </p>
               </div>
 
-              <div className="glass-card-dark" style={{ padding: '28px', borderRadius: '18px', border: '1px solid rgba(16, 185, 129, 0.2)', transition: 'transform 0.3s ease' }}>
-                <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2))', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+              <div className="feature-card-hover">
+                <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, rgba(255, 136, 0, 0.25), rgba(245, 158, 11, 0.25))', color: '#FF8800', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', border: '1px solid rgba(255, 136, 0, 0.35)' }}>
                   <CreditCard size={26} />
                 </div>
                 <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff', marginBottom: '10px' }}>Paiement Mobile Money</h3>
@@ -851,8 +990,8 @@ export default function App() {
                 </p>
               </div>
 
-              <div className="glass-card-dark" style={{ padding: '28px', borderRadius: '18px', border: '1px solid rgba(245, 158, 11, 0.2)', transition: 'transform 0.3s ease' }}>
-                <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2))', color: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+              <div className="feature-card-hover">
+                <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(16, 185, 129, 0.25))', color: '#06b6d4', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', border: '1px solid rgba(6, 182, 212, 0.35)' }}>
                   <Receipt size={26} />
                 </div>
                 <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff', marginBottom: '10px' }}>Reçus SHA-256</h3>
@@ -861,8 +1000,8 @@ export default function App() {
                 </p>
               </div>
 
-              <div className="glass-card-dark" style={{ padding: '28px', borderRadius: '18px', border: '1px solid rgba(168, 85, 247, 0.2)', transition: 'transform 0.3s ease' }}>
-                <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(147, 51, 234, 0.2))', color: '#c084fc', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', border: '1px solid rgba(168, 85, 247, 0.3)' }}>
+              <div className="feature-card-hover">
+                <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(168, 85, 247, 0.25))', color: '#818cf8', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', border: '1px solid rgba(99, 102, 241, 0.35)' }}>
                   <LayoutDashboard size={26} />
                 </div>
                 <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff', marginBottom: '10px' }}>Dashboard PME</h3>
@@ -874,11 +1013,11 @@ export default function App() {
             </div>
           </div>
 
-          {/* REAL PME STORY BANNER WITH GENERATED IMAGE */}
+          {/* REAL PME STORY BANNER */}
           <div style={{ maxWidth: '1140px', margin: '0 auto 100px', padding: '0 24px' }}>
-            <div className="pme-story-bg" style={{ borderRadius: '24px', padding: '60px 48px', border: '1px solid rgba(255,255,255,0.15)', overflow: 'hidden', position: 'relative' }}>
+            <div className="pme-story-bg" style={{ borderRadius: '24px', padding: '60px 48px', border: '1px solid rgba(255, 85, 0, 0.35)', overflow: 'hidden', position: 'relative', background: 'linear-gradient(135deg, rgba(15,23,42,0.95), rgba(9,13,22,0.98))' }}>
               <div style={{ maxWidth: '640px' }}>
-                <span className="font-outfit" style={{ color: '#10B981', fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>CAS CONCRET • BOUTIQUE COTONOU</span>
+                <span className="font-outfit" style={{ color: '#FF5500', fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>CAS CONCRET • BOUTIQUE COTONOU</span>
                 <h2 className="headline-lg" style={{ color: '#ffffff', marginTop: '10px', marginBottom: '20px', fontSize: '36px' }}>
                   "J'ai multiplié mes ventes par 3 sans recruter de vendeurs."
                 </h2>
@@ -888,15 +1027,15 @@ export default function App() {
 
                 <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
                   <div>
-                    <div className="font-outfit" style={{ fontSize: '32px', fontWeight: 800, color: '#00f2fe' }}>+300%</div>
+                    <div className="font-outfit" style={{ fontSize: '32px', fontWeight: 800, color: '#FF5500' }}>+300%</div>
                     <div style={{ fontSize: '13px', color: '#94a3b8' }}>Chiffre d'affaires MoMo</div>
                   </div>
                   <div>
-                    <div className="font-outfit" style={{ fontSize: '32px', fontWeight: 800, color: '#10B981' }}>&lt; 3 sec</div>
+                    <div className="font-outfit" style={{ fontSize: '32px', fontWeight: 800, color: '#FF8800' }}>&lt; 2 sec</div>
                     <div style={{ fontSize: '13px', color: '#94a3b8' }}>Temps de réponse client</div>
                   </div>
                   <div>
-                    <div className="font-outfit" style={{ fontSize: '32px', fontWeight: 800, color: '#F59E0B' }}>100%</div>
+                    <div className="font-outfit" style={{ fontSize: '32px', fontWeight: 800, color: '#06b6d4' }}>100%</div>
                     <div style={{ fontSize: '13px', color: '#94a3b8' }}>Reçus certifiés générés</div>
                   </div>
                 </div>
@@ -904,124 +1043,108 @@ export default function App() {
             </div>
           </div>
 
-          {/* INTERACTIVE DEMO SHOWCASE SECTION */}
-          <div id="demo-showcase" style={{ maxWidth: '1040px', margin: '0 auto 100px', padding: '0 24px' }}>
-            <div className="glass-card-dark" style={{ padding: '48px', borderRadius: '24px', border: '1px solid rgba(0, 242, 254, 0.3)' }}>
-              <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-                <span className="font-outfit" style={{ backgroundColor: 'rgba(0, 242, 254, 0.15)', color: '#00f2fe', padding: '6px 16px', borderRadius: '9999px', fontSize: '13px', fontWeight: 700, border: '1px solid rgba(0, 242, 254, 0.3)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                  <Play size={12} fill="#00f2fe" color="#00f2fe" /> DEMO INTERACTIVE
-                </span>
-                <h2 className="headline-lg" style={{ color: '#ffffff', marginTop: '16px', marginBottom: '10px' }}>
-                  Testez le flux de vente WhatsApp en direct
-                </h2>
-                <p style={{ fontSize: '15px', color: '#94a3b8' }}>
-                  Visualisez comment l'IA Reflex discute avec le client final et génère le lien de paiement Mobile Money.
-                </p>
-              </div>
+          {/* INTERACTIVE FAQ ACCORDION SECTION */}
+          <div id="faq" style={{ maxWidth: '880px', margin: '0 auto 100px', padding: '0 24px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '44px' }}>
+              <span className="font-outfit" style={{ color: '#FF8800', fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>QUESTIONS FRÉQUENTES</span>
+              <h2 className="headline-lg" style={{ color: '#ffffff', marginTop: '8px' }}>
+                Tout ce que vous devez savoir sur Reflex
+              </h2>
+            </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '36px', alignItems: 'center' }}>
-                {/* Mobile Phone Mockup */}
-                <div style={{ backgroundColor: '#020617', borderRadius: '28px', padding: '18px', border: '2px solid rgba(255,255,255,0.15)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}>
-                  <div style={{ backgroundColor: '#0f172a', borderRadius: '20px', padding: '16px', minHeight: '380px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                    <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#10B981', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Bot size={20} />
-                      </div>
-                      <div>
-                        <div className="font-outfit" style={{ fontSize: '14px', fontWeight: 700, color: '#ffffff' }}>Assistant Boutique Élégance</div>
-                        <div style={{ fontSize: '11px', color: '#10B981', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10B981', display: 'inline-block' }}></span>
-                          En ligne sur WhatsApp
-                        </div>
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', margin: '20px 0' }}>
-                      <div style={{ backgroundColor: 'rgba(255,255,255,0.08)', padding: '12px 14px', borderRadius: '16px 16px 16px 4px', fontSize: '13px', color: '#e2e8f0', maxWidth: '85%' }}>
-                        Bonjour ! Vos perruques 18 pouces sont-elles disponibles à Cotonou ?
-                      </div>
-
-                      <div style={{ background: 'linear-gradient(135deg, #4f46e5, #4338ca)', color: '#ffffff', padding: '12px 14px', borderRadius: '16px 16px 4px 16px', fontSize: '13px', alignSelf: 'flex-end', maxWidth: '88%', boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)' }}>
-                        Oui tout à fait ! La "Perruque Brésilienne 18 pouces" est à 45 000 FCFA. Livraison rapide sous 24h.
-                        <br /><br />
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><CreditCard size={14} /> <strong>Lien de paiement Mobile Money :</strong></span>
-                        <div style={{ marginTop: '8px', textDecoration: 'underline', cursor: 'pointer', fontWeight: 700, backgroundColor: 'rgba(255,255,255,0.2)', padding: '6px 10px', borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '6px' }} onClick={() => setActiveView('payment-checkout')}>
-                          <span>pay/ORD-229-892</span> <ArrowRight size={14} />
-                        </div>
-                      </div>
-                    </div>
-
-                    <button
-                      className="btn-gradient-ai"
-                      style={{ width: '100%', padding: '12px', fontSize: '13px', textAlign: 'center', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                      onClick={() => setActiveView('payment-checkout')}
-                    >
-                      <CreditCard size={16} /> Tester la Page de Paiement Client <ArrowRight size={14} />
-                    </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {[
+                {
+                  q: "Comment fonctionne la protection Cloudflare Turnstile sur Reflex ?",
+                  a: "Cloudflare Turnstile protège votre formulaire d'inscription contre les bots sans embêter vos clients avec des puzzzels d'images. C'est instantané, invisible et 100% sécurisé."
+                },
+                {
+                  q: "L'IA peut-elle comprendre le wolof, le fon et le français ?",
+                  a: "Oui ! L'IA Reflex est spécialement entraînée pour reconnaître le langage naturel, les expressions locales et le vocabulaire commercial d'Afrique de l'Ouest."
+                },
+                {
+                  q: "Comment les clients paient-ils par Mobile Money ?",
+                  a: "L'IA génère un lien de paiement crypté. Le client clique, choisit son réseau (MTN MoMo *139#, Moov Money *155# ou Wave), valide sur son téléphone et reçoit son reçu certifié SHA-256."
+                },
+                {
+                  q: "Puis-je garder mon numéro WhatsApp actuel ?",
+                  a: "Absolument. Reflex s'intègre soit via QR Code instantané, soit via l'API officielle WhatsApp Meta Embedded Signup."
+                }
+              ].map((faq, idx) => (
+                <div
+                  key={idx}
+                  className="faq-accordion-item"
+                  onClick={() => setOpenFaqIndex(openFaqIndex === idx ? null : idx)}
+                  style={{ cursor: 'pointer', padding: '20px 24px' }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontWeight: 700, fontSize: '16px', color: '#ffffff' }}>
+                    <span>{faq.q}</span>
+                    {openFaqIndex === idx ? <ChevronUp size={18} color="#FF5500" /> : <ChevronDown size={18} color="#94a3b8" />}
                   </div>
-                </div>
 
-                <div>
-                  <h3 className="font-outfit" style={{ fontSize: '24px', fontWeight: 700, color: '#ffffff', marginBottom: '20px' }}>
-                    Du message client à l'encaissement en 4 étapes
-                  </h3>
-                  <ol style={{ display: 'flex', flexDirection: 'column', gap: '16px', fontSize: '15px', color: '#cbd5e1', paddingLeft: '20px', margin: 0 }}>
-                    <li><strong style={{ color: '#ffffff' }}>Le client s'informe :</strong> Question directe sur WhatsApp concernant un article du catalogue.</li>
-                    <li><strong style={{ color: '#ffffff' }}>L'IA répond instantanément :</strong> Fournit le prix exact en FCFA avec le ton de votre marque.</li>
-                    <li><strong style={{ color: '#ffffff' }}>Génération du lien de paiement :</strong> Dès que l'accord est conclu, l'IA envoie le lien sécurisé.</li>
-                    <li><strong style={{ color: '#ffffff' }}>Encaissement & Reçu :</strong> Le client règle via MTN MoMo, Moov ou Wave et reçoit son reçu certifié SHA-256.</li>
-                  </ol>
+                  {openFaqIndex === idx && (
+                    <p style={{ marginTop: '12px', fontSize: '14px', color: '#cbd5e1', lineHeight: 1.6, margin: '12px 0 0 0' }}>
+                      {faq.a}
+                    </p>
+                  )}
                 </div>
-              </div>
+              ))}
             </div>
           </div>
 
-          {/* PME TESTIMONIALS SECTION */}
-          <div style={{ backgroundColor: '#090d16', borderTop: '1px solid rgba(255,255,255,0.1)', borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '80px 24px' }}>
-            <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-              <div style={{ textAlign: 'center', marginBottom: '52px' }}>
-                <span className="font-outfit" style={{ color: '#00f2fe', fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>TÉMOIGNAGES PME</span>
-                <h2 className="headline-lg" style={{ color: '#ffffff', marginTop: '8px' }}>
-                  Rejoint par les boutiques leaders au Bénin
+          {/* EXPLOSIVE CLOUDFLARE ORANGE HIGH-CONVERTING CTA BANNER */}
+          <div style={{ maxWidth: '1140px', margin: '0 auto 100px', padding: '0 24px' }}>
+            <div style={{
+              background: 'linear-gradient(135deg, #FF5500 0%, #FA6400 50%, #E63900 100%)',
+              borderRadius: '28px',
+              padding: '64px 48px',
+              textAlign: 'center',
+              position: 'relative',
+              overflow: 'hidden',
+              boxShadow: '0 25px 60px rgba(255, 85, 0, 0.4)'
+            }}>
+              <div className="tech-dot-grid"></div>
+
+              <div style={{ position: 'relative', zIndex: 2, maxWidth: '720px', margin: '0 auto' }}>
+                <span style={{ backgroundColor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)', color: '#ffffff', padding: '6px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  ⚡ PRÊT À AUTOMATISER VOTRE BOUTIQUE ?
+                </span>
+                <h2 style={{ fontSize: '38px', fontWeight: 900, color: '#ffffff', marginTop: '18px', marginBottom: '16px', lineHeight: 1.15 }}>
+                  Rejoignez les PMEs qui vendent 24/7 avec l'IA Reflex
                 </h2>
-              </div>
+                <p style={{ fontSize: '16.5px', color: 'rgba(255,255,255,0.92)', marginBottom: '32px', lineHeight: 1.5 }}>
+                  Créez votre compte en 2 minutes et commencez à encaisser vos premiers paiements Mobile Money.
+                </p>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '28px' }}>
-                
-                <div className="glass-card-dark" style={{ padding: '28px', borderRadius: '18px' }}>
-                  <p style={{ fontSize: '15px', color: '#cbd5e1', fontStyle: 'italic', marginBottom: '20px', lineHeight: 1.6 }}>
-                    "Reflex réponds à nos clientes même à 23h. Nos ventes de perruques ont augmenté de 35% grâce au lien de paiement MoMo automatique."
-                  </p>
-                  <div className="font-outfit" style={{ fontWeight: 700, color: '#ffffff', fontSize: '15px' }}>Boutique Élégance Bénin</div>
-                  <div style={{ fontSize: '12px', color: '#00f2fe' }}>Cotonou, Bénin</div>
-                </div>
-
-                <div className="glass-card-dark" style={{ padding: '28px', borderRadius: '18px' }}>
-                  <p style={{ fontSize: '15px', color: '#cbd5e1', fontStyle: 'italic', marginBottom: '20px', lineHeight: 1.6 }}>
-                    "La génération automatique de reçu certifié rassure énormément nos acheteurs. C'est un gain de temps incroyable !"
-                  </p>
-                  <div className="font-outfit" style={{ fontWeight: 700, color: '#ffffff', fontSize: '15px' }}>Chez Marie Cosmétiques</div>
-                  <div style={{ fontSize: '12px', color: '#10B981' }}>Porto-Novo, Bénin</div>
-                </div>
-
-                <div className="glass-card-dark" style={{ padding: '28px', borderRadius: '18px' }}>
-                  <p style={{ fontSize: '15px', color: '#cbd5e1', fontStyle: 'italic', marginBottom: '20px', lineHeight: 1.6 }}>
-                    "Le tableau de bord me permet de voir exactement combien l'IA m'a fait gagner chaque jour. Indispensable pour ma boutique."
-                  </p>
-                  <div className="font-outfit" style={{ fontWeight: 700, color: '#ffffff', fontSize: '15px' }}>ElectroBenin Tech</div>
-                  <div style={{ fontSize: '12px', color: '#F59E0B' }}>Calavi, Bénin</div>
-                </div>
-
+                <button
+                  type="button"
+                  onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
+                  style={{
+                    backgroundColor: '#ffffff',
+                    color: '#FF5500',
+                    border: 'none',
+                    padding: '16px 40px',
+                    borderRadius: '14px',
+                    fontSize: '17px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    transition: 'transform 0.2s ease'
+                  }}
+                >
+                  Créer mon compte Reflex <ArrowRight size={20} />
+                </button>
               </div>
             </div>
           </div>
 
-          {/* FOOTER RE-DESIGNED WITH CONCISE TEXT & RE-BUILT MOBILE VIEW */}
-          <footer className="landing-footer-section">
-            {/* Top Glowing Gradient Line */}
-            <div className="footer-glow-line" />
+          {/* DUAL DESKTOP & MOBILE RESPONSIVE FOOTER */}
+          <footer className="landing-footer-section" style={{ borderTop: '1px solid rgba(255, 85, 0, 0.3)', backgroundColor: '#060911' }}>
+            <div className="footer-glow-line" style={{ background: 'linear-gradient(90deg, #FF5500, #FF8800, #06b6d4)' }} />
 
-            {/* Desktop Footer View (> 768px) */}
             <div className="desktop-footer-only">
               <div className="grid-responsive-footer" style={{ maxWidth: '1140px', margin: '0 auto 40px' }}>
                 <div>
@@ -1033,11 +1156,11 @@ export default function App() {
                     L'IA commerciale WhatsApp n°1 pour les PMEs d'Afrique de l'Ouest.
                   </p>
                   <div style={{ display: 'flex', gap: '10px' }}>
-                    <span style={{ backgroundColor: 'rgba(255,255,255,0.06)', padding: '5px 10px', borderRadius: '6px', fontSize: '11.5px', color: '#10b981', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-                      <MapPin size={12} color="#10b981" /> Cotonou
+                    <span style={{ backgroundColor: 'rgba(255,85,0,0.12)', border: '1px solid rgba(255,85,0,0.3)', padding: '5px 10px', borderRadius: '6px', fontSize: '11.5px', color: '#FF5500', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                      <MapPin size={12} color="#FF5500" /> Cotonou, Bénin
                     </span>
                     <span style={{ backgroundColor: 'rgba(255,255,255,0.06)', padding: '5px 10px', borderRadius: '6px', fontSize: '11.5px', color: '#06b6d4', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-                      <Zap size={12} color="#06b6d4" /> 24/7
+                      <Zap size={12} color="#06b6d4" /> 24/7 Active
                     </span>
                   </div>
                 </div>
@@ -1054,8 +1177,8 @@ export default function App() {
                 <div>
                   <div className="font-outfit" style={{ fontSize: '15px', fontWeight: 700, marginBottom: '14px', color: '#ffffff' }}>Paiements</div>
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13.5px', color: '#cbd5e1' }}>
-                    <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#f59e0b' }} /> MTN Mobile Money</li>
-                    <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981' }} /> Moov Money</li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#FF8800' }} /> MTN Mobile Money</li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#FF5500' }} /> Moov Money</li>
                     <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#06b6d4' }} /> Wave & Cartes</li>
                   </ul>
                 </div>
@@ -1063,7 +1186,7 @@ export default function App() {
                 <div>
                   <div className="font-outfit" style={{ fontSize: '15px', fontWeight: 700, marginBottom: '14px', color: '#ffffff' }}>Contact</div>
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13.5px', color: '#cbd5e1' }}>
-                    <li style={{ color: '#10b981', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}><Mail size={14} /> support@reflex.bj</li>
+                    <li style={{ color: '#FF5500', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}><Mail size={14} /> support@reflex.bj</li>
                     <li style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}><Phone size={14} /> +229 97 00 00 00</li>
                   </ul>
                 </div>
@@ -1078,7 +1201,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Completely Re-Built Compact Mobile Footer View (< 768px) */}
             <div className="mobile-footer-only">
               <div style={{ textAlign: 'center', marginBottom: '20px' }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
@@ -1088,38 +1210,10 @@ export default function App() {
                 <p style={{ fontSize: '13px', color: '#94a3b8', margin: '0 auto 12px', maxWidth: '280px', lineHeight: 1.4 }}>
                   L'IA commerciale WhatsApp n°1 pour les PMEs d'Afrique de l'Ouest.
                 </p>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
-                  <span style={{ backgroundColor: 'rgba(255,255,255,0.06)', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', color: '#10b981', fontWeight: 600 }}><MapPin size={12} color="#10b981" style={{ display: "inline", marginRight: "4px" }} /> Cotonou</span>
-                  <span style={{ backgroundColor: 'rgba(255,255,255,0.06)', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', color: '#06b6d4', fontWeight: 600 }}><Zap size={12} color="#06b6d4" style={{ display: "inline", marginRight: "4px" }} /> Service 24/7</span>
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
-                <div style={{ backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '12px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#10b981', marginBottom: '6px', letterSpacing: '0.05em' }}>PLATEFORME</div>
-                  <div style={{ fontSize: '13px', color: '#cbd5e1', cursor: 'pointer', marginBottom: '4px' }} onClick={() => setActiveView('landing')}>Fonctionnalités</div>
-                  <div style={{ fontSize: '13px', color: '#cbd5e1', cursor: 'pointer' }} onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}>Inscription</div>
-                </div>
-
-                <div style={{ backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '12px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#06b6d4', marginBottom: '6px', letterSpacing: '0.05em' }}>PAIEMENTS</div>
-                  <div style={{ fontSize: '13px', color: '#cbd5e1', marginBottom: '4px' }}>MTN / Moov / Wave</div>
-                  <div style={{ fontSize: '13px', color: '#cbd5e1' }}>Reçus SHA-256</div>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '12.5px', color: '#cbd5e1', marginBottom: '20px', flexWrap: 'wrap' }}>
-                <a href="mailto:support@reflex.bj" style={{ color: '#10b981', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}><Mail size={13} /> support@reflex.bj</a>
-                <a href="tel:+22997000000" style={{ color: '#cbd5e1', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}><Phone size={13} /> +229 97 00 00 00</a>
               </div>
 
               <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '16px', textAlign: 'center', fontSize: '12px', color: '#64748b' }}>
                 <div>© 2026 <strong>Reflex</strong>. Tous droits réservés.</div>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', marginTop: '6px' }}>
-                  <span style={{ cursor: 'pointer', color: '#94a3b8' }}>Confidentialité</span>
-                  <span>•</span>
-                  <span style={{ cursor: 'pointer', color: '#94a3b8' }}>Conditions</span>
-                </div>
               </div>
             </div>
           </footer>
@@ -1133,18 +1227,18 @@ export default function App() {
                 bottom: '24px',
                 right: '24px',
                 zIndex: 9999,
-                backgroundColor: '#10B981',
+                backgroundColor: '#FF5500',
                 color: '#ffffff',
                 border: 'none',
                 borderRadius: '50%',
-                width: '44px',
-                height: '44px',
+                width: '46px',
+                height: '46px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontWeight: 'bold',
                 fontSize: '16px',
-                boxShadow: '0 10px 25px rgba(16, 185, 129, 0.4)',
+                boxShadow: '0 10px 25px rgba(255, 85, 0, 0.45)',
                 cursor: 'pointer',
                 transition: 'transform 0.2s'
               }}
@@ -1153,173 +1247,358 @@ export default function App() {
               ▲
             </button>
           )}
+
+          {/* Mobile Quick Action WhatsApp Button */}
+          <a
+            href="https://wa.me/22997000000?text=Bonjour%20Reflex"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              position: 'fixed',
+              bottom: '24px',
+              left: '24px',
+              zIndex: 9998,
+              backgroundColor: '#25D366',
+              color: '#ffffff',
+              borderRadius: '50px',
+              padding: '12px 18px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontSize: '13.5px',
+              fontWeight: 700,
+              boxShadow: '0 8px 25px rgba(37, 211, 102, 0.4)',
+              textDecoration: 'none'
+            }}
+          >
+            <MessageSquare size={18} />
+            <span>WhatsApp Live</span>
+          </a>
+
         </div>
       )}
 
       {/* ========================================================================= */}
-      {/* 2. AUTH PAGE (Supabase Auth & Email Inbox Confirmation Notice) */}
+      {/* 2. AUTH PAGE (Compact Viewport Fit - Exact 50/50 Split Screen) */}
       {/* ========================================================================= */}
       {activeView === 'auth' && (
-        <div style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '32px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-            <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '40px', width: 'auto', borderRadius: '8px' }} />
-            <span style={{ fontWeight: 800, fontSize: '22px', color: '#0b1c30' }}>Reflex</span>
-          </div>
-
-          <div className="reflex-card-base" style={{ width: '100%', maxWidth: '460px', padding: '40px', backgroundColor: '#ffffff' }}>
-            <h2 className="headline-lg-mobile" style={{ color: '#0b1c30', textAlign: 'center', marginBottom: '8px' }}>
-              {authMode === 'signup' ? 'Créer votre compte Reflex' : 'Bon retour parmi nous'}
-            </h2>
-            <p className="body-md" style={{ color: '#45464d', textAlign: 'center', fontSize: '13px', marginBottom: '28px' }}>
-              {authMode === 'signup' ? 'Inscrivez votre PME et commencez à automatiser vos ventes WhatsApp.' : 'Accédez à votre tableau de bord commercial.'}
-            </p>
-
-            <button
-              onClick={handleGoogleAuth}
-              style={{
-                width: '100%',
-                padding: '12px',
-                borderRadius: '8px',
-                border: '1px solid #E2E8F0',
-                backgroundColor: '#ffffff',
-                color: '#0b1c30',
-                fontSize: '14px',
-                fontWeight: 600,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '10px',
-                cursor: 'pointer',
-                marginBottom: '20px'
-              }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-              </svg>
-              Continuer avec Google
-            </button>
-
-            <div style={{ display: 'flex', alignItems: 'center', margin: '20px 0', color: '#c6c6cd' }}>
-              <div style={{ flex: 1, borderBottom: '1px solid #E2E8F0' }}></div>
-              <span style={{ padding: '0 10px', fontSize: '12px', color: '#76777d' }}>ou avec votre email</span>
-              <div style={{ flex: 1, borderBottom: '1px solid #E2E8F0' }}></div>
+        <div className="auth-split-wrapper">
+          
+          {/* LEFT COLUMN: FORM SIDE (EXACT 50% Desktop, 100% Mobile) */}
+          <div className="auth-split-left">
+            {/* Top Brand Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
+                <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '32px', width: 'auto', borderRadius: '6px' }} />
+                <span style={{ fontWeight: 800, fontSize: '20px', color: '#0b1c30', letterSpacing: '-0.5px' }}>Reflex</span>
+              </div>
             </div>
 
-            {showOtpStep ? (
-              <form onSubmit={handleVerifyOtpSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <div style={{ backgroundColor: '#eff4ff', border: '1px solid #c4b5fd', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
-                  <div style={{ fontWeight: 700, color: '#4F46E5', fontSize: '15px', marginBottom: '4px' }}>📧 Email de confirmation envoyé</div>
-                  <p style={{ fontSize: '13px', color: '#45464d', margin: 0, lineHeight: 1.5 }}>
-                    Un e-mail contenant votre code à 6 chiffres a été envoyé à <strong>{email}</strong>.<br />
-                    Vérifiez votre boîte de réception et vos spams.
-                  </p>
-                </div>
+            {/* Main Form Center Content */}
+            <div style={{ width: '100%', maxWidth: '420px', margin: 'auto 0' }}>
+              <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#0b1c30', marginBottom: '4px', letterSpacing: '-0.5px' }}>
+                {authMode === 'signup' ? 'Créer votre compte Reflex' : 'Sign in to Reflex'}
+              </h1>
+              <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px', lineHeight: '1.4' }}>
+                {authMode === 'signup' 
+                  ? 'Inscrivez votre PME et automatisez vos ventes WhatsApp 24/7.' 
+                  : 'Accédez à votre tableau de bord commercial et vos leads.'}
+              </p>
 
-                <div>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '8px', display: 'block', textAlign: 'center' }}>Saisissez le code reçu par e-mail</label>
-                  <input
-                    type="text"
-                    required
-                    maxLength={8}
-                    placeholder="12345678"
-                    value={otpCode}
-                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 8))}
-                    style={{
-                      width: '100%',
-                      padding: '14px',
-                      borderRadius: '10px',
-                      border: '2px solid #4F46E5',
-                      outline: 'none',
-                      fontSize: '22px',
-                      fontWeight: 800,
-                      letterSpacing: '0.25em',
-                      textAlign: 'center',
-                      fontFamily: 'var(--font-mono)'
-                    }}
-                  />
-                </div>
+              {/* Social SSO Login Button (Google) */}
+              <button
+                type="button"
+                onClick={handleGoogleAuth}
+                style={{
+                  width: '100%',
+                  padding: '9px 14px',
+                  borderRadius: '8px',
+                  border: '1px solid #CBD5E1',
+                  backgroundColor: '#ffffff',
+                  color: '#0f172a',
+                  fontSize: '13.5px',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '10px',
+                  cursor: 'pointer',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+                  transition: 'all 0.2s ease',
+                  marginBottom: '12px'
+                }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                </svg>
+                Continuer avec Google
+              </button>
 
-                <button className="btn-primary-black" style={{ width: '100%', padding: '14px', fontSize: '15px' }} disabled={authLoading}>
-                  {authLoading ? 'Validation du code...' : 'Valider mon code →'}
-                </button>
+              {/* Divider */}
+              <div style={{ display: 'flex', alignItems: 'center', margin: '12px 0', color: '#94a3b8' }}>
+                <div style={{ flex: 1, borderBottom: '1px solid #E2E8F0' }}></div>
+                <span style={{ padding: '0 10px', fontSize: '11.5px', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>OU</span>
+                <div style={{ flex: 1, borderBottom: '1px solid #E2E8F0' }}></div>
+              </div>
 
-                <button
-                  type="button"
-                  onClick={() => setShowOtpStep(false)}
-                  style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '13px', cursor: 'pointer', textAlign: 'center' }}
-                >
-                  ← Modifier l'adresse email ({email})
-                </button>
-              </form>
-            ) : (
-              <form onSubmit={handleSupabaseSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {authMode === 'signup' && (
-                <div>
-                  <label style={{ fontSize: '13px', fontWeight: 500, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Nom & Prénom</label>
-                  <div style={{ position: 'relative' }}>
-                    <User size={18} color="#76777d" style={{ position: 'absolute', left: '12px', top: '12px' }} />
+              {/* Form Content: OTP Verification vs Standard Auth Form */}
+              {showOtpStep ? (
+                <form onSubmit={handleVerifyOtpSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  <div style={{ backgroundColor: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
+                    <div style={{ fontWeight: 700, color: '#2563eb', fontSize: '14px', marginBottom: '2px' }}>📧 Code de confirmation envoyé</div>
+                    <p style={{ fontSize: '12.5px', color: '#475569', margin: 0, lineHeight: 1.4 }}>
+                      Un code à 6 chiffres a été envoyé à <strong>{email}</strong>.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: 600, color: '#0f172a', marginBottom: '6px', display: 'block', textAlign: 'center' }}>Saisissez le code reçu</label>
                     <input
                       type="text"
                       required
-                      placeholder="Alex Mensah"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      style={{ width: '100%', padding: '10px 12px 10px 40px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }}
+                      maxLength={8}
+                      placeholder="12345678"
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        borderRadius: '8px',
+                        border: '2px solid #3b82f6',
+                        outline: 'none',
+                        fontSize: '20px',
+                        fontWeight: 800,
+                        letterSpacing: '0.2em',
+                        textAlign: 'center'
+                      }}
                     />
                   </div>
-                </div>
-              )}
 
-              <div>
-                <label style={{ fontSize: '13px', fontWeight: 500, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Adresse Email</label>
-                <div style={{ position: 'relative' }}>
-                  <Mail size={18} color="#76777d" style={{ position: 'absolute', left: '12px', top: '12px' }} />
-                  <input
-                    type="email"
-                    required
-                    placeholder="alex@boutique.bj"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    style={{ width: '100%', padding: '10px 12px 10px 40px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }}
-                  />
-                </div>
-              </div>
+                  <button type="submit" style={{ width: '100%', padding: '11px', fontSize: '14.5px', borderRadius: '8px', backgroundColor: '#2563eb', color: '#ffffff', border: 'none', fontWeight: 700, cursor: 'pointer' }} disabled={authLoading}>
+                    {authLoading ? 'Validation...' : 'Valider mon code →'}
+                  </button>
 
-              <div>
-                <label style={{ fontSize: '13px', fontWeight: 500, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Mot de passe</label>
-                <div style={{ position: 'relative' }}>
-                  <Lock size={18} color="#76777d" style={{ position: 'absolute', left: '12px', top: '12px' }} />
-                  <input
-                    type="password"
-                    required
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    style={{ width: '100%', padding: '10px 12px 10px 40px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }}
-                  />
-                </div>
-              </div>
-
-              {/* Cloudflare Turnstile Captcha Widget */}
-              <div style={{ display: 'flex', justifyContent: 'center', margin: '12px 0', minHeight: '65px' }}>
-                <div className="cf-turnstile" data-sitekey="0x4AAAAAAEnLp3-m1biy8CGz" data-theme="light"></div>
-              </div>
-
-              <button className="btn-primary-black" style={{ width: '100%', padding: '12px', fontSize: '15px', marginTop: '4px' }} disabled={authLoading}>
-                {authLoading ? (authMode === 'signup' ? 'Création du compte...' : 'Connexion...') : authMode === 'signup' ? 'Créer mon compte →' : 'Se connecter →'}
-              </button>
-            </form>
-            )}
-
-            <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '13px', color: '#45464d' }}>
-              {authMode === 'signup' ? (
-                <>Déjà un compte ? <span style={{ color: '#4b41e1', fontWeight: 600, cursor: 'pointer' }} onClick={() => setAuthMode('login')}>Se connecter</span></>
+                  <button
+                    type="button"
+                    onClick={() => setShowOtpStep(false)}
+                    style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '12px', cursor: 'pointer', textAlign: 'center' }}
+                  >
+                    ← Modifier l'adresse email ({email})
+                  </button>
+                </form>
               ) : (
-                <>Pas encore de compte ? <span style={{ color: '#4b41e1', fontWeight: 600, cursor: 'pointer' }} onClick={() => setAuthMode('signup')}>S'inscrire</span></>
+                <form onSubmit={handleSupabaseSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {authMode === 'signup' && (
+                    <div>
+                      <label style={{ fontSize: '12px', fontWeight: 600, color: '#1e293b', marginBottom: '4px', display: 'block' }}>Nom & Prénom</label>
+                      <div style={{ position: 'relative' }}>
+                        <User size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '10px' }} />
+                        <input
+                          type="text"
+                          required
+                          placeholder="Alex Mensah"
+                          value={fullName}
+                          onChange={(e) => setFullName(e.target.value)}
+                          style={{ width: '100%', padding: '9px 12px 9px 38px', borderRadius: '8px', border: '1px solid #CBD5E1', outline: 'none', fontSize: '13.5px' }}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: 600, color: '#1e293b', marginBottom: '4px', display: 'block' }}>Email</label>
+                    <div style={{ position: 'relative' }}>
+                      <Mail size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '10px' }} />
+                      <input
+                        type="email"
+                        required
+                        placeholder="alex@boutique.bj"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        style={{ width: '100%', padding: '9px 12px 9px 38px', borderRadius: '8px', border: '1px solid #CBD5E1', outline: 'none', fontSize: '13.5px' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: 600, color: '#1e293b', marginBottom: '4px', display: 'block' }}>Password</label>
+                    <div style={{ position: 'relative' }}>
+                      <Lock size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '10px' }} />
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        required
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        style={{ width: '100%', padding: '9px 38px 9px 38px', borderRadius: '8px', border: '1px solid #CBD5E1', outline: 'none', fontSize: '13.5px' }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        style={{ position: 'absolute', right: '12px', top: '9px', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: 0 }}
+                        aria-label="Afficher ou masquer le mot de passe"
+                      >
+                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Save email and login method option */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '1px' }}>
+                    <input
+                      type="checkbox"
+                      id="rememberDevice"
+                      checked={rememberDevice}
+                      onChange={(e) => setRememberDevice(e.target.checked)}
+                      style={{ width: '15px', height: '15px', accentColor: '#2563eb', cursor: 'pointer' }}
+                    />
+                    <label htmlFor="rememberDevice" style={{ fontSize: '12px', color: '#475569', cursor: 'pointer', userSelect: 'none' }}>
+                      Save email and login method on this device
+                    </label>
+                  </div>
+
+                  {/* Cloudflare Turnstile Captcha Widget */}
+                  <TurnstileContainer />
+
+                  {/* Primary Action Button (Cloudflare Blue Style CTA) */}
+                  <button
+                    type="submit"
+                    disabled={authLoading}
+                    style={{
+                      width: '100%',
+                      padding: '11px',
+                      borderRadius: '8px',
+                      border: 'none',
+                      backgroundColor: '#3b82f6',
+                      color: '#ffffff',
+                      fontSize: '14.5px',
+                      fontWeight: 700,
+                      cursor: authLoading ? 'wait' : 'pointer',
+                      boxShadow: '0 4px 12px rgba(59, 130, 246, 0.25)',
+                      transition: 'all 0.15s ease',
+                      marginTop: '2px'
+                    }}
+                  >
+                    {authLoading 
+                      ? (authMode === 'signup' ? 'Création...' : 'Connexion...') 
+                      : (authMode === 'signup' ? 'Créer mon compte →' : 'Sign in')}
+                  </button>
+                </form>
               )}
+
+              {/* Switch Auth Mode Footer */}
+              <div style={{ textAlign: 'center', marginTop: '12px', fontSize: '13px', color: '#64748b' }}>
+                {authMode === 'signup' ? (
+                  <>Déjà un compte ? <span style={{ color: '#2563eb', fontWeight: 700, cursor: 'pointer' }} onClick={() => setAuthMode('login')}>Se connecter</span></>
+                ) : (
+                  <>Pas encore de compte ? <span style={{ color: '#2563eb', fontWeight: 700, cursor: 'pointer' }} onClick={() => setAuthMode('signup')}>Sign up</span></>
+                )}
+              </div>
+            </div>
+
+            {/* Terms and Privacy Footer */}
+            <div style={{ textAlign: 'center', marginTop: '14px', fontSize: '11.5px', color: '#94a3b8', lineHeight: 1.4 }}>
+              En continuant, vous acceptez nos <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Conditions</span> et <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Politique de confidentialité</span>.
+            </div>
+          </div>
+
+          {/* RIGHT COLUMN: HERO BANNER (Cloudflare Electric Orange 50% Split Banner) */}
+          <div className="auth-split-right">
+            {/* Tech Dot Grid Background Overlay */}
+            <div className="tech-dot-grid"></div>
+
+            {/* Glowing Accent Orbs */}
+            <div style={{
+              position: 'absolute',
+              top: '-15%',
+              right: '-15%',
+              width: '500px',
+              height: '500px',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 70%)',
+              filter: 'blur(50px)',
+              pointerEvents: 'none'
+            }}></div>
+
+            {/* Top Right Language & Switch Action */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '12px', position: 'relative', zIndex: 2 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', fontWeight: 600, color: 'rgba(255,255,255,0.95)', cursor: 'pointer', backgroundColor: 'rgba(0,0,0,0.2)', padding: '5px 14px', borderRadius: '20px', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.25)' }}>
+                <Globe size={13} /> Français ▾
+              </div>
+              <button
+                type="button"
+                onClick={() => setAuthMode(authMode === 'signup' ? 'login' : 'signup')}
+                style={{
+                  backgroundColor: '#ffffff',
+                  color: '#0f172a',
+                  border: 'none',
+                  padding: '7px 18px',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                {authMode === 'signup' ? 'Sign in' : 'Sign up'}
+              </button>
+            </div>
+
+            {/* Main Center Hero Section */}
+            <div style={{ maxWidth: '460px', position: 'relative', zIndex: 2, margin: 'auto 0' }}>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                backgroundColor: 'rgba(255,255,255,0.2)',
+                backdropFilter: 'blur(10px)',
+                padding: '6px 14px',
+                borderRadius: '20px',
+                fontSize: '12px',
+                fontWeight: 700,
+                marginBottom: '18px',
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase',
+                border: '1px solid rgba(255,255,255,0.3)'
+              }}>
+                <Sparkles size={14} color="#FFD700" /> Cloudflare & Reflex Connect 2026
+              </div>
+
+              <h2 style={{ fontSize: '38px', fontWeight: 900, lineHeight: 1.12, marginBottom: '16px', letterSpacing: '-0.8px' }}>
+                Where the Internet's builders connect.
+              </h2>
+
+              <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.92)', lineHeight: 1.6, marginBottom: '24px' }}>
+                October 19–21, 2026 · Moscone West, San Francisco & Cotonou, Bénin
+              </p>
+
+              <button
+                type="button"
+                onClick={() => setActiveView('landing')}
+                style={{
+                  backgroundColor: '#ffffff',
+                  color: '#FF5500',
+                  border: 'none',
+                  padding: '11px 22px',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+                  transition: 'transform 0.2s'
+                }}
+              >
+                Découvrir les fonctionnalités <ArrowRight size={15} />
+              </button>
+            </div>
+
+            {/* Bottom Credits */}
+            <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', position: 'relative', zIndex: 2 }}>
+              © 2026 Reflex Inc. Tous droits réservés.
             </div>
           </div>
         </div>
@@ -1813,125 +2092,169 @@ export default function App() {
       )}
 
       {/* ========================================================================= */}
-      {/* 7. DEDICATED CHECKOUT PAYMENT PAGE FOR WHATSAPP CLIENTS */}
+      {/* 7. DEDICATED HOSTED FEDAPAY CHECKOUT PAYMENT PAGE FOR WHATSAPP CLIENTS */}
       {/* ========================================================================= */}
       {activeView === 'payment-checkout' && (
-        <div style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
+        <div style={{ minHeight: '100vh', backgroundColor: '#0B1727', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-            <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
-            <span style={{ fontWeight: 800, fontSize: '20px', color: '#0b1c30' }}>Reflex Pay</span>
+            <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '38px', width: 'auto', borderRadius: '10px' }} />
+            <span className="font-outfit" style={{ fontWeight: 800, fontSize: '22px', color: '#ffffff' }}>Reflex <span style={{ color: '#FF5500' }}>Pay</span></span>
           </div>
 
-          <div className="reflex-card-base" style={{ width: '100%', maxWidth: '480px', padding: '36px', backgroundColor: '#ffffff' }}>
+          <div className="glass-card-dark" style={{ width: '100%', maxWidth: '520px', padding: '36px', borderRadius: '24px', border: '1px solid rgba(255, 85, 0, 0.35)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
             {!paymentSuccess ? (
               <>
-                <div style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '20px', marginBottom: '20px', textAlign: 'center' }}>
-                  <span className="label-xs" style={{ backgroundColor: '#eff4ff', color: '#4b41e1', padding: '4px 10px', borderRadius: '9999px', fontWeight: 600 }}>RÈGLEMENT SÉCURISÉ</span>
-                  <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#0b1c30', marginTop: '10px', marginBottom: '4px' }}>{currentCheckoutOrder.pmeName}</h2>
-                  <div style={{ fontSize: '13px', color: '#45464d' }}>Commande Ref : <strong>{currentCheckoutOrder.id}</strong></div>
+                <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '20px', marginBottom: '24px', textAlign: 'center' }}>
+                  <span className="font-outfit" style={{ backgroundColor: 'rgba(255, 85, 0, 0.15)', color: '#FF5500', padding: '5px 14px', borderRadius: '9999px', fontSize: '12px', fontWeight: 700, border: '1px solid rgba(255, 85, 0, 0.3)' }}>
+                    PROPULSÉ PAR FEDAPAY MOBILE MONEY
+                  </span>
+                  <h2 className="font-outfit" style={{ fontSize: '24px', fontWeight: 800, color: '#ffffff', marginTop: '12px', marginBottom: '4px' }}>{currentCheckoutOrder.pmeName}</h2>
+                  <div style={{ fontSize: '13.5px', color: '#cbd5e1' }}>Règlement de la Commande : <strong style={{ color: '#FF5500' }}>{currentCheckoutOrder.id}</strong></div>
                 </div>
 
-                <div style={{ backgroundColor: '#f8f9ff', borderRadius: '12px', padding: '16px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {/* Article & Amount Card */}
+                <div style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.1)', padding: '18px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#0b1c30' }}>{currentCheckoutOrder.item}</div>
-                    <div style={{ fontSize: '12px', color: '#45464d' }}>Client: {currentCheckoutOrder.customerName}</div>
+                    <div style={{ fontSize: '15px', fontWeight: 700, color: '#ffffff' }}>{currentCheckoutOrder.item}</div>
+                    <div style={{ fontSize: '12.5px', color: '#94a3b8', marginTop: '2px' }}>Client: {currentCheckoutOrder.customerName}</div>
+                    <div style={{ fontSize: '12px', color: '#94a3b8' }}>Livraison: {currentCheckoutOrder.deliveryAddress}</div>
                   </div>
-                  <div style={{ fontSize: '22px', fontWeight: 800, color: '#4b41e1', fontFamily: 'var(--font-mono)' }}>
+                  <div style={{ fontSize: '24px', fontWeight: 800, color: '#FF5500', fontFamily: 'var(--font-mono)' }}>
                     {currentCheckoutOrder.amount.toLocaleString()} FCFA
                   </div>
                 </div>
 
+                {/* Mobile Money Provider Choice */}
                 <div style={{ marginBottom: '24px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '10px', display: 'block' }}>Choisissez votre moyen de paiement Mobile Money</label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
+                  <label style={{ fontSize: '13.5px', fontWeight: 600, color: '#ffffff', marginBottom: '10px', display: 'block' }}>
+                    Mode d'encaissement Mobile Money FedaPay
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
                     <div
                       onClick={() => setSelectedMomoProvider('mtn')}
-                      style={{ padding: '12px', border: `2px solid ${selectedMomoProvider === 'mtn' ? '#4b41e1' : '#E2E8F0'}`, borderRadius: '10px', cursor: 'pointer', textAlign: 'center', backgroundColor: selectedMomoProvider === 'mtn' ? '#eff4ff' : '#ffffff' }}
+                      style={{
+                        padding: '12px 8px',
+                        border: `2px solid ${selectedMomoProvider === 'mtn' ? '#FF5500' : 'rgba(255,255,255,0.12)'}`,
+                        borderRadius: '12px',
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                        backgroundColor: selectedMomoProvider === 'mtn' ? 'rgba(255,85,0,0.15)' : 'rgba(255,255,255,0.03)',
+                        transition: 'all 0.2s ease'
+                      }}
                     >
-                      <div style={{ fontWeight: 700, fontSize: '13px', color: '#0b1c30' }}>MTN Mobile Money</div>
-                      <div style={{ fontSize: '11px', color: '#10B981' }}>Bénin (*139#)</div>
+                      <div style={{ fontWeight: 800, fontSize: '13px', color: '#FFCC00' }}>MTN MoMo</div>
+                      <div style={{ fontSize: '11px', color: '#cbd5e1', marginTop: '2px' }}>*139#</div>
                     </div>
 
                     <div
                       onClick={() => setSelectedMomoProvider('moov')}
-                      style={{ padding: '12px', border: `2px solid ${selectedMomoProvider === 'moov' ? '#4b41e1' : '#E2E8F0'}`, borderRadius: '10px', cursor: 'pointer', textAlign: 'center', backgroundColor: selectedMomoProvider === 'moov' ? '#eff4ff' : '#ffffff' }}
+                      style={{
+                        padding: '12px 8px',
+                        border: `2px solid ${selectedMomoProvider === 'moov' ? '#FF5500' : 'rgba(255,255,255,0.12)'}`,
+                        borderRadius: '12px',
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                        backgroundColor: selectedMomoProvider === 'moov' ? 'rgba(255,85,0,0.15)' : 'rgba(255,255,255,0.03)',
+                        transition: 'all 0.2s ease'
+                      }}
                     >
-                      <div style={{ fontWeight: 700, fontSize: '13px', color: '#0b1c30' }}>Moov Money</div>
-                      <div style={{ fontSize: '11px', color: '#10B981' }}>Bénin (*155#)</div>
+                      <div style={{ fontWeight: 800, fontSize: '13px', color: '#38BDF8' }}>Moov Money</div>
+                      <div style={{ fontSize: '11px', color: '#cbd5e1', marginTop: '2px' }}>*155#</div>
                     </div>
 
                     <div
                       onClick={() => setSelectedMomoProvider('wave')}
-                      style={{ padding: '12px', border: `2px solid ${selectedMomoProvider === 'wave' ? '#4b41e1' : '#E2E8F0'}`, borderRadius: '10px', cursor: 'pointer', textAlign: 'center', backgroundColor: selectedMomoProvider === 'wave' ? '#eff4ff' : '#ffffff' }}
+                      style={{
+                        padding: '12px 8px',
+                        border: `2px solid ${selectedMomoProvider === 'wave' ? '#FF5500' : 'rgba(255,255,255,0.12)'}`,
+                        borderRadius: '12px',
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                        backgroundColor: selectedMomoProvider === 'wave' ? 'rgba(255,85,0,0.15)' : 'rgba(255,255,255,0.03)',
+                        transition: 'all 0.2s ease'
+                      }}
                     >
-                      <div style={{ fontWeight: 700, fontSize: '13px', color: '#0b1c30' }}>Wave Money</div>
-                      <div style={{ fontSize: '11px', color: '#3B82F6' }}>Direct App</div>
+                      <div style={{ fontWeight: 800, fontSize: '13px', color: '#1DC3F4' }}>Wave App</div>
+                      <div style={{ fontSize: '11px', color: '#cbd5e1', marginTop: '2px' }}>Direct</div>
                     </div>
                   </div>
                 </div>
 
-                <div style={{ marginBottom: '24px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Numéro de téléphone Mobile Money</label>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <span style={{ padding: '10px', backgroundColor: '#f8f9ff', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', fontWeight: 600, color: '#0b1c30' }}>+229</span>
+                {/* Client Phone & Name Inputs */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '28px' }}>
+                  <div>
+                    <label style={{ fontSize: '13px', fontWeight: 600, color: '#ffffff', marginBottom: '6px', display: 'block' }}>Nom complet du client</label>
                     <input
                       type="text"
-                      placeholder="97 00 00 00"
-                      value={payerPhone}
-                      onChange={(e) => {
-                        const raw = e.target.value.replace(/\D/g, '').slice(0, 8);
-                        const formatted = raw.replace(/(\d{2})(?=\d)/g, '$1 ').trim();
-                        setPayerPhone(formatted);
-                      }}
-                      style={{ flex: 1, padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px', fontWeight: 600, letterSpacing: '0.05em' }}
+                      value={currentCheckoutOrder.customerName}
+                      onChange={(e) => setCurrentCheckoutOrder({ ...currentCheckoutOrder, customerName: e.target.value })}
+                      style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.15)', backgroundColor: '#1e293b', color: '#ffffff', outline: 'none', fontSize: '14px' }}
                     />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '13px', fontWeight: 600, color: '#ffffff', marginBottom: '6px', display: 'block' }}>Numéro Mobile Money (Bénin / Afrique Ouest)</label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <span style={{ padding: '12px 14px', backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', fontSize: '14px', fontWeight: 700, color: '#FF5500' }}>+229</span>
+                      <input
+                        type="text"
+                        placeholder="97 00 00 00"
+                        value={payerPhone}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/\D/g, '').slice(0, 8);
+                          const formatted = raw.replace(/(\d{2})(?=\d)/g, '$1 ').trim();
+                          setPayerPhone(formatted);
+                        }}
+                        style={{ flex: 1, padding: '12px 14px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.15)', backgroundColor: '#1e293b', color: '#ffffff', outline: 'none', fontSize: '14px', fontWeight: 700, letterSpacing: '0.05em' }}
+                      />
+                    </div>
                   </div>
                 </div>
 
                 <button
-                  className="btn-primary-black"
-                  style={{ width: '100%', padding: '16px', fontSize: '16px', fontWeight: 700 }}
+                  className="btn-orange-primary"
+                  style={{ width: '100%', padding: '16px', fontSize: '16.5px', fontWeight: 800, borderRadius: '12px' }}
                   onClick={handleProcessPayment}
                 >
-                  Payer {currentCheckoutOrder.amount.toLocaleString()} FCFA par {selectedMomoProvider.toUpperCase()} →
+                  Payer {currentCheckoutOrder.amount.toLocaleString()} FCFA via FedaPay ({selectedMomoProvider.toUpperCase()}) →
                 </button>
 
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '11px', color: '#76777d', marginTop: '16px' }}>
-                  <Shield size={14} color="#10B981" /> Transaction sécurisée avec reçu numérique certifié SHA-256
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '12px', color: '#cbd5e1', marginTop: '18px' }}>
+                  <Shield size={16} color="#10B981" /> Reçu numérique certifié SHA-256 généré et envoyé sur WhatsApp
                 </div>
               </>
             ) : (
-              <div style={{ textAlign: 'center', padding: '10px 0' }}>
-                <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: '#d1fae5', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-                  <CheckCircle size={40} />
+              <div style={{ textAlign: 'center', padding: '12px 0' }}>
+                <div style={{ width: '68px', height: '68px', borderRadius: '50%', backgroundColor: 'rgba(16, 185, 129, 0.2)', color: '#10b981', border: '2px solid #10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px', boxShadow: '0 0 25px rgba(16,185,129,0.4)' }}>
+                  <CheckCircle size={42} />
                 </div>
 
-                <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#0b1c30', marginBottom: '8px' }}>Paiement Confirmé !</h2>
-                <p style={{ fontSize: '13.5px', color: '#45464d', marginBottom: '24px' }}>
-                  Votre règlement de <strong>{currentCheckoutOrder.amount.toLocaleString()} FCFA</strong> a été validé. Un reçu officiel a été transmis à la boutique et sur votre WhatsApp.
+                <h2 className="font-outfit" style={{ fontSize: '26px', fontWeight: 800, color: '#ffffff', marginBottom: '8px' }}>Paiement Réussi !</h2>
+                <p style={{ fontSize: '14px', color: '#cbd5e1', marginBottom: '24px', lineHeight: 1.6 }}>
+                  Votre règlement de <strong style={{ color: '#10B981' }}>{currentCheckoutOrder.amount.toLocaleString()} FCFA</strong> a été encaissé avec succès via FedaPay. Le reçu officiel a été envoyé sur votre WhatsApp.
                 </p>
 
-                <div style={{ backgroundColor: '#f8f9ff', border: '1px border-dashed #E2E8F0', borderRadius: '12px', padding: '16px', textAlign: 'left', marginBottom: '24px', fontSize: '12px' }}>
-                  <div style={{ fontWeight: 700, color: '#0b1c30', marginBottom: '4px' }}>Reçu Numérique Reflex #REFLEX-TXN-88902</div>
-                  <div style={{ color: '#45464d' }}>Date : {new Date().toLocaleDateString('fr-FR')} • {new Date().toLocaleTimeString('fr-FR')}</div>
-                  <div style={{ color: '#45464d' }}>Moyen : {selectedMomoProvider.toUpperCase()} (+229 {payerPhone})</div>
-                  <div style={{ color: '#10B981', fontWeight: 600, marginTop: '4px' }}>Hash SHA-256 : 8f9a2e1d0c4b...certifié</div>
+                <div style={{ backgroundColor: 'rgba(255,255,255,0.04)', border: '1px dashed rgba(255,85,0,0.4)', borderRadius: '14px', padding: '18px', textAlign: 'left', marginBottom: '24px', fontSize: '12.5px' }}>
+                  <div style={{ fontWeight: 800, color: '#FF5500', fontSize: '13.5px', marginBottom: '6px' }}>Reçu Officiel Reflex FedaPay #{currentCheckoutOrder.id}</div>
+                  <div style={{ color: '#ffffff', marginBottom: '3px' }}>Client : {currentCheckoutOrder.customerName} (+229 {payerPhone})</div>
+                  <div style={{ color: '#cbd5e1', marginBottom: '3px' }}>Boutique : {currentCheckoutOrder.pmeName}</div>
+                  <div style={{ color: '#cbd5e1', marginBottom: '4px' }}>Date : {new Date().toLocaleDateString('fr-FR')} à {new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>
+                  <div style={{ color: '#10B981', fontWeight: 700, marginTop: '8px', fontSize: '11.5px' }}>Empreinte SHA-256 : 8f9a2e1d0c4b8e7...VALIDÉ</div>
                 </div>
 
                 <button
-                  className="btn-outline-white"
-                  style={{ width: '100%', padding: '12px', fontSize: '14px', marginBottom: '10px' }}
+                  className="btn-orange-primary"
+                  style={{ width: '100%', padding: '14px', fontSize: '15px', marginBottom: '12px' }}
                   onClick={() => { setPaymentSuccess(false); setActiveView('landing'); }}
                 >
                   Retourner à l'accueil
                 </button>
 
                 <button
-                  className="btn-primary-black"
-                  style={{ width: '100%', padding: '12px', fontSize: '14px' }}
+                  style={{ width: '100%', padding: '14px', fontSize: '15px', borderRadius: '12px', color: '#ffffff', backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', fontWeight: 700 }}
                   onClick={() => { setPaymentSuccess(false); setActiveView('dashboard'); }}
                 >
-                  Voir le Dashboard Marchand →
+                  Accéder au Dashboard Marchand →
                 </button>
               </div>
             )}
@@ -1958,13 +2281,13 @@ export default function App() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '34px', borderRadius: '8px' }} />
               <div>
-                <span className="font-outfit" style={{ fontWeight: 800, fontSize: '18px', color: '#0b1c30' }}>Reflex</span>
-                <span style={{ fontSize: '11px', color: '#64748b', display: 'block' }}>{companyData.name}</span>
+                <span className="font-outfit" style={{ fontWeight: 800, fontSize: '18px', color: 'var(--text-main, #ffffff)' }}>Reflex</span>
+                <span style={{ fontSize: '11px', color: '#94a3b8', display: 'block' }}>{companyData.name}</span>
               </div>
             </div>
 
             <button
-              style={{ background: 'transparent', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '8px 12px', display: 'flex', alignItems: 'center', color: '#0b1c30', cursor: 'pointer' }}
+              style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', padding: '8px 12px', display: 'flex', alignItems: 'center', color: '#ffffff', cursor: 'pointer' }}
               onClick={() => setDashMobileMenuOpen(!dashMobileMenuOpen)}
               aria-label="Toggle Dashboard Menu"
             >
@@ -1983,7 +2306,7 @@ export default function App() {
                     {tab}
                   </button>
                 ))}
-                <button className="sidebar-link" onClick={() => { setActiveView('landing'); setDashMobileMenuOpen(false); }} style={{ borderTop: '1px solid #E2E8F0', paddingTop: '12px', marginTop: '6px' }}>
+                <button className="sidebar-link" onClick={() => { setActiveView('landing'); setDashMobileMenuOpen(false); }} style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '12px', marginTop: '6px' }}>
                   <Globe size={16} /> Page d'accueil
                 </button>
                 <button className="sidebar-link" onClick={() => { toggleDarkMode(); setDashMobileMenuOpen(false); }}>
@@ -2002,8 +2325,8 @@ export default function App() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingLeft: '4px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
               <div>
-                <div style={{ fontWeight: 700, fontSize: '16px', color: '#0b1c30', lineHeight: 1.1 }}>Reflex</div>
-                <div style={{ fontSize: '12px', color: '#45464d', fontWeight: 500 }}>{companyData.name}</div>
+                <div style={{ fontWeight: 700, fontSize: '16px', color: '#ffffff', lineHeight: 1.1 }}>Reflex</div>
+                <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 500 }}>{companyData.name}</div>
               </div>
             </div>
 
@@ -2024,7 +2347,7 @@ export default function App() {
                 className={`sidebar-link ${activeSidebarTab === 'Paiements' ? 'active' : ''}`}
                 onClick={() => setActiveSidebarTab('Paiements')}
               >
-                <CreditCard size={18} /> Paiements
+                <CreditCard size={18} /> Paiements (FedaPay)
               </button>
               <button
                 className={`sidebar-link ${activeSidebarTab === 'Catalogue' ? 'active' : ''}`}
@@ -2057,22 +2380,22 @@ export default function App() {
           <main className="dashboard-main-content">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
               <div>
-                <h1 className="headline-lg" style={{ color: '#0b1c30', marginBottom: '4px' }}>
+                <h1 className="headline-lg" style={{ color: '#ffffff', marginBottom: '4px' }}>
                   {activeSidebarTab === 'Vue d\'ensemble' && `Bonjour ${fullName || 'Alex'}, voici votre activité aujourd'hui.`}
-                                    {activeSidebarTab === 'Commandes' && 'Gestion des Commandes Clients'}
-                  {activeSidebarTab === 'Paiements' && 'Transactions & Reçus Mobile Money'}
+                  {activeSidebarTab === 'Commandes' && 'Gestion des Commandes Clients'}
+                  {activeSidebarTab === 'Paiements' && 'Transactions & Reçus FedaPay'}
                   {activeSidebarTab === 'Catalogue' && 'Gestion du Catalogue Produit'}
                   {activeSidebarTab === 'Paramètres' && 'Configuration de la PME & Assistant IA'}
                 </h1>
-                <p className="body-md" style={{ color: '#45464d' }}>
-                  PME active : <strong>{companyData.name}</strong> ({companyData.phone})
+                <p className="body-md" style={{ color: '#cbd5e1' }}>
+                  PME active : <strong style={{ color: '#FF5500' }}>{companyData.name}</strong> ({companyData.phone})
                 </p>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#ffffff', border: '1px solid #E2E8F0', padding: '6px 14px', borderRadius: '9999px' }}>
-                <Radio size={14} color="#10B981" />
-                <span className="label-xs" style={{ color: '#0b1c30' }}>
-                  Service Actif 24/7
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(255,85,0,0.12)', border: '1px solid rgba(255,85,0,0.3)', padding: '6px 14px', borderRadius: '9999px' }}>
+                <Radio size={14} color="#FF5500" />
+                <span className="label-xs" style={{ color: '#ffffff', fontWeight: 600 }}>
+                  IA Active sur WhatsApp (24/7)
                 </span>
               </div>
             </div>
@@ -2082,51 +2405,51 @@ export default function App() {
               <div>
                 <div className="grid-responsive-stats">
                   <div className="reflex-card-base" style={{ padding: '20px' }}>
-                    <div className="label-sm" style={{ color: '#45464d', marginBottom: '8px', textTransform: 'uppercase' }}>CONVERSATIONS</div>
-                    <div style={{ fontSize: '28px', fontWeight: 700, color: '#0b1c30', fontFamily: 'var(--font-mono)' }}>{liveStats.conversations}</div>
+                    <div className="label-sm" style={{ color: '#94a3b8', marginBottom: '8px', textTransform: 'uppercase' }}>CONVERSATIONS</div>
+                    <div style={{ fontSize: '28px', fontWeight: 700, color: '#ffffff', fontFamily: 'var(--font-mono)' }}>{liveStats.conversations}</div>
                   </div>
                   <div className="reflex-card-base" style={{ padding: '20px' }}>
-                    <div className="label-sm" style={{ color: '#45464d', marginBottom: '8px', textTransform: 'uppercase' }}>AUTO (IA)</div>
-                    <div style={{ fontSize: '28px', fontWeight: 700, color: '#4b41e1', fontFamily: 'var(--font-mono)' }}>{liveStats.autoAiPercent}%</div>
+                    <div className="label-sm" style={{ color: '#94a3b8', marginBottom: '8px', textTransform: 'uppercase' }}>AUTO (IA)</div>
+                    <div style={{ fontSize: '28px', fontWeight: 700, color: '#FF5500', fontFamily: 'var(--font-mono)' }}>{liveStats.autoAiPercent}%</div>
                   </div>
                   <div className="reflex-card-base" style={{ padding: '20px' }}>
-                    <div className="label-sm" style={{ color: '#45464d', marginBottom: '8px', textTransform: 'uppercase' }}>COMMANDES</div>
-                    <div style={{ fontSize: '28px', fontWeight: 700, color: '#0b1c30', fontFamily: 'var(--font-mono)' }}>{liveStats.commandes}</div>
+                    <div className="label-sm" style={{ color: '#94a3b8', marginBottom: '8px', textTransform: 'uppercase' }}>COMMANDES</div>
+                    <div style={{ fontSize: '28px', fontWeight: 700, color: '#ffffff', fontFamily: 'var(--font-mono)' }}>{liveStats.commandes}</div>
                   </div>
                   <div className="reflex-card-base" style={{ padding: '20px' }}>
-                    <div className="label-sm" style={{ color: '#45464d', marginBottom: '8px', textTransform: 'uppercase' }}>REVENUS (FCFA)</div>
-                    <div style={{ fontSize: '28px', fontWeight: 700, color: '#0b1c30', fontFamily: 'var(--font-mono)' }}>{liveStats.revenusFcfa.toLocaleString()}</div>
+                    <div className="label-sm" style={{ color: '#94a3b8', marginBottom: '8px', textTransform: 'uppercase' }}>REVENUS FEDAPAY (FCFA)</div>
+                    <div style={{ fontSize: '28px', fontWeight: 700, color: '#ffffff', fontFamily: 'var(--font-mono)' }}>{liveStats.revenusFcfa.toLocaleString()}</div>
                   </div>
                   <div className="reflex-card-base" style={{ padding: '20px' }}>
-                    <div className="label-sm" style={{ color: '#45464d', marginBottom: '8px', textTransform: 'uppercase' }}>CONVERSION</div>
+                    <div className="label-sm" style={{ color: '#94a3b8', marginBottom: '8px', textTransform: 'uppercase' }}>CONVERSION</div>
                     <div style={{ fontSize: '28px', fontWeight: 700, color: '#10B981', fontFamily: 'var(--font-mono)' }}>{liveStats.conversionPercent}%</div>
                   </div>
                 </div>
 
                 <div className="grid-responsive-main">
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                    <div className="reflex-card-ai" style={{ padding: '24px' }}>
+                    <div className="reflex-card-ai" style={{ padding: '24px', backgroundColor: '#0F172A', border: '1px solid rgba(255, 85, 0, 0.3)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-                        <Sparkles size={20} color="#4b41e1" />
-                        <h3 className="title-md" style={{ color: '#0b1c30', fontSize: '18px' }}>Résumé intelligent de l'activité de {companyData.name}</h3>
+                        <Sparkles size={20} color="#FF5500" />
+                        <h3 className="title-md" style={{ color: '#ffffff', fontSize: '18px' }}>Résumé intelligent de l'activité de {companyData.name}</h3>
                       </div>
-                      <p className="body-md" style={{ color: '#45464d', lineHeight: 1.6 }}>
-                        Reflex a traité {liveStats.conversations} messages pour <strong>{companyData.name}</strong> avec un taux d'automatisation de {liveStats.autoAiPercent}%. L'IA utilise le ton <em>"{assistantConfig.tone}"</em> et présente vos {productsList.length} produits du catalogue.
+                      <p className="body-md" style={{ color: '#cbd5e1', lineHeight: 1.6 }}>
+                        Reflex a traité {liveStats.conversations} messages pour <strong style={{ color: '#ffffff' }}>{companyData.name}</strong> avec un taux d'automatisation de {liveStats.autoAiPercent}%. L'IA utilise le ton <em>"{assistantConfig.tone}"</em> et présente vos {productsList.length} produits du catalogue avec les encaissements directs FedaPay.
                       </p>
                     </div>
 
                     <div>
-                      <h3 className="title-md" style={{ color: '#0b1c30', marginBottom: '16px' }}>Commandes Récentes</h3>
+                      <h3 className="title-md" style={{ color: '#ffffff', marginBottom: '16px' }}>Commandes Récentes</h3>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         {recentOrdersList.map((ord, idx) => (
-                          <div key={idx} className="reflex-card-base dashboard-order-card" style={{ padding: '16px 20px' }}>
+                          <div key={idx} className="reflex-card-base dashboard-order-card" style={{ padding: '16px 20px', backgroundColor: '#0F172A', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
-                              <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(79, 70, 229, 0.12)', color: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, flexShrink: 0 }}>
+                              <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(255, 85, 0, 0.15)', color: '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, flexShrink: 0 }}>
                                 {ord.avatar}
                               </div>
                               <div style={{ minWidth: 0, flex: 1 }}>
-                                <div style={{ fontWeight: 600, fontSize: '14.5px', color: 'var(--text-main)' }}>{ord.name} ({ord.phone})</div>
-                                <div style={{ fontSize: '12px', color: 'var(--text-subtle)', marginTop: '2px' }}>{ord.summary}</div>
+                                <div style={{ fontWeight: 600, fontSize: '14.5px', color: '#ffffff' }}>{ord.name} ({ord.phone})</div>
+                                <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '2px' }}>{ord.summary}</div>
                               </div>
                             </div>
                             <div className="dashboard-order-meta">
@@ -2139,19 +2462,19 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className="reflex-card-base" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                    <h3 className="title-md" style={{ color: '#0b1c30', fontSize: '18px' }}>Paramètres IA Actifs</h3>
-                    <div style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '16px' }}>
-                      <div className="label-xs" style={{ color: '#45464d', marginBottom: '6px' }}>TON IA</div>
-                      <div style={{ fontWeight: 600, color: '#4b41e1' }}>{assistantConfig.tone}</div>
+                  <div className="reflex-card-base" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px', backgroundColor: '#0F172A', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                    <h3 className="title-md" style={{ color: '#ffffff', fontSize: '18px' }}>Paramètres IA Actifs</h3>
+                    <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '16px' }}>
+                      <div className="label-xs" style={{ color: '#94a3b8', marginBottom: '6px' }}>TON IA</div>
+                      <div style={{ fontWeight: 600, color: '#FF5500' }}>{assistantConfig.tone}</div>
                     </div>
-                    <div style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '16px' }}>
-                      <div className="label-xs" style={{ color: '#45464d', marginBottom: '6px' }}>DELAIS LIVRAISON</div>
-                      <div style={{ fontSize: '13px', color: '#0b1c30' }}>{assistantConfig.deliveryInfo}</div>
+                    <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '16px' }}>
+                      <div className="label-xs" style={{ color: '#94a3b8', marginBottom: '6px' }}>DELAIS LIVRAISON</div>
+                      <div style={{ fontSize: '13px', color: '#ffffff' }}>{assistantConfig.deliveryInfo}</div>
                     </div>
                     <div>
-                      <div className="label-xs" style={{ color: '#45464d', marginBottom: '6px' }}>WELCOME MESSAGE</div>
-                      <div style={{ fontSize: '12px', color: '#45464d', fontStyle: 'italic' }}>"{assistantConfig.welcomeMessage}"</div>
+                      <div className="label-xs" style={{ color: '#94a3b8', marginBottom: '6px' }}>WELCOME MESSAGE</div>
+                      <div style={{ fontSize: '12px', color: '#cbd5e1', fontStyle: 'italic' }}>"{assistantConfig.welcomeMessage}"</div>
                     </div>
                   </div>
                 </div>
@@ -2352,47 +2675,47 @@ export default function App() {
             {/* TAB 5: CATALOGUE */}
             {activeSidebarTab === 'Catalogue' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                <div className="reflex-card-base" style={{ padding: '24px', backgroundColor: '#ffffff' }}>
-                  <h3 className="title-md" style={{ color: '#0b1c30', marginBottom: '16px' }}>+ Ajouter un Produit</h3>
+                <div className="reflex-card-base" style={{ padding: '24px', backgroundColor: '#0F172A', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                  <h3 className="title-md" style={{ color: '#ffffff', marginBottom: '16px' }}>+ Ajouter un Produit</h3>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px' }}>
                     <input
                       type="text"
                       placeholder="Nom de l'article"
                       value={newProduct.name}
                       onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-                      style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }}
+                      style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', backgroundColor: '#1e293b', color: '#ffffff', outline: 'none', fontSize: '14px' }}
                     />
                     <input
                       type="number"
                       placeholder="Prix en FCFA"
                       value={newProduct.price}
                       onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-                      style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }}
+                      style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', backgroundColor: '#1e293b', color: '#ffffff', outline: 'none', fontSize: '14px' }}
                     />
                     <input
                       type="text"
                       placeholder="Catégorie"
                       value={newProduct.category}
                       onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-                      style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }}
+                      style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', backgroundColor: '#1e293b', color: '#ffffff', outline: 'none', fontSize: '14px' }}
                     />
                   </div>
-                  <button className="btn-primary-black" style={{ padding: '10px 24px', fontSize: '14px' }} onClick={handleAddProduct}>
+                  <button className="btn-orange-primary" style={{ padding: '10px 24px', fontSize: '14px' }} onClick={handleAddProduct}>
                     Ajouter au Catalogue
                   </button>
                 </div>
 
-                <div className="reflex-card-base" style={{ padding: '24px', backgroundColor: '#ffffff' }}>
-                  <h3 className="title-md" style={{ color: '#0b1c30', marginBottom: '16px' }}>Catalogue Actif ({productsList.length} articles)</h3>
+                <div className="reflex-card-base" style={{ padding: '24px', backgroundColor: '#0F172A', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                  <h3 className="title-md" style={{ color: '#ffffff', marginBottom: '16px' }}>Catalogue Actif ({productsList.length} articles)</h3>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
                     {productsList.map((prod, idx) => (
-                      <div key={idx} style={{ padding: '20px', border: '1px solid #E2E8F0', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div key={idx} style={{ padding: '20px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.03)' }}>
                         <div>
-                          <div style={{ fontWeight: 700, fontSize: '16px', color: '#0b1c30', marginBottom: '4px' }}>{prod.name}</div>
-                          <div style={{ fontSize: '12px', color: '#45464d' }}>{prod.category}</div>
+                          <div style={{ fontWeight: 700, fontSize: '16px', color: '#ffffff', marginBottom: '4px' }}>{prod.name}</div>
+                          <div style={{ fontSize: '12px', color: '#94a3b8' }}>{prod.category}</div>
                         </div>
                         <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontWeight: 800, fontSize: '18px', color: '#4b41e1', fontFamily: 'var(--font-mono)' }}>{prod.price.toLocaleString()} FCFA</div>
+                          <div style={{ fontWeight: 800, fontSize: '18px', color: '#FF5500', fontFamily: 'var(--font-mono)' }}>{prod.price.toLocaleString()} FCFA</div>
                           <button onClick={() => handleDeleteProduct(idx)} style={{ border: 'none', background: 'transparent', color: '#EF4444', cursor: 'pointer', marginTop: '6px' }}>
                             <Trash2 size={16} /> Supprimer
                           </button>
@@ -2407,35 +2730,35 @@ export default function App() {
             {/* TAB 6: PARAMÈTRES PME & CONNEXION WHATSAPP META */}
             {activeSidebarTab === 'Paramètres' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '740px' }}>
-                <div className="reflex-card-base" style={{ padding: '28px', backgroundColor: '#ffffff' }}>
-                  <h3 className="title-md" style={{ color: '#0b1c30', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Settings size={20} color="#6366f1" /> Paramètres Général de {companyData.name}
+                <div className="reflex-card-base" style={{ padding: '28px', backgroundColor: '#0F172A', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                  <h3 className="title-md" style={{ color: '#ffffff', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Settings size={20} color="#FF5500" /> Paramètres Général de {companyData.name}
                   </h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     <div>
-                      <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Nom de la PME</label>
+                      <label style={{ fontSize: '13px', fontWeight: 600, color: '#ffffff', marginBottom: '6px', display: 'block' }}>Nom de la PME</label>
                       <input
                         type="text"
                         value={companyData.name}
                         onChange={(e) => setCompanyData({ ...companyData, name: e.target.value })}
-                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }}
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', backgroundColor: '#1e293b', color: '#ffffff', outline: 'none', fontSize: '14px' }}
                       />
                     </div>
                     <div>
-                      <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Numéro WhatsApp Business PME</label>
+                      <label style={{ fontSize: '13px', fontWeight: 600, color: '#ffffff', marginBottom: '6px', display: 'block' }}>Numéro WhatsApp Business PME</label>
                       <input
                         type="text"
                         value={companyData.phone}
                         onChange={(e) => setCompanyData({ ...companyData, phone: e.target.value })}
-                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }}
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', backgroundColor: '#1e293b', color: '#ffffff', outline: 'none', fontSize: '14px' }}
                       />
                     </div>
                     <div>
-                      <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Ton de l'Assistant IA</label>
+                      <label style={{ fontSize: '13px', fontWeight: 600, color: '#ffffff', marginBottom: '6px', display: 'block' }}>Ton de l'Assistant IA</label>
                       <select
                         value={assistantConfig.tone}
                         onChange={(e) => setAssistantConfig({ ...assistantConfig, tone: e.target.value })}
-                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px', backgroundColor: '#ffffff' }}
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', backgroundColor: '#1e293b', color: '#ffffff', outline: 'none', fontSize: '14px' }}
                       >
                         <option value="Chaleureux & Commercial">Chaleureux & Commercial</option>
                         <option value="Strictement Professionnel">Strictement Professionnel</option>
@@ -2446,34 +2769,34 @@ export default function App() {
                 </div>
 
                 {/* OFFICIAL META EMBEDDED SIGNUP CONNECTION CARD */}
-                <div className="reflex-card-base" style={{ padding: '28px', backgroundColor: '#ffffff', border: '1px solid #c7d2fe' }}>
+                <div className="reflex-card-base" style={{ padding: '28px', backgroundColor: '#0F172A', border: '1px solid rgba(255, 85, 0, 0.35)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px', marginBottom: '20px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={{ width: '42px', height: '42px', borderRadius: '12px', backgroundColor: waConnectionStatus === 'CONNECTED' ? '#10b981' : '#25D366', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff' }}>
+                      <div style={{ width: '42px', height: '42px', borderRadius: '12px', backgroundColor: waConnectionStatus === 'CONNECTED' ? '#10b981' : '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff' }}>
                         <Radio size={24} />
                       </div>
                       <div>
-                        <h3 className="title-md" style={{ color: '#0b1c30', fontSize: '18px' }}>Connexion Officielle WhatsApp Business (Meta)</h3>
-                        <p style={{ fontSize: '13px', color: '#64748b' }}>
-                          PME : <strong>{companyData.name}</strong> — Numéro : {companyData.phone || '+229 -- -- -- --'}
+                        <h3 className="title-md" style={{ color: '#ffffff', fontSize: '18px' }}>Connexion Officielle WhatsApp Business (Meta)</h3>
+                        <p style={{ fontSize: '13px', color: '#94a3b8' }}>
+                          PME : <strong style={{ color: '#ffffff' }}>{companyData.name}</strong> — Numéro : {companyData.phone || '+229 -- -- -- --'}
                         </p>
                       </div>
                     </div>
                     {waConnectionStatus === 'CONNECTED' ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#ecfdf5', border: '1px solid #a7f3d0', padding: '8px 18px', borderRadius: '9999px' }}>
-                        <CheckCircle size={16} color="#059669" />
-                        <span style={{ fontSize: '13px', fontWeight: 700, color: '#047857' }}>Compte WhatsApp Business Lié & Actif</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.4)', padding: '8px 18px', borderRadius: '9999px' }}>
+                        <CheckCircle size={16} color="#10b981" />
+                        <span style={{ fontSize: '13px', fontWeight: 700, color: '#10b981' }}>Compte WhatsApp Business Lié & Actif</span>
                       </div>
                     ) : (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#fef3c7', border: '1px solid #fde68a', padding: '8px 18px', borderRadius: '9999px' }}>
-                        <Radio size={16} color="#d97706" />
-                        <span style={{ fontSize: '13px', fontWeight: 700, color: '#b45309' }}>En attente de connexion WhatsApp</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.4)', padding: '8px 18px', borderRadius: '9999px' }}>
+                        <Radio size={16} color="#f59e0b" />
+                        <span style={{ fontSize: '13px', fontWeight: 700, color: '#f59e0b' }}>En attente de connexion WhatsApp</span>
                       </div>
                     )}
                   </div>
 
-                  <div style={{ backgroundColor: '#f8fafc', padding: '18px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '20px', fontSize: '13.5px', color: '#334155', lineHeight: 1.6 }}>
-                    🔒 <strong>Autorisation Sécurisée Meta (0 Saisie Technique) :</strong><br />
+                  <div style={{ backgroundColor: 'rgba(255,255,255,0.04)', padding: '18px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', marginBottom: '20px', fontSize: '13.5px', color: '#cbd5e1', lineHeight: 1.6 }}>
+                    🔒 <strong style={{ color: '#ffffff' }}>Autorisation Sécurisée Meta (0 Saisie Technique) :</strong><br />
                     Cliquez ci-dessous pour autoriser Reflex via la fenêtre pop-up officielle Meta/Facebook. Votre compte WhatsApp Business sera associé instantanément à votre espace PME sans saisir de token ni d'ID.
                   </div>
 
