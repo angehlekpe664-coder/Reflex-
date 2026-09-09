@@ -16,37 +16,40 @@ interface Message {
 export function WhatsAppSimulator({ currentLang, onCheckout }: { currentLang: LanguageCode; onCheckout: () => void }) {
   const t = translations[currentLang] || translations.FR;
 
-  const [messages, setMessages] = useState<Message[]>([
+  const isEn = currentLang === 'EN';
+
+  const defaultMessages: Message[] = [
     {
       id: '1',
       sender: 'user',
-      text: 'Bonjour ! Est-ce que les perruques 18 pouces sont en stock ?',
+      text: isEn ? 'Hello! Is the 18-inch wig in stock?' : 'Bonjour ! Est-ce que les perruques 18 pouces sont en stock ?',
       time: '14:32'
     },
     {
       id: '2',
       sender: 'bot',
-      text: 'Bonjour 👋 ! Oui, la Perruque Brésilienne 18" est disponible (Reste 4 en stock). Prix: 45.000 FCFA.',
+      text: isEn ? 'Hello 👋! Yes, the 18" Brazilian Wig is available (4 left in stock). Price: 45,000 FCFA.' : 'Bonjour 👋 ! Oui, la Perruque Brésilienne 18" est disponible (Reste 4 en stock). Prix: 45.000 FCFA.',
       time: '14:32'
     },
     {
       id: '3',
       sender: 'user',
-      text: 'Super ! Je veux commander et payer par Mobile Money.',
+      text: isEn ? 'Great! I want to order and pay via Mobile Money.' : 'Super ! Je veux commander et payer par Mobile Money.',
       time: '14:33'
     },
     {
       id: '4',
       sender: 'bot',
-      text: 'Parfait ! Voici votre reçu et lien d’encaissement sécurisé Reflex Mobile Money :',
+      text: isEn ? 'Perfect! Here is your official receipt and secure Mobile Money checkout link:' : 'Parfait ! Voici votre reçu et lien d’encaissement sécurisé Reflex Mobile Money :',
       time: '14:33',
       paymentLink: {
         amount: 45000,
-        item: 'Perruque Brésilienne 18"'
+        item: isEn ? '18" Brazilian Wig' : 'Perruque Brésilienne 18"'
       }
     }
-  ]);
+  ];
 
+  const [messages, setMessages] = useState<Message[]>(defaultMessages);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
 
@@ -72,17 +75,25 @@ export function WhatsAppSimulator({ currentLang, onCheckout }: { currentLang: La
     // Simulate AI response
     setTimeout(() => {
       setIsTyping(false);
-      let replyText = 'Merci pour votre message ! Notre catalogue comprend des sacs à main, des perruques et accessoires avec livraison express.';
+      let replyText = isEn
+        ? 'Thank you for your message! Our catalog includes luxury wigs, handbags, and accessories with express delivery.'
+        : 'Merci pour votre message ! Notre catalogue comprend des sacs à main, des perruques et accessoires avec livraison express.';
       let payLink: { amount: number; item: string } | undefined = undefined;
 
       const lower = userMsgText.toLowerCase();
-      if (lower.includes('prix') || lower.includes('combien') || lower.includes('cost') || lower.includes('njeeg')) {
-        replyText = 'Tous nos tarifs sont indiqués en FCFA. Par exemple, la Robe de Soirée Premium est à 25.000 FCFA (Livraison sous 24h).';
-      } else if (lower.includes('payer') || lower.includes('moov') || lower.includes('mtn') || lower.includes('wave') || lower.includes('orange') || lower.includes('pay')) {
-        replyText = 'Absolument ! Cliquez ci-dessous pour effectuer votre règlement sécurisé par Mobile Money :';
-        payLink = { amount: 25000, item: 'Robe de Soirée Premium' };
-      } else if (lower.includes('bonjour') || lower.includes('hi') || lower.includes('hello') || lower.includes('nanga')) {
-        replyText = 'Bonjour et bienvenue chez Boutique Élégance ! Que souhaitez-vous commander aujourd’hui ? 🛍️';
+      if (lower.includes('prix') || lower.includes('price') || lower.includes('combien') || lower.includes('cost') || lower.includes('how much')) {
+        replyText = isEn
+          ? 'All prices are listed in FCFA. For example, the Premium Evening Dress is 25,000 FCFA (24h Delivery).'
+          : 'Tous nos tarifs sont indiqués en FCFA. Par exemple, la Robe de Soirée Premium est à 25.000 FCFA (Livraison sous 24h).';
+      } else if (lower.includes('payer') || lower.includes('pay') || lower.includes('moov') || lower.includes('mtn') || lower.includes('wave') || lower.includes('momo')) {
+        replyText = isEn
+          ? 'Awesome! Click below to complete your secure Mobile Money payment:'
+          : 'Absolument ! Cliquez ci-dessous pour effectuer votre règlement sécurisé par Mobile Money :';
+        payLink = { amount: 25000, item: isEn ? 'Premium Evening Dress' : 'Robe de Soirée Premium' };
+      } else if (lower.includes('bonjour') || lower.includes('hi') || lower.includes('hello')) {
+        replyText = isEn
+          ? 'Hello and welcome to Elegance Boutique! What would you like to order today? 🛍️'
+          : 'Bonjour et bienvenue chez Boutique Élégance ! Que souhaitez-vous commander aujourd’hui ? 🛍️';
       }
 
       setMessages(prev => [
@@ -153,7 +164,7 @@ export function WhatsAppSimulator({ currentLang, onCheckout }: { currentLang: La
               <Sparkles size={14} color="#FF5500" />
             </div>
             <span style={{ color: '#22c55e', fontSize: '12px', fontWeight: 500 }}>
-              {isTyping ? 'En train d’écrire...' : 'En ligne 24/7 • Réponses instantanées'}
+              {isTyping ? (isEn ? 'Typing...' : 'En train d’écrire...') : (isEn ? 'Online 24/7 • Instant replies' : 'En ligne 24/7 • Réponses instantanées')}
             </span>
           </div>
         </div>

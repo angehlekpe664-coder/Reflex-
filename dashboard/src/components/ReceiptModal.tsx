@@ -145,17 +145,17 @@ export function ReceiptModal({ isOpen, onClose, currentLang, order }: ReceiptPro
               <span style={{ fontWeight: 600, color: '#ffffff' }}>{order.customerName} ({order.customerPhone})</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: '#94a3b8' }}>Article Commandé :</span>
+              <span style={{ color: '#94a3b8' }}>{t.checkoutItem} :</span>
               <span style={{ fontWeight: 600, color: '#ffffff' }}>{order.item}</span>
             </div>
             {order.deliveryAddress && (
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: '#94a3b8' }}>Livraison :</span>
+                <span style={{ color: '#94a3b8' }}>Delivery :</span>
                 <span style={{ fontWeight: 600, color: '#ffffff' }}>{order.deliveryAddress}</span>
               </div>
             )}
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: '#94a3b8' }}>Empreinte Securisée :</span>
+              <span style={{ color: '#94a3b8' }}>SHA-256 Hash :</span>
               <span style={{ fontFamily: 'monospace', fontSize: '11px', color: '#FF8800' }}>{transactionHash}</span>
             </div>
           </div>
@@ -163,7 +163,7 @@ export function ReceiptModal({ isOpen, onClose, currentLang, order }: ReceiptPro
           {/* Footer Guarantee */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', fontSize: '11px', color: '#64748b' }}>
             <ShieldCheck size={14} color="#22c55e" />
-            <span>PROPULSÉ PAR REFLEX MOBILE MONEY ENGINE • REÇU CERTIFIÉ</span>
+            <span>POWERED BY REFLEX MOBILE MONEY ENGINE • CERTIFIED RECEIPT</span>
           </div>
 
         </div>

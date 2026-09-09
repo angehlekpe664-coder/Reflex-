@@ -114,7 +114,6 @@ export default function App() {
   const [showOtpStep, setShowOtpStep] = useState(false);
   const [otpCode, setOtpCode] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberDevice, setRememberDevice] = useState(true);
 
   // Onboarding Form States
   const [companyData, setCompanyData] = useState({
@@ -313,10 +312,11 @@ export default function App() {
   const [orderSearchQuery, setOrderSearchQuery] = useState('');
   const [orderStatusFilter, setOrderStatusFilter] = useState<'ALL' | 'PAID' | 'PENDING'>('ALL');
 
-  // Interactive Language Switcher State (FR, EN, FON, WO)
-  const [currentLang, setCurrentLang] = useState<'FR' | 'EN' | 'FON' | 'WO'>(() => {
+  // Interactive Language Switcher State (FR, EN)
+  const [currentLang, setCurrentLang] = useState<'FR' | 'EN'>(() => {
     if (typeof window !== 'undefined') {
-      return (localStorage.getItem('reflex_language') as any) || 'FR';
+      const saved = localStorage.getItem('reflex_language');
+      return saved === 'EN' ? 'EN' : 'FR';
     }
     return 'FR';
   });
@@ -336,16 +336,14 @@ export default function App() {
   const availableLanguages = [
     { code: 'FR', label: 'Français', flag: '🇫🇷' },
     { code: 'EN', label: 'English', flag: '🇬🇧' },
-    { code: 'FON', label: 'Fongbe', flag: '🇧🇯' },
-    { code: 'WO', label: 'Wolof', flag: '🇸🇳' },
   ];
 
-  const handleSelectLanguage = (langCode: 'FR' | 'EN' | 'FON' | 'WO') => {
+  const handleSelectLanguage = (langCode: 'FR' | 'EN') => {
     setCurrentLang(langCode);
     localStorage.setItem('reflex_language', langCode);
     setLangMenuOpen(false);
     const langObj = availableLanguages.find(l => l.code === langCode);
-    showToast(`Langue sélectionnée : ${langObj?.flag} ${langObj?.label}`, 'info');
+    showToast(`Language: ${langObj?.flag} ${langObj?.label}`, 'info');
   };
 
   // Scroll-To-Top floating button state
@@ -763,12 +761,12 @@ export default function App() {
             <div className="nav-desktop-links" style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: '#FF5500', backgroundColor: 'rgba(255, 85, 0, 0.12)', padding: '6px 14px', borderRadius: '9999px', border: '1px solid rgba(255, 85, 0, 0.35)' }}>
                 <Radio size={14} className="animate-pulse" />
-                <span>Service Actif 24/7</span>
+                <span>{t.activeService}</span>
               </div>
 
-              <a href="#features" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>Fonctionnalités</a>
-              <a href="#demo-video" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>Démo Vidéo</a>
-              <a href="#faq" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>FAQ</a>
+              <a href="#features" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>{t.featuresNav}</a>
+              <a href="#demo-video" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>{t.demoVideoNav}</a>
+              <a href="#faq" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>{t.faqNav}</a>
 
               {/* Interactive Language Selector Dropdown */}
               <div style={{ position: 'relative' }}>
@@ -799,7 +797,7 @@ export default function App() {
                 style={{ fontSize: '14.5px', fontWeight: 600, color: '#ffffff', cursor: 'pointer', transition: 'color 0.2s' }}
                 onClick={() => { setAuthMode('login'); setActiveView('auth'); }}
               >
-                Se connecter
+                {t.login}
               </span>
 
               <button
@@ -807,7 +805,7 @@ export default function App() {
                 style={{ borderRadius: '10px', padding: '10px 22px', fontSize: '14px' }}
                 onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
               >
-                Commencer gratuitement <ArrowRight size={16} />
+                {t.startFree} <ArrowRight size={16} />
               </button>
             </div>
 
@@ -819,19 +817,19 @@ export default function App() {
               <div className="mobile-menu-drawer open">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: '#FF5500', backgroundColor: 'rgba(255,85,0,0.1)', padding: '8px 14px', borderRadius: '9999px', border: '1px solid rgba(255,85,0,0.2)', width: 'fit-content' }}>
                   <Radio size={14} className="animate-pulse" />
-                  <span>Service Actif 24/7</span>
+                  <span>{t.activeService}</span>
                 </div>
 
-                <a href="#features" onClick={() => setMobileMenuOpen(false)} style={{ color: '#ffffff', textDecoration: 'none', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>Fonctionnalités</a>
-                <a href="#demo-video" onClick={() => setMobileMenuOpen(false)} style={{ color: '#ffffff', textDecoration: 'none', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>Démo Vidéo</a>
-                <a href="#faq" onClick={() => setMobileMenuOpen(false)} style={{ color: '#ffffff', textDecoration: 'none', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>FAQ</a>
+                <a href="#features" onClick={() => setMobileMenuOpen(false)} style={{ color: '#ffffff', textDecoration: 'none', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>{t.featuresNav}</a>
+                <a href="#demo-video" onClick={() => setMobileMenuOpen(false)} style={{ color: '#ffffff', textDecoration: 'none', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>{t.demoVideoNav}</a>
+                <a href="#faq" onClick={() => setMobileMenuOpen(false)} style={{ color: '#ffffff', textDecoration: 'none', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>{t.faqNav}</a>
 
                 <button
                   className="btn-outline-white"
                   style={{ width: '100%', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.1)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.2)' }}
                   onClick={() => { setMobileMenuOpen(false); setAuthMode('login'); setActiveView('auth'); }}
                 >
-                  Se connecter
+                  {t.login}
                 </button>
 
                 <button
@@ -839,7 +837,7 @@ export default function App() {
                   style={{ width: '100%', justifyContent: 'center' }}
                   onClick={() => { setMobileMenuOpen(false); setAuthMode('signup'); setActiveView('auth'); }}
                 >
-                  Commencer gratuitement <ArrowRight size={16} />
+                  {t.startFree} <ArrowRight size={16} />
                 </button>
               </div>
             )}
@@ -903,13 +901,13 @@ export default function App() {
               {/* Trust Badges Bar */}
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '32px', flexWrap: 'wrap', opacity: 0.95, marginTop: '20px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', color: '#cbd5e1' }}>
-                  <CheckCircle size={16} color="#FF5500" /> <span>Installation en 3 minutes</span>
+                  <CheckCircle size={16} color="#FF5500" /> <span>{t.trustSetupTime}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', color: '#cbd5e1' }}>
-                  <Shield size={16} color="#FF5500" /> <span>Paiements Certifiés SHA-256</span>
+                  <Shield size={16} color="#FF5500" /> <span>{t.trustSecured}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', color: '#cbd5e1' }}>
-                  <Zap size={16} color="#FF8800" /> <span>Réponses IA en &lt; 2s</span>
+                  <Zap size={16} color="#FF8800" /> <span>{t.trustNoCreditCard}</span>
                 </div>
               </div>
 
@@ -970,7 +968,7 @@ export default function App() {
             <WhatsAppSimulator
               currentLang={currentLang}
               onCheckout={() => {
-                showToast("Ouverture de l'écran de paiement Mobile Money...", "info");
+                showToast("Opening Mobile Money payment...", "info");
                 setActiveView('payment-checkout');
               }}
             />
@@ -980,8 +978,8 @@ export default function App() {
           <div style={{ maxWidth: '1140px', margin: '0 auto 100px', padding: '0 24px' }}>
             <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.75)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.12)', padding: '28px 36px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '20px' }}>
               <div>
-                <div className="font-outfit" style={{ fontSize: '18px', fontWeight: 700, color: '#ffffff' }}>Prise en charge intégrale des paiements d'Afrique de l'Ouest</div>
-                <div style={{ fontSize: '13.5px', color: '#94a3b8', marginTop: '4px' }}>MTN Mobile Money (*139#), Moov Money (*155#), Wave et Cartes bancaires avec reçus certifiés SHA-256.</div>
+                <div className="font-outfit" style={{ fontSize: '18px', fontWeight: 700, color: '#ffffff' }}>{t.momoSupportTitle}</div>
+                <div style={{ fontSize: '13.5px', color: '#94a3b8', marginTop: '4px' }}>{t.momoSupportSub}</div>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
@@ -995,9 +993,9 @@ export default function App() {
           {/* 4 KEY FEATURES GRID WITH GLASSMORPHISM & MOTION HOVER */}
           <div id="features" style={{ maxWidth: '1140px', margin: '0 auto 100px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
             <div style={{ textAlign: 'center', marginBottom: '52px' }}>
-              <span className="font-outfit" style={{ color: '#FF8800', fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>FONCTIONNALITÉS CLÉS</span>
+              <span className="font-outfit" style={{ color: '#FF8800', fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.featuresNav}</span>
               <h2 className="headline-lg" style={{ color: '#ffffff', marginTop: '8px' }}>
-                Tout pour automatiser vos ventes WhatsApp
+                {t.featuresTitle}
               </h2>
             </div>
 
@@ -1007,9 +1005,9 @@ export default function App() {
                 <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, rgba(255, 85, 0, 0.25), rgba(230, 57, 0, 0.25))', color: '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', border: '1px solid rgba(255, 85, 0, 0.35)' }}>
                   <Zap size={26} />
                 </div>
-                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff', marginBottom: '10px' }}>IA Commerciale 24/7</h3>
+                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff', marginBottom: '10px' }}>{t.featAutoReplyTitle}</h3>
                 <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.6 }}>
-                  Réponses instantanées adaptées au ton de votre boutique. L'IA présente vos produits et vend sans interruption en wolof, fon et français.
+                  {t.featAutoReplyDesc}
                 </p>
               </div>
 
@@ -1017,9 +1015,9 @@ export default function App() {
                 <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, rgba(255, 136, 0, 0.25), rgba(245, 158, 11, 0.25))', color: '#FF8800', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', border: '1px solid rgba(255, 136, 0, 0.35)' }}>
                   <CreditCard size={26} />
                 </div>
-                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff', marginBottom: '10px' }}>Paiement Mobile Money</h3>
+                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff', marginBottom: '10px' }}>{t.featMobileMoneyTitle}</h3>
                 <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.6 }}>
-                  Génération automatique de liens de paiement direct MTN MoMo (*139#), Moov Money (*155#) et Wave.
+                  {t.featMobileMoneyDesc}
                 </p>
               </div>
 
@@ -1027,9 +1025,9 @@ export default function App() {
                 <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(16, 185, 129, 0.25))', color: '#06b6d4', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', border: '1px solid rgba(6, 182, 212, 0.35)' }}>
                   <Receipt size={26} />
                 </div>
-                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff', marginBottom: '10px' }}>Reçus SHA-256</h3>
+                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff', marginBottom: '10px' }}>{t.featSecurityTitle}</h3>
                 <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.6 }}>
-                  Émission automatique de reçus numériques valides et sécurisés envoyés directement au client sur WhatsApp.
+                  {t.featSecurityDesc}
                 </p>
               </div>
 
@@ -1037,9 +1035,9 @@ export default function App() {
                 <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(168, 85, 247, 0.25))', color: '#818cf8', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', border: '1px solid rgba(99, 102, 241, 0.35)' }}>
                   <LayoutDashboard size={26} />
                 </div>
-                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff', marginBottom: '10px' }}>Dashboard PME</h3>
+                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff', marginBottom: '10px' }}>{t.featCatalogTitle}</h3>
                 <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.6 }}>
-                  Suivez vos commandes, vos clients et vos revenus en FCFA avec des statistiques synchronisées en temps réel.
+                  {t.featCatalogDesc}
                 </p>
               </div>
 
@@ -1079,29 +1077,25 @@ export default function App() {
           {/* INTERACTIVE FAQ ACCORDION SECTION */}
           <div id="faq" style={{ maxWidth: '880px', margin: '0 auto 100px', padding: '0 24px' }}>
             <div style={{ textAlign: 'center', marginBottom: '44px' }}>
-              <span className="font-outfit" style={{ color: '#FF8800', fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>QUESTIONS FRÉQUENTES</span>
+              <span className="font-outfit" style={{ color: '#FF8800', fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.faqTitle}</span>
               <h2 className="headline-lg" style={{ color: '#ffffff', marginTop: '8px' }}>
-                Tout ce que vous devez savoir sur Reflex
+                {t.faqSub}
               </h2>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {[
                 {
-                  q: "Comment fonctionne la protection anti-bot sur Reflex ?",
-                  a: "La protection Turnstile sécurise votre formulaire d'inscription contre le spam et les robots sans embêter vos clients avec des puzzles d'images. C'est instantané et 100% sécurisé."
+                  q: t.faqQ1,
+                  a: t.faqA1
                 },
                 {
-                  q: "L'IA peut-elle comprendre le wolof, le fon et le français ?",
-                  a: "Oui ! L'IA Reflex est spécialement entraînée pour reconnaître le langage naturel, les expressions locales et le vocabulaire commercial d'Afrique de l'Ouest."
+                  q: t.faqQ2,
+                  a: t.faqA2
                 },
                 {
-                  q: "Comment les clients paient-ils par Mobile Money ?",
-                  a: "L'IA génère un lien de paiement crypté. Le client clique, choisit son réseau (MTN MoMo *139#, Moov Money *155# ou Wave), valide sur son téléphone et reçoit son reçu certifié SHA-256."
-                },
-                {
-                  q: "Puis-je garder mon numéro WhatsApp actuel ?",
-                  a: "Absolument. Reflex s'intègre soit via QR Code instantané, soit via l'API officielle WhatsApp Meta Embedded Signup."
+                  q: t.faqQ3,
+                  a: t.faqA3
                 }
               ].map((faq, idx) => (
                 <div
@@ -1140,13 +1134,13 @@ export default function App() {
 
               <div style={{ position: 'relative', zIndex: 2, maxWidth: '720px', margin: '0 auto' }}>
                 <span style={{ backgroundColor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)', color: '#ffffff', padding: '6px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  ⚡ PRÊT À AUTOMATISER VOTRE BOUTIQUE ?
+                  ⚡ {t.heroBadge}
                 </span>
                 <h2 style={{ fontSize: '38px', fontWeight: 900, color: '#ffffff', marginTop: '18px', marginBottom: '16px', lineHeight: 1.15 }}>
-                  Rejoignez les PMEs qui vendent 24/7 avec l'IA Reflex
+                  {t.heroTitle1} {t.heroTitleHighlight}
                 </h2>
                 <p style={{ fontSize: '16.5px', color: 'rgba(255,255,255,0.92)', marginBottom: '32px', lineHeight: 1.5 }}>
-                  Créez votre compte en 2 minutes et commencez à encaisser vos premiers paiements Mobile Money.
+                  {t.heroSub}
                 </p>
 
                 <button
@@ -1168,7 +1162,7 @@ export default function App() {
                     transition: 'transform 0.2s ease'
                   }}
                 >
-                  Créer mon compte Reflex <ArrowRight size={20} />
+                  {t.ctaStartNow} <ArrowRight size={20} />
                 </button>
               </div>
             </div>
@@ -1186,7 +1180,7 @@ export default function App() {
                     <span className="font-outfit" style={{ fontWeight: 800, fontSize: '24px', color: '#ffffff' }}>Reflex</span>
                   </div>
                   <p style={{ fontSize: '13.5px', color: '#94a3b8', lineHeight: 1.6, maxWidth: '300px', marginBottom: '16px' }}>
-                    L'IA commerciale WhatsApp n°1 pour les PMEs d'Afrique de l'Ouest.
+                    {t.footerDesc}
                   </p>
                   <div style={{ display: 'flex', gap: '10px' }}>
                     <span style={{ backgroundColor: 'rgba(255,85,0,0.12)', border: '1px solid rgba(255,85,0,0.3)', padding: '5px 10px', borderRadius: '6px', fontSize: '11.5px', color: '#FF5500', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
@@ -1199,11 +1193,11 @@ export default function App() {
                 </div>
 
                 <div>
-                  <div className="font-outfit" style={{ fontSize: '15px', fontWeight: 700, marginBottom: '14px', color: '#ffffff' }}>Plateforme</div>
+                  <div className="font-outfit" style={{ fontSize: '15px', fontWeight: 700, marginBottom: '14px', color: '#ffffff' }}>{t.featuresNav}</div>
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13.5px', color: '#cbd5e1' }}>
-                    <li style={{ cursor: 'pointer' }} onClick={() => setActiveView('landing')}>Fonctionnalités</li>
-                    <li style={{ cursor: 'pointer' }} onClick={() => setActiveView('payment-checkout')}>Paiement MoMo</li>
-                    <li style={{ cursor: 'pointer' }} onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}>Inscription</li>
+                    <li style={{ cursor: 'pointer' }} onClick={() => setActiveView('landing')}>{t.featuresNav}</li>
+                    <li style={{ cursor: 'pointer' }} onClick={() => setActiveView('payment-checkout')}>{t.featMobileMoneyTitle}</li>
+                    <li style={{ cursor: 'pointer' }} onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}>{t.startFree}</li>
                   </ul>
                 </div>
 
@@ -1226,10 +1220,9 @@ export default function App() {
               </div>
 
               <div style={{ maxWidth: '1140px', margin: '0 auto', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', color: '#94a3b8' }}>
-                <div>© 2026 <strong>Reflex</strong>. Tous droits réservés.</div>
+                <div>© 2026 <strong>Reflex</strong>. {t.footerRights}</div>
                 <div style={{ display: 'flex', gap: '16px' }}>
-                  <span style={{ cursor: 'pointer', color: '#cbd5e1' }}>Confidentialité</span>
-                  <span style={{ cursor: 'pointer', color: '#cbd5e1' }}>Conditions</span>
+                  <span style={{ cursor: 'pointer', color: '#cbd5e1' }}>{t.footerSecurityNotice}</span>
                 </div>
               </div>
             </div>
@@ -1241,12 +1234,12 @@ export default function App() {
                   <span className="font-outfit" style={{ fontWeight: 800, fontSize: '22px', color: '#ffffff' }}>Reflex</span>
                 </div>
                 <p style={{ fontSize: '13px', color: '#94a3b8', margin: '0 auto 12px', maxWidth: '280px', lineHeight: 1.4 }}>
-                  L'IA commerciale WhatsApp n°1 pour les PMEs d'Afrique de l'Ouest.
+                  {t.footerDesc}
                 </p>
               </div>
 
               <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '16px', textAlign: 'center', fontSize: '12px', color: '#64748b' }}>
-                <div>© 2026 <strong>Reflex</strong>. Tous droits réservés.</div>
+                <div>© 2026 <strong>Reflex</strong>. {t.footerRights}</div>
               </div>
             </div>
           </footer>
@@ -1330,12 +1323,12 @@ export default function App() {
             {/* Main Form Center Content */}
             <div style={{ width: '100%', maxWidth: '420px', margin: 'auto 0' }}>
               <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#0b1c30', marginBottom: '4px', letterSpacing: '-0.5px' }}>
-                {authMode === 'signup' ? 'Créer votre compte Reflex' : 'Sign in to Reflex'}
+                {authMode === 'signup' ? t.authWelcomeSignup : t.authWelcomeLogin}
               </h1>
               <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px', lineHeight: '1.4' }}>
                 {authMode === 'signup' 
-                  ? 'Inscrivez votre PME et automatisez vos ventes WhatsApp 24/7.' 
-                  : 'Accédez à votre tableau de bord commercial et vos leads.'}
+                  ? t.authSubSignup
+                  : t.authSubLogin}
               </p>
 
               {/* Social SSO Login Button (Google) */}
@@ -1367,13 +1360,13 @@ export default function App() {
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
                 </svg>
-                Continuer avec Google
+                {t.googleAuthBtn}
               </button>
 
               {/* Divider */}
               <div style={{ display: 'flex', alignItems: 'center', margin: '12px 0', color: '#94a3b8' }}>
                 <div style={{ flex: 1, borderBottom: '1px solid #E2E8F0' }}></div>
-                <span style={{ padding: '0 10px', fontSize: '11.5px', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>OU</span>
+                <span style={{ padding: '0 10px', fontSize: '11.5px', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.authOrSeparator}</span>
                 <div style={{ flex: 1, borderBottom: '1px solid #E2E8F0' }}></div>
               </div>
 
@@ -1381,14 +1374,14 @@ export default function App() {
               {showOtpStep ? (
                 <form onSubmit={handleVerifyOtpSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   <div style={{ backgroundColor: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
-                    <div style={{ fontWeight: 700, color: '#2563eb', fontSize: '14px', marginBottom: '2px' }}>📧 Code de confirmation envoyé</div>
+                    <div style={{ fontWeight: 700, color: '#2563eb', fontSize: '14px', marginBottom: '2px' }}>📧 OTP Code Sent</div>
                     <p style={{ fontSize: '12.5px', color: '#475569', margin: 0, lineHeight: 1.4 }}>
-                      Un code à 6 chiffres a été envoyé à <strong>{email}</strong>.
+                      A 6-digit confirmation code was sent to <strong>{email}</strong>.
                     </p>
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '12px', fontWeight: 600, color: '#0f172a', marginBottom: '6px', display: 'block', textAlign: 'center' }}>Saisissez le code reçu</label>
+                    <label style={{ fontSize: '12px', fontWeight: 600, color: '#0f172a', marginBottom: '6px', display: 'block', textAlign: 'center' }}>Enter code</label>
                     <input
                       type="text"
                       required
@@ -1411,7 +1404,7 @@ export default function App() {
                   </div>
 
                   <button type="submit" style={{ width: '100%', padding: '11px', fontSize: '14.5px', borderRadius: '8px', backgroundColor: '#2563eb', color: '#ffffff', border: 'none', fontWeight: 700, cursor: 'pointer' }} disabled={authLoading}>
-                    {authLoading ? 'Validation...' : 'Valider mon code →'}
+                    {authLoading ? 'Validating...' : 'Validate Code →'}
                   </button>
 
                   <button
@@ -1419,14 +1412,14 @@ export default function App() {
                     onClick={() => setShowOtpStep(false)}
                     style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '12px', cursor: 'pointer', textAlign: 'center' }}
                   >
-                    ← Modifier l'adresse email ({email})
+                    ← Change email ({email})
                   </button>
                 </form>
               ) : (
                 <form onSubmit={handleSupabaseSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {authMode === 'signup' && (
                     <div>
-                      <label style={{ fontSize: '12px', fontWeight: 600, color: '#1e293b', marginBottom: '4px', display: 'block' }}>Nom & Prénom</label>
+                      <label style={{ fontSize: '12px', fontWeight: 600, color: '#1e293b', marginBottom: '4px', display: 'block' }}>{t.fullNameLabel}</label>
                       <div style={{ position: 'relative' }}>
                         <User size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '10px' }} />
                         <input
@@ -1442,13 +1435,13 @@ export default function App() {
                   )}
 
                   <div>
-                    <label style={{ fontSize: '12px', fontWeight: 600, color: '#1e293b', marginBottom: '4px', display: 'block' }}>Email</label>
+                    <label style={{ fontSize: '12px', fontWeight: 600, color: '#1e293b', marginBottom: '4px', display: 'block' }}>{t.emailLabel}</label>
                     <div style={{ position: 'relative' }}>
                       <Mail size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '10px' }} />
                       <input
                         type="email"
                         required
-                        placeholder="alex@boutique.bj"
+                        placeholder="alex@boutique.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         style={{ width: '100%', padding: '9px 12px 9px 38px', borderRadius: '8px', border: '1px solid #CBD5E1', outline: 'none', fontSize: '13.5px' }}
@@ -1457,7 +1450,7 @@ export default function App() {
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '12px', fontWeight: 600, color: '#1e293b', marginBottom: '4px', display: 'block' }}>Password</label>
+                    <label style={{ fontSize: '12px', fontWeight: 600, color: '#1e293b', marginBottom: '4px', display: 'block' }}>{t.passwordLabel}</label>
                     <div style={{ position: 'relative' }}>
                       <Lock size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '10px' }} />
                       <input
@@ -1477,20 +1470,6 @@ export default function App() {
                         {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
                     </div>
-                  </div>
-
-                  {/* Save email and login method option */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '1px' }}>
-                    <input
-                      type="checkbox"
-                      id="rememberDevice"
-                      checked={rememberDevice}
-                      onChange={(e) => setRememberDevice(e.target.checked)}
-                      style={{ width: '15px', height: '15px', accentColor: '#2563eb', cursor: 'pointer' }}
-                    />
-                    <label htmlFor="rememberDevice" style={{ fontSize: '12px', color: '#475569', cursor: 'pointer', userSelect: 'none' }}>
-                      Save email and login method on this device
-                    </label>
                   </div>
 
                   {/* Cloudflare Turnstile Captcha Widget */}
@@ -1516,8 +1495,8 @@ export default function App() {
                     }}
                   >
                     {authLoading 
-                      ? (authMode === 'signup' ? 'Création...' : 'Connexion...') 
-                      : (authMode === 'signup' ? 'Créer mon compte →' : 'Sign in')}
+                      ? '...' 
+                      : (authMode === 'signup' ? t.submitSignup : t.submitLogin)}
                   </button>
                 </form>
               )}
@@ -1525,9 +1504,9 @@ export default function App() {
               {/* Switch Auth Mode Footer */}
               <div style={{ textAlign: 'center', marginTop: '12px', fontSize: '13px', color: '#64748b' }}>
                 {authMode === 'signup' ? (
-                  <>Déjà un compte ? <span style={{ color: '#2563eb', fontWeight: 700, cursor: 'pointer' }} onClick={() => setAuthMode('login')}>Se connecter</span></>
+                  <span style={{ color: '#2563eb', fontWeight: 700, cursor: 'pointer' }} onClick={() => setAuthMode('login')}>{t.toggleToLogin}</span>
                 ) : (
-                  <>Pas encore de compte ? <span style={{ color: '#2563eb', fontWeight: 700, cursor: 'pointer' }} onClick={() => setAuthMode('signup')}>Sign up</span></>
+                  <span style={{ color: '#2563eb', fontWeight: 700, cursor: 'pointer' }} onClick={() => setAuthMode('signup')}>{t.toggleToSignup}</span>
                 )}
               </div>
             </div>
@@ -2398,44 +2377,40 @@ export default function App() {
                 className={`sidebar-link ${activeSidebarTab === 'Vue d\'ensemble' ? 'active' : ''}`}
                 onClick={() => switchTab('Vue d\'ensemble')}
               >
-                <LayoutDashboard size={18} /> Vue d'ensemble
+                <LayoutDashboard size={18} /> {t.dashOverview}
               </button>
               <button
                 className={`sidebar-link ${activeSidebarTab === 'Commandes' ? 'active' : ''}`}
                 onClick={() => switchTab('Commandes')}
               >
-                <ShoppingBag size={18} /> Commandes
+                <ShoppingBag size={18} /> {t.dashOrders}
               </button>
               <button
                 className={`sidebar-link ${activeSidebarTab === 'Paiements' ? 'active' : ''}`}
                 onClick={() => switchTab('Paiements')}
               >
-                <CreditCard size={18} /> Paiements
+                <CreditCard size={18} /> {t.dashPayments}
               </button>
               <button
                 className={`sidebar-link ${activeSidebarTab === 'Catalogue' ? 'active' : ''}`}
                 onClick={() => switchTab('Catalogue')}
               >
-                <Grid size={18} /> Catalogue ({productsList.length})
+                <Grid size={18} /> {t.dashCatalog} ({productsList.length})
               </button>
               <button
                 className={`sidebar-link ${activeSidebarTab === 'Paramètres' ? 'active' : ''}`}
                 onClick={() => switchTab('Paramètres')}
               >
-                <Settings size={18} /> Paramètres
+                <Settings size={18} /> {t.dashSettings}
               </button>
             </nav>
 
             <div style={{ marginTop: 'auto', borderTop: '1px solid var(--border-subtle)', paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <button className="sidebar-link" onClick={toggleDarkMode} style={{ cursor: 'pointer' }}>
-                {darkMode ? <Sun size={18} color="#F59E0B" /> : <Moon size={18} color="#6366F1" />}
-                <span>{darkMode ? 'Mode Clair' : 'Mode Sombre'}</span>
-              </button>
               <button className="sidebar-link" onClick={() => setActiveView('landing')}>
                 <Globe size={16} /> Page d'accueil
               </button>
               <button className="sidebar-link" onClick={handleSignOut} style={{ color: '#ef4444' }}>
-                <LogOut size={16} color="#ef4444" /> Déconnexion
+                <LogOut size={16} color="#ef4444" /> {t.logout}
               </button>
             </div>
           </aside>
@@ -2444,21 +2419,21 @@ export default function App() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
               <div>
                 <h1 className="headline-lg" style={{ color: '#ffffff', marginBottom: '4px' }}>
-                  {activeSidebarTab === 'Vue d\'ensemble' && `Bonjour ${fullName || 'Alex'}, voici votre activité aujourd'hui.`}
-                  {activeSidebarTab === 'Commandes' && 'Gestion des Commandes Clients'}
-                  {activeSidebarTab === 'Paiements' && 'Transactions & Reçus Mobile Money'}
-                  {activeSidebarTab === 'Catalogue' && 'Gestion du Catalogue Produit'}
-                  {activeSidebarTab === 'Paramètres' && 'Configuration de la PME & Assistant IA'}
+                  {activeSidebarTab === 'Vue d\'ensemble' && `${t.dashOverview} — ${fullName || 'Merchant'}`}
+                  {activeSidebarTab === 'Commandes' && t.ordersTitle}
+                  {activeSidebarTab === 'Paiements' && t.paymentsTitle}
+                  {activeSidebarTab === 'Catalogue' && t.catalogTitle}
+                  {activeSidebarTab === 'Paramètres' && t.settingsTitle}
                 </h1>
                 <p className="body-md" style={{ color: '#cbd5e1' }}>
-                  PME active : <strong style={{ color: '#FF5500' }}>{companyData.name}</strong> ({companyData.phone})
+                  {t.dashPmeActive} : <strong style={{ color: '#FF5500' }}>{companyData.name}</strong> ({companyData.phone})
                 </p>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(255,85,0,0.12)', border: '1px solid rgba(255,85,0,0.3)', padding: '6px 14px', borderRadius: '9999px' }}>
                 <Radio size={14} color="#FF5500" />
                 <span className="label-xs" style={{ color: '#ffffff', fontWeight: 600 }}>
-                  IA Active sur WhatsApp (24/7)
+                  {t.dashAiActive}
                 </span>
               </div>
             </div>
