@@ -136,6 +136,11 @@ export default function App() {
     deliveryInfo: 'Livraison sous 24h à Cotonou, Calavi et Porto-Novo.'
   });
 
+  const [pmePaymentKeys, setPmePaymentKeys] = useState({
+    fedapaySecretKey: 'sk_live_jQV5A57A9GMJ_mzbK1YtoR3E',
+    kkiapayPublicKey: '0efb5b708b2911f1a8dd67bbdaba00dc'
+  });
+
   // Active Dashboard Sidebar Tab State
   const [activeSidebarTab, setActiveSidebarTab] = useState<
     'Vue d\'ensemble' | 'Commandes' | 'Paiements' | 'Catalogue' | 'Paramètres'
@@ -2813,6 +2818,38 @@ export default function App() {
                         <option value="Strictement Professionnel">Strictement Professionnel</option>
                         <option value="Décontracté & Jeune">Décontracté & Jeune</option>
                       </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* MERCHANT PAYMENT KEYS CARD */}
+                <div className="reflex-card-base" style={{ padding: '28px', backgroundColor: '#0F172A', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                  <h3 className="title-md" style={{ color: '#ffffff', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <CreditCard size={20} color="#FF5500" /> Vos Clés d'Encaissement Direct (Mobile Money)
+                  </h3>
+                  <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '20px' }}>
+                    Entrez vos clés d'API FedaPay et Kkiapay pour recevoir l'argent des clients WhatsApp directement sur votre propre compte Mobile Money (MTN, Moov, Wave) sans intermédiaire.
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div>
+                      <label style={{ fontSize: '13px', fontWeight: 600, color: '#ffffff', marginBottom: '6px', display: 'block' }}>Clé Secrète FedaPay (Secret Key)</label>
+                      <input
+                        type="password"
+                        placeholder="sk_live_..."
+                        value={pmePaymentKeys.fedapaySecretKey}
+                        onChange={(e) => setPmePaymentKeys({ ...pmePaymentKeys, fedapaySecretKey: e.target.value })}
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', backgroundColor: '#1e293b', color: '#ffffff', outline: 'none', fontSize: '14px' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '13px', fontWeight: 600, color: '#ffffff', marginBottom: '6px', display: 'block' }}>Clé Publique Kkiapay (Public Key)</label>
+                      <input
+                        type="text"
+                        placeholder="0efb5b708b..."
+                        value={pmePaymentKeys.kkiapayPublicKey}
+                        onChange={(e) => setPmePaymentKeys({ ...pmePaymentKeys, kkiapayPublicKey: e.target.value })}
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', backgroundColor: '#1e293b', color: '#ffffff', outline: 'none', fontSize: '14px' }}
+                      />
                     </div>
                   </div>
                 </div>

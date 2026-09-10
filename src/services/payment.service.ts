@@ -7,6 +7,8 @@ export interface PaymentRequest {
   customerName: string;
   customerPhone: string;
   orderId: string;
+  customSecretKey?: string;
+  customPublicKey?: string;
 }
 
 export class PaymentService {
@@ -18,7 +20,7 @@ export class PaymentService {
       ? 'https://api.fedapay.com/v1'
       : 'https://sandbox-api.fedapay.com/v1';
 
-    const secretKey = config.fedapay.secretKey;
+    const secretKey = data.customSecretKey || config.fedapay.secretKey;
 
     try {
       console.log(`💳 Initialisation transaction FedaPay (${config.fedapay.environment}) pour ${data.amount} FCFA...`);
@@ -84,7 +86,7 @@ export class PaymentService {
    * Génère un lien de paiement Kkiapay (Mobile Money MTN, Moov, Wave)
    */
   async createKkiapayLink(data: PaymentRequest): Promise<string> {
-    const key = config.kkiapay.publicKey;
+    const key = data.customPublicKey || config.kkiapay.publicKey;
     const checkoutUrl = `https://widget.kkiapay.me?amount=${Math.round(data.amount)}&key=${key}&callback=https://reflex-dashboard-lfp6.onrender.com/#pay-${data.orderId}`;
     console.log(`✅ Lien Kkiapay généré : ${checkoutUrl}`);
     return checkoutUrl;
