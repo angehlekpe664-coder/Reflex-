@@ -498,6 +498,34 @@ app.get('/api/reports/pdf/:orderId', async (req, res) => {
   }
 });
 
+// Route Politique de Confidentialité officielle (Requis par Meta)
+app.get('/privacy', (_req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+      <meta charset="UTF-8">
+      <title>Politique de Confidentialité - Reflex</title>
+      <style>
+        body { font-family: sans-serif; background: #090d16; color: #ffffff; padding: 40px; line-height: 1.6; }
+        .box { max-width: 700px; margin: 0 auto; background: #0f172a; padding: 30px; border-radius: 12px; border: 1px solid #ff5500; }
+        h1 { color: #ff5500; }
+      </style>
+    </head>
+    <body>
+      <div class="box">
+        <h1>Politique de Confidentialité - Reflex</h1>
+        <p>Reflex s'engage à protéger les données personnelles de ses PME et de leurs clients WhatsApp.</p>
+        <h2>Collecte et Utilisation</h2>
+        <p>Les données récoltées (messages WhatsApp, numéro de téléphone, commandes) servent exclusivement au fonctionnement de l'Assistant IA et au traitement des commandes Mobile Money.</p>
+        <h2>Suppression des données</h2>
+        <p>Pour toute demande de suppression des données, contactez support@reflex.bj.</p>
+      </div>
+    </body>
+    </html>
+  `);
+});
+
 // Route 6 : Santé du serveur
 app.get('/health', (_req, res) => {
   res.json({
