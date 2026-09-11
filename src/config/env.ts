@@ -13,8 +13,8 @@ export const config = {
     configId: process.env.META_CONFIG_ID || '',
   },
   whatsapp: {
-    token: process.env.WHATSAPP_TOKEN || '',
-    phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || '',
+    token: process.env.WHATSAPP_TOKEN || 'EAAapZBe5QZBMgBSSda43eroEDP4WydaDkftht7DdEXJZAkuKDoPye8yKmAK3Pm8wKZBFSMLaPifn2QxYbl5btELt00OLLdl2GBrcXxudyKAiFp201HVZA5o54J96xxiXEBdPTVzcnRmxzlIFUkECNtTQ4JHk1ZBDk4vTsnklshuK7DI30NLmibZC7KREgeHYAacDi6tCwm0gSQgL4ZCVVXeCwtcNdz1tFP1L7bpCQOOvqNGxSTy2YZCzsWveNmZCuGtAtVdNzyG0Abm8UVzNFtol4mpnoW',
+    phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || '1297674883427187',
     verifyToken: process.env.WHATSAPP_VERIFY_TOKEN || 'mon_token_verification',
   },
   fedapay: {
