@@ -136,10 +136,7 @@ export default function App() {
     deliveryInfo: 'Livraison sous 24h à Cotonou, Calavi et Porto-Novo.'
   });
 
-  const [pmePaymentKeys, setPmePaymentKeys] = useState({
-    fedapaySecretKey: 'sk_live_jQV5A57A9GMJ_mzbK1YtoR3E',
-    kkiapayPublicKey: '0efb5b708b2911f1a8dd67bbdaba00dc'
-  });
+
 
   // Active Dashboard Sidebar Tab State
   const [activeSidebarTab, setActiveSidebarTab] = useState<
@@ -1645,8 +1642,8 @@ export default function App() {
       {/* 3. ONBOARDING STEP 1: ENTREPRISE */}
       {/* ========================================================================= */}
       {activeView === 'onboarding-entreprise' && (
-        <div style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '540px', marginBottom: '32px' }}>
+        <div style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 60px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '540px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
               <span style={{ fontWeight: 800, fontSize: '20px', color: '#0b1c30' }}>Reflex</span>
@@ -1674,7 +1671,7 @@ export default function App() {
             </button>
           </div>
 
-          <div className="reflex-card-base" style={{ width: '100%', maxWidth: '540px', padding: '40px', backgroundColor: '#ffffff' }}>
+          <div className="reflex-card-base" style={{ width: '100%', maxWidth: '540px', padding: '32px 28px', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.06)' }}>
 
             {/* Onboarding Stepper Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '24px', width: '100%' }}>
@@ -1773,8 +1770,8 @@ export default function App() {
       {/* 4. ONBOARDING STEP 2: CATALOGUE */}
       {/* ========================================================================= */}
       {activeView === 'onboarding-catalogue' && (
-        <div style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '540px', marginBottom: '32px' }}>
+        <div style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 60px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '580px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
               <span style={{ fontWeight: 800, fontSize: '20px', color: '#0b1c30' }}>Reflex</span>
@@ -1802,7 +1799,7 @@ export default function App() {
             </button>
           </div>
 
-          <div className="reflex-card-base" style={{ width: '100%', maxWidth: '580px', padding: '40px', backgroundColor: '#ffffff' }}>
+          <div className="reflex-card-base" style={{ width: '100%', maxWidth: '580px', padding: '32px 28px', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.06)' }}>
 
             {/* Onboarding Stepper Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '24px', width: '100%' }}>
@@ -1911,8 +1908,8 @@ export default function App() {
       {/* 5. ONBOARDING STEP 3: ASSISTANT IA */}
       {/* ========================================================================= */}
       {activeView === 'onboarding-assistant' && (
-        <div style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '540px', marginBottom: '32px' }}>
+        <div style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 60px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '540px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
               <span style={{ fontWeight: 800, fontSize: '20px', color: '#0b1c30' }}>Reflex</span>
@@ -1940,7 +1937,7 @@ export default function App() {
             </button>
           </div>
 
-          <div className="reflex-card-base" style={{ width: '100%', maxWidth: '540px', padding: '40px', backgroundColor: '#ffffff' }}>
+          <div className="reflex-card-base" style={{ width: '100%', maxWidth: '540px', padding: '32px 28px', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.06)' }}>
 
             {/* Onboarding Stepper Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '24px', width: '100%' }}>
@@ -1955,8 +1952,8 @@ export default function App() {
                     width: '26px',
                     height: '26px',
                     borderRadius: '50%',
-                    backgroundColor: 1 >= s.step ? '#4F46E5' : '#E2E8F0',
-                    color: 1 >= s.step ? '#FFFFFF' : '#64748B',
+                    backgroundColor: 3 >= s.step ? '#4F46E5' : '#E2E8F0',
+                    color: 3 >= s.step ? '#FFFFFF' : '#64748B',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -1965,7 +1962,7 @@ export default function App() {
                   }}>
                     {s.step}
                   </div>
-                  <span style={{ fontSize: '11.5px', fontWeight: 1 === s.step ? 700 : 500, color: 1 === s.step ? '#0B1C30' : '#94A3B8' }}>{s.label}</span>
+                  <span style={{ fontSize: '11.5px', fontWeight: 3 === s.step ? 700 : 500, color: 3 === s.step ? '#0B1C30' : '#94A3B8' }}>{s.label}</span>
                   {s.step < 4 && <span style={{ color: '#CBD5E1', fontSize: '11px' }}>→</span>}
                 </div>
               ))}
@@ -2037,8 +2034,8 @@ export default function App() {
       {/* 6. ONBOARDING STEP 4: CONNEXION WHATSAPP */}
       {/* ========================================================================= */}
       {activeView === 'onboarding-whatsapp' && (
-        <div style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '540px', marginBottom: '32px' }}>
+        <div style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 60px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '520px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
               <span style={{ fontWeight: 800, fontSize: '20px', color: '#0b1c30' }}>Reflex</span>
@@ -2066,7 +2063,7 @@ export default function App() {
             </button>
           </div>
 
-          <div className="reflex-card-base" style={{ width: '100%', maxWidth: '520px', padding: '40px', backgroundColor: '#ffffff', textAlign: 'center' }}>
+          <div className="reflex-card-base" style={{ width: '100%', maxWidth: '520px', padding: '32px 28px', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.06)', textAlign: 'center' }}>
 
             {/* Onboarding Stepper Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '24px', width: '100%' }}>
@@ -2129,7 +2126,7 @@ export default function App() {
       )}
 
       {/* ========================================================================= */}
-      {/* 7. DEDICATED HOSTED FEDAPAY CHECKOUT PAYMENT PAGE FOR WHATSAPP CLIENTS */}
+      {/* 7. DEDICATED HOSTED CHECKOUT PAYMENT PAGE FOR WHATSAPP CLIENTS */}
       {/* ========================================================================= */}
       {activeView === 'payment-checkout' && (
         <div style={{ minHeight: '100vh', backgroundColor: '#0B1727', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
@@ -2822,37 +2819,7 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* MERCHANT PAYMENT KEYS CARD */}
-                <div className="reflex-card-base" style={{ padding: '28px', backgroundColor: '#0F172A', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                  <h3 className="title-md" style={{ color: '#ffffff', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <CreditCard size={20} color="#FF5500" /> Vos Clés d'Encaissement Direct (Mobile Money)
-                  </h3>
-                  <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '20px' }}>
-                    Entrez vos clés d'API FedaPay et Kkiapay pour recevoir l'argent des clients WhatsApp directement sur votre propre compte Mobile Money (MTN, Moov, Wave) sans intermédiaire.
-                  </p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <div>
-                      <label style={{ fontSize: '13px', fontWeight: 600, color: '#ffffff', marginBottom: '6px', display: 'block' }}>Clé Secrète FedaPay (Secret Key)</label>
-                      <input
-                        type="password"
-                        placeholder="sk_live_..."
-                        value={pmePaymentKeys.fedapaySecretKey}
-                        onChange={(e) => setPmePaymentKeys({ ...pmePaymentKeys, fedapaySecretKey: e.target.value })}
-                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', backgroundColor: '#1e293b', color: '#ffffff', outline: 'none', fontSize: '14px' }}
-                      />
-                    </div>
-                    <div>
-                      <label style={{ fontSize: '13px', fontWeight: 600, color: '#ffffff', marginBottom: '6px', display: 'block' }}>Clé Publique Kkiapay (Public Key)</label>
-                      <input
-                        type="text"
-                        placeholder="0efb5b708b..."
-                        value={pmePaymentKeys.kkiapayPublicKey}
-                        onChange={(e) => setPmePaymentKeys({ ...pmePaymentKeys, kkiapayPublicKey: e.target.value })}
-                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', backgroundColor: '#1e293b', color: '#ffffff', outline: 'none', fontSize: '14px' }}
-                      />
-                    </div>
-                  </div>
-                </div>
+
 
                 {/* OFFICIAL META EMBEDDED SIGNUP CONNECTION CARD */}
                 <div className="reflex-card-base" style={{ padding: '28px', backgroundColor: '#0F172A', border: '1px solid rgba(255, 85, 0, 0.35)' }}>
