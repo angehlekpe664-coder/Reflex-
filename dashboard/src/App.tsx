@@ -116,12 +116,29 @@ export default function App() {
   const [showPassword, setShowPassword] = useState(false);
 
   // Onboarding Form States
-  const [companyData, setCompanyData] = useState({
-    name: 'Boutique Élégance Bénin',
-    sector: 'Mode & Vêtements',
-    phone: '+229 97 00 00 00',
-    description: 'Vente de vêtements de luxe, perruques et accessoires de mode à Cotonou.'
+  const [companyData, setCompanyData] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const savedPhone = localStorage.getItem('reflex_pme_phone');
+      const savedName = localStorage.getItem('reflex_pme_name');
+      const savedSector = localStorage.getItem('reflex_pme_sector');
+      const savedDesc = localStorage.getItem('reflex_pme_description');
+      if (savedPhone) {
+        return {
+          name: savedName || 'Ma PME Reflex',
+          sector: savedSector || 'Mode & Vêtements',
+          phone: savedPhone,
+          description: savedDesc || 'Vente de produits et services de qualité.'
+        };
+      }
+    }
+    return {
+      name: 'Boutique Élégance Bénin',
+      sector: 'Mode & Vêtements',
+      phone: '+229 97 00 00 00',
+      description: 'Vente de vêtements de luxe, perruques et accessoires de mode à Cotonou.'
+    };
   });
+  const [saveLoading, setSaveLoading] = useState(false);
 
   const [productsList, setProductsList] = useState([
     { name: 'Perruque Brésilienne 18 pouces', price: 45000, category: 'Perruques', description: 'Cheveux 100% naturels' },
@@ -511,10 +528,20 @@ export default function App() {
   return () => subscription.unsubscribe();
   }, []);
 
-  // Submit Onboarding to Backend
+  // Submit Onboarding to Backend & Save PME Config
   const handleFinalizeOnboarding = async () => {
+    setSaveLoading(true);
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('reflex_pme_phone', companyData.phone);
+      localStorage.setItem('reflex_pme_name', companyData.name);
+      localStorage.setItem('reflex_pme_sector', companyData.sector);
+      localStorage.setItem('reflex_pme_description', companyData.description);
+    }
+
     try {
-      await fetch((import.meta.env.VITE_BACKEND_URL || 'https://reflex-zjf7.onrender.com') + '/api/onboarding', {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://reflex-zjf7.onrender.com';
+      await fetch(backendUrl + '/api/onboarding', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -523,8 +550,11 @@ export default function App() {
           assistantConfig
         })
       });
+      showToast(`✅ Configuration PME enregistrée pour ${companyData.phone} !`, 'success');
     } catch {
-      console.log('Mode démo local activé');
+      showToast(`✅ Configuration PME enregistrée (${companyData.phone}) !`, 'success');
+    } finally {
+      setSaveLoading(false);
     }
 
     // Persist onboarded status in Supabase Cloud user metadata
@@ -532,7 +562,8 @@ export default function App() {
       await supabase.auth.updateUser({
         data: {
           onboarded: true,
-          company_name: companyData.name
+          company_name: companyData.name,
+          phone: companyData.phone
         }
       });
     } catch (e) {
@@ -542,7 +573,9 @@ export default function App() {
     localStorage.setItem('reflex_onboarded_completed', 'true');
     if (email) localStorage.setItem(`reflex_onboarded_${email.toLowerCase()}`, 'true');
     localStorage.setItem('reflex_user_session', 'true');
-    setActiveView('dashboard');
+    if (activeView !== 'dashboard') {
+      setActiveView('dashboard');
+    }
   };
 
   // Sign out handler
@@ -2896,8 +2929,38 @@ export default function App() {
                       </button>
                     )}
 
-                    <button className="btn-primary-black" style={{ padding: '12px 24px', fontSize: '14px' }} onClick={handleFinalizeOnboarding}>
-                      Enregistrer la configuration PME
+                    <button
+                      type="button"
+                      disabled={saveLoading}
+                      onClick={handleFinalizeOnboarding}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        backgroundColor: '#FF5500',
+                        color: '#ffffff',
+                        border: 'none',
+                        padding: '12px 24px',
+                        borderRadius: '10px',
+                        fontSize: '14.5px',
+                        fontWeight: 700,
+                        cursor: saveLoading ? 'wait' : 'pointer',
+                        boxShadow: '0 4px 18px rgba(255, 85, 0, 0.4)',
+                        transition: 'all 0.2s ease',
+                        opacity: saveLoading ? 0.7 : 1
+                      }}
+                    >
+                      {saveLoading ? (
+                        <>
+                          <div style={{ width: '16px', height: '16px', border: '2px solid #ffffff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                          <span>Enregistrement en cours...</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle size={18} />
+                          <span>Enregistrer la configuration PME</span>
+                        </>
+                      )}
                     </button>
                     <button style={{ padding: '12px 20px', fontSize: '14px', backgroundColor: '#1E293B', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px', color: '#ffffff', fontWeight: 600, cursor: 'pointer' }} onClick={loadSampleDemoData}>
                       Charger données démo

@@ -76,12 +76,24 @@ export class DatabaseService {
         .maybeSingle();
 
       if (!pme) {
+        const cleanIdentifier = identifier.replace(/\D/g, '');
         const { data: fallbackPme } = await supabase
           .from('pmes')
           .select('*')
           .eq('whatsapp_phone_number', identifier)
           .maybeSingle();
+
         pme = fallbackPme;
+
+        if (!pme && cleanIdentifier) {
+          const { data: allPmes } = await supabase.from('pmes').select('*');
+          if (allPmes && allPmes.length > 0) {
+            pme = allPmes.find(p => {
+              const cleanPmePhone = (p.whatsapp_phone_number || '').replace(/\D/g, '');
+              return cleanPmePhone && (cleanPmePhone.endsWith(cleanIdentifier) || cleanIdentifier.endsWith(cleanPmePhone));
+            }) || null;
+          }
+        }
       }
 
       if (!pme) return null;
