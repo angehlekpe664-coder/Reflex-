@@ -526,6 +526,52 @@ app.get('/privacy', (_req, res) => {
   `);
 });
 
+// Route de test diagnostic direct pour vérifier les envois Meta Graph API
+app.post('/api/debug/test-wa', async (req, res) => {
+  const { toPhone, customToken, customPhoneId } = req.body;
+  const phoneNumberId = customPhoneId || config.whatsapp.phoneNumberId;
+  const token = customToken || config.whatsapp.token;
+  const targetPhone = (toPhone || '229149873176').replace(/\D/g, '');
+
+  const apiUrl = `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`;
+
+  try {
+    const metaRes = await axios.post(
+      apiUrl,
+      {
+        messaging_product: 'whatsapp',
+        recipient_type: 'individual',
+        to: targetPhone,
+        type: 'text',
+        text: { preview_url: true, body: "🤖 [Test Reflex IA] Connexion WhatsApp validée avec succès !" }
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    res.json({
+      success: true,
+      message: 'Message test Meta envoyé avec succès !',
+      targetPhone,
+      phoneNumberId,
+      metaResponse: metaRes.data
+    });
+  } catch (error: any) {
+    console.error('Diagnostic Meta Error:', error?.response?.data || error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Échec de l\'envoi Meta Graph API',
+      targetPhone,
+      phoneNumberId,
+      metaError: error?.response?.data || error.message
+    });
+  }
+});
+
 // Route 6 : Santé du serveur
 app.get('/health', (_req, res) => {
   res.json({
