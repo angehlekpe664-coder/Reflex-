@@ -86,12 +86,12 @@ export class DatabaseService {
         pme = fallbackPme;
 
         if (!pme && cleanIdentifier) {
-          const { data: allPmes } = await supabase.from('pmes').select('*');
+          const { data: allPmes } = await supabase.from('pmes').select('*').order('updated_at', { ascending: false });
           if (allPmes && allPmes.length > 0) {
             pme = allPmes.find(p => {
               const cleanPmePhone = (p.whatsapp_phone_number || '').replace(/\D/g, '');
               return cleanPmePhone && (cleanPmePhone.endsWith(cleanIdentifier) || cleanIdentifier.endsWith(cleanPmePhone));
-            }) || null;
+            }) || allPmes[0];
           }
         }
       }
