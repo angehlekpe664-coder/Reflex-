@@ -13,7 +13,7 @@ export const config = {
     configId: process.env.META_CONFIG_ID || '',
   },
   whatsapp: {
-    token: 'EAAapZBe5QZBMgBSSda43eroEDP4WydaDkftht7DdEXJZAkuKDoPye8yKmAK3Pm8wKZBFSMLaPifn2QxYbl5btELt00OLLdl2GBrcXxudyKAiFp201HVZA5o54J96xxiXEBdPTVzcnRmxzlIFUkECNtTQ4JHk1ZBDk4vTsnklshuK7DI30NLmibZC7KREgeHYAacDi6tCwm0gSQgL4ZCVVXeCwtcNdz1tFP1L7bpCQOOvqNGxSTy2YZCzsWveNmZCuGtAtVdNzyG0Abm8UVzNFtol4mpnoW',
+    token: 'EAAapZBe5QZBMgBSV0n5gzB6TnhxJa2Szqn1Q0UZBLkAH1cz7J2qgKNRupD6dG3rH4ZBZCtPZCQlyQkgRiJ2wGglCRMIVD3RWatxwdMu9yAL5BJ7rSTvaec70fXZBZCq6hrI7zNH5kjFFJptOIQwnlEXVb1ZCyHWN0tHuifnxRtOv7gvmNuw6ug6r4hfZB6euZA82FtjkGgGhZC7AkeN1GkipQ0mXu5rshPGbUITZBdWWCsPMaoW8A9UD8v3dqKYL7IaTdYRlZBgzuIZBH8nY4p9i7cys0FJXTbL',
     phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || '1297674883427187',
     verifyToken: process.env.WHATSAPP_VERIFY_TOKEN || 'mon_token_verification',
   },
