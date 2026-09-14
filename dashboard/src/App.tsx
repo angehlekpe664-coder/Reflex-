@@ -37,7 +37,6 @@ import {
 import { supabase } from './lib/supabase';
 import { Turnstile } from '@marsidev/react-turnstile';
 import { translations } from './translations';
-import { WhatsAppSimulator } from './components/WhatsAppSimulator';
 import { ReceiptModal } from './components/ReceiptModal';
 import { SkeletonCard, SkeletonTable } from './components/SkeletonLoader';
 
@@ -923,14 +922,6 @@ export default function App() {
                 >
                   {t.ctaStartNow} <ArrowRight size={20} />
                 </button>
-                
-                <a
-                  href="#demo-simulator"
-                  style={{ padding: '16px 32px', fontSize: '17px', borderRadius: '12px', color: '#ffffff', border: '1px solid rgba(255, 85, 0, 0.4)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: 'rgba(255, 85, 0, 0.08)', backdropFilter: 'blur(10px)', transition: 'all 0.2s ease' }}
-                >
-                  <Play size={18} color="#FF5500" fill="#FF5500" />
-                  {t.ctaWatchDemo}
-                </a>
               </div>
 
               {/* Trust Badges Bar */}
@@ -985,29 +976,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* INTERACTIVE WHATSAPP CHAT SIMULATOR */}
-          <div id="demo-simulator" style={{ maxWidth: '1140px', margin: '0 auto 100px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
-            <div style={{ textAlign: 'center', marginBottom: '36px' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 700, color: '#FF5500', backgroundColor: 'rgba(255,85,0,0.12)', padding: '6px 16px', borderRadius: '9999px', border: '1px solid rgba(255,85,0,0.3)', marginBottom: '14px' }}>
-                <Sparkles size={14} className="animate-pulse" />
-                <span>{t.simulatorBadge}</span>
-              </div>
-              <h2 className="font-outfit" style={{ fontSize: '32px', fontWeight: 800, color: '#ffffff', marginBottom: '12px' }}>
-                {t.simulatorTitle}
-              </h2>
-              <p style={{ color: '#94a3b8', fontSize: '16px', maxWidth: '640px', margin: '0 auto' }}>
-                {t.simulatorSub}
-              </p>
-            </div>
 
-            <WhatsAppSimulator
-              currentLang={currentLang}
-              onCheckout={() => {
-                showToast("Opening Mobile Money payment...", "info");
-                setActiveView('payment-checkout');
-              }}
-            />
-          </div>
 
           {/* MOBILE MONEY PAYMENT DEMO BAR */}
           <div style={{ maxWidth: '1140px', margin: '0 auto 100px', padding: '0 24px' }}>
