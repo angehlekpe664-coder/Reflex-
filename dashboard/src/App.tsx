@@ -995,39 +995,43 @@ export default function App() {
               
               {/* Context Badge with Shimmer Glow */}
               <div className="glow-orange-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '8px 22px', borderRadius: '9999px', marginBottom: '32px' }}>
-                <Sparkles size={16} color="#FF5500" className="animate-pulse" />
-                <span className="font-outfit" style={{ fontSize: '13.5px', fontWeight: 700, color: '#FF8800', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                  {t.heroBadge}
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#FF5500' }} className="animate-pulse" />
+                <span className="font-outfit" style={{ fontSize: '13.5px', fontWeight: 700, color: '#FF8800', letterSpacing: '0.05em' }}>
+                  {currentLang === 'FR' ? "• Nouveau : IA Commerciale & Mobile Money au Bénin" : "• Now live in Benin — Early Access"}
                 </span>
               </div>
 
-              {/* Rock-Solid Hero Main Headline & Subtitle (Zero Layout Shift) */}
-              <h1 className="display-lg" style={{ color: '#ffffff', marginBottom: '20px', lineHeight: 1.25 }}>
+              {/* Exact Relay Tech 3-Line Headline with Fraunces Italic Accent */}
+              <h1 className="display-lg" style={{ color: '#ffffff', marginBottom: '24px', lineHeight: 1.18, fontSize: '54px', fontWeight: 800 }}>
                 {currentLang === 'FR' ? (
                   <>
-                    Le copilote IA WhatsApp qui <span className="font-fraunces-italic">vend</span>, <span className="font-fraunces-italic">enregistre</span> et <span className="font-fraunces-italic">encaisse</span> <br className="hero-br-desktop" />
-                    pour votre PME sur <span className="neon-orange-title">Mobile Money 24/7</span>
+                    Servez vos clients,<br />
+                    encaissez vos paiements,<br />
+                    <span className="font-fraunces-italic" style={{ color: '#FF5500', fontSize: '60px', fontWeight: 400 }}>le tout sur WhatsApp</span>
                   </>
                 ) : (
                   <>
-                    The WhatsApp AI Copilot that <span className="font-fraunces-italic">sells</span>, <span className="font-fraunces-italic">logs</span> and <span className="font-fraunces-italic">collects</span> <br className="hero-br-desktop" />
-                    for your business via <span className="neon-orange-title">Mobile Money 24/7</span>
+                    Serve customers,<br />
+                    get paid,<br />
+                    <span className="font-fraunces-italic" style={{ color: '#FF5500', fontSize: '60px', fontWeight: 400 }}>all on WhatsApp</span>
                   </>
                 )}
               </h1>
 
-              <p className="body-lg" style={{ color: '#cbd5e1', maxWidth: '820px', margin: '0 auto 40px', fontSize: '18.5px', lineHeight: 1.6 }}>
-                {t.heroSub}
+              <p className="body-lg" style={{ color: '#cbd5e1', maxWidth: '780px', margin: '0 auto 40px', fontSize: '18.5px', lineHeight: 1.65 }}>
+                {currentLang === 'FR'
+                  ? "Automation WhatsApp intelligente pour votre PME. Répondez aux demandes, présentez votre catalogue, enregistrez les commandes et encaissez par Mobile Money — automatiquement."
+                  : "AI-powered WhatsApp automation for any business. Handle enquiries, book services, process orders, and collect payments — automatically."}
               </p>
 
               {/* CTA Buttons with Motion Scale */}
               <div className="hero-cta-container">
                 <button
                   className="btn-orange-primary"
-                  style={{ padding: '16px 38px', fontSize: '17px', borderRadius: '12px' }}
+                  style={{ padding: '16px 38px', fontSize: '17px', borderRadius: '12px', fontWeight: 700 }}
                   onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
                 >
-                  {t.ctaStartNow} <ArrowRight size={20} />
+                  {currentLang === 'FR' ? 'Commencer gratuitement' : 'Get Started'}
                 </button>
                 
                 <a
@@ -1044,25 +1048,18 @@ export default function App() {
                     gap: '10px',
                     backgroundColor: 'rgba(255, 85, 0, 0.08)',
                     backdropFilter: 'blur(10px)',
-                    transition: 'all 0.2s ease'
+                    transition: 'all 0.2s ease',
+                    fontWeight: 600
                   }}
                 >
                   <Play size={18} color="#FF5500" fill="#FF5500" />
-                  {t.ctaWatchDemo}
+                  {currentLang === 'FR' ? 'Voir la démo' : 'See How It Works'}
                 </a>
               </div>
 
-              {/* Trust Badges Bar */}
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '32px', flexWrap: 'wrap', opacity: 0.95, marginTop: '20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', color: '#cbd5e1' }}>
-                  <CheckCircle size={16} color="#FF5500" /> <span>{t.trustSetupTime}</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', color: '#cbd5e1' }}>
-                  <Shield size={16} color="#FF5500" /> <span>{t.trustSecured}</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', color: '#cbd5e1' }}>
-                  <Zap size={16} color="#FF8800" /> <span>{t.trustNoCreditCard}</span>
-                </div>
+              {/* Relay Sub-caption Guarantee */}
+              <div style={{ color: '#64748b', fontSize: '13.5px', marginTop: '16px' }}>
+                {currentLang === 'FR' ? 'Sans carte bancaire · Configuration en 3 min · Annulation à tout moment' : 'No credit card required · Cancel anytime'}
               </div>
 
             </div>
@@ -1251,51 +1248,34 @@ export default function App() {
             </div>
           </div>
 
-          {/* EXPLOSIVE CLOUDFLARE ORANGE HIGH-CONVERTING CTA BANNER */}
-          <div style={{ maxWidth: '1140px', margin: '0 auto 100px', padding: '0 24px' }}>
+          {/* RELAY MATCH CONVERSION CTA BANNER */}
+          <div style={{ maxWidth: '1000px', margin: '0 auto 100px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
             <div style={{
-              background: 'linear-gradient(135deg, #FF5500 0%, #FA6400 50%, #E63900 100%)',
-              borderRadius: '28px',
-              padding: '64px 48px',
+              backgroundColor: '#0F172A',
+              borderRadius: '24px',
+              border: '1px solid rgba(255, 85, 0, 0.35)',
+              padding: '60px 32px',
               textAlign: 'center',
-              position: 'relative',
-              overflow: 'hidden',
-              boxShadow: '0 25px 60px rgba(255, 85, 0, 0.4)'
+              background: 'radial-gradient(circle at 50% 0%, rgba(255, 85, 0, 0.25) 0%, rgba(15, 23, 42, 0.95) 75%)',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
             }}>
-              <div className="tech-dot-grid"></div>
-
-              <div style={{ position: 'relative', zIndex: 2, maxWidth: '720px', margin: '0 auto' }}>
-                <span style={{ backgroundColor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)', color: '#ffffff', padding: '6px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  ⚡ {t.heroBadge}
-                </span>
-                <h2 style={{ fontSize: '38px', fontWeight: 900, color: '#ffffff', marginTop: '18px', marginBottom: '16px', lineHeight: 1.15 }}>
-                  {t.heroTitle1} {t.heroTitleHighlight}
-                </h2>
-                <p style={{ fontSize: '16.5px', color: 'rgba(255,255,255,0.92)', marginBottom: '32px', lineHeight: 1.5 }}>
-                  {t.heroSub}
-                </p>
-
-                <button
-                  type="button"
-                  onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
-                  style={{
-                    backgroundColor: '#ffffff',
-                    color: '#FF5500',
-                    border: 'none',
-                    padding: '16px 40px',
-                    borderRadius: '14px',
-                    fontSize: '17px',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    transition: 'transform 0.2s ease'
-                  }}
-                >
-                  {t.ctaStartNow} <ArrowRight size={20} />
-                </button>
+              <h2 className="font-outfit" style={{ fontSize: '38px', fontWeight: 800, color: '#ffffff', marginBottom: '16px', lineHeight: 1.25 }}>
+                {currentLang === 'FR' ? 'Prêt à transformer votre entreprise ?' : 'Ready to Transform Your Business?'}
+              </h2>
+              <p style={{ color: '#94a3b8', fontSize: '16.5px', maxWidth: '640px', margin: '0 auto 32px', lineHeight: 1.6 }}>
+                {currentLang === 'FR'
+                  ? 'Rejoignez des centaines d’entrepreneurs qui utilisent Reflex pour développer leur activité sur WhatsApp — au Bénin et dans toute l’Afrique.'
+                  : 'Join hundreds of entrepreneurs using Reflex to grow their businesses on WhatsApp — across Africa and beyond.'}
+              </p>
+              <button
+                className="btn-orange-primary"
+                style={{ padding: '18px 42px', fontSize: '18px', borderRadius: '14px', fontWeight: 700 }}
+                onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
+              >
+                {currentLang === 'FR' ? 'Commencer à vendre sur WhatsApp dès aujourd’hui' : 'Start Selling on WhatsApp Today'}
+              </button>
+              <div style={{ color: '#64748b', fontSize: '13.5px', marginTop: '16px' }}>
+                {currentLang === 'FR' ? 'Sans carte bancaire · Annulation à tout moment' : 'No credit card required · Cancel anytime'}
               </div>
             </div>
           </div>
