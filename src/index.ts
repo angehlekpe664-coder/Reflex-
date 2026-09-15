@@ -55,7 +55,19 @@ const liveStats = {
   conversionRate: 0
 };
 
-let currentPmeConfig = {
+export interface PmeConfig {
+  name: string;
+  sector: string;
+  phone: string;
+  description: string;
+  tone: string;
+  welcomeMessage: string;
+  deliveryInfo: string;
+  catalogue: Array<any>;
+  userId?: string;
+}
+
+let currentPmeConfig: PmeConfig = {
   name: 'Boutique Élégance Bénin',
   sector: 'Mode & Vêtements',
   phone: '+229 97 00 00 00',
@@ -66,7 +78,8 @@ let currentPmeConfig = {
   catalogue: [
     { name: 'Perruque Brésilienne 18 pouces', price: 45000, category: 'Perruques', description: 'Cheveux 100% naturels' },
     { name: 'Sac à main en cuir artisanal', price: 25000, category: 'Accessoires', description: 'Fait main au Bénin' }
-  ]
+  ],
+  userId: undefined
 };
 
 // Route d'enregistrement et synchronisation Onboarding PME
