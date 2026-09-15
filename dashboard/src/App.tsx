@@ -1003,8 +1003,17 @@ export default function App() {
 
               {/* Rock-Solid Hero Main Headline & Subtitle (Zero Layout Shift) */}
               <h1 className="display-lg" style={{ color: '#ffffff', marginBottom: '20px', lineHeight: 1.25 }}>
-                {t.heroTitle1} <br className="hero-br-desktop" />
-                <span className="neon-orange-title">{t.heroTitleHighlight}</span>
+                {currentLang === 'FR' ? (
+                  <>
+                    Le copilote IA WhatsApp qui <span className="font-fraunces-italic">vend</span>, <span className="font-fraunces-italic">enregistre</span> et <span className="font-fraunces-italic">encaisse</span> <br className="hero-br-desktop" />
+                    pour votre PME sur <span className="neon-orange-title">Mobile Money 24/7</span>
+                  </>
+                ) : (
+                  <>
+                    The WhatsApp AI Copilot that <span className="font-fraunces-italic">sells</span>, <span className="font-fraunces-italic">logs</span> and <span className="font-fraunces-italic">collects</span> <br className="hero-br-desktop" />
+                    for your business via <span className="neon-orange-title">Mobile Money 24/7</span>
+                  </>
+                )}
               </h1>
 
               <p className="body-lg" style={{ color: '#cbd5e1', maxWidth: '820px', margin: '0 auto 40px', fontSize: '18.5px', lineHeight: 1.6 }}>
