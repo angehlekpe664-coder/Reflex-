@@ -286,12 +286,13 @@ export class DatabaseService {
           name: pmeConfig.name,
           whatsapp_phone_number: pmePhone,
           description: pmeConfig.description,
-          sector: pmeConfig.sector,
+          business_type: pmeConfig.sector,
           tone: pmeConfig.tone,
           welcome_message: pmeConfig.welcomeMessage,
           delivery_info: pmeConfig.deliveryInfo,
           meta_phone_number_id: pmeConfig.metaPhoneNumberId,
-          meta_access_token: pmeConfig.metaAccessToken
+          meta_access_token: pmeConfig.metaAccessToken,
+          user_id: pmeConfig.userId || undefined
         })
         .select()
         .single();
@@ -402,6 +403,56 @@ export class DatabaseService {
   /**
    * Marquer la relance de commande comme envoyée
    */
+  async listInboxConversations(userId?: string) {
+    if (!config.supabaseUrl || config.supabaseUrl.includes('dummy')) {
+      return [];
+    }
+
+    try {
+      let pmeQuery = supabase.from('pmes').select('id');
+      if (userId) {
+        pmeQuery = pmeQuery.eq('user_id', userId);
+      }
+      const { data: pmes } = await pmeQuery.limit(1);
+      const pmeId = pmes?.[0]?.id;
+      if (!pmeId) return [];
+
+      const { data: messages } = await supabase
+        .from('chat_messages')
+        .select('content, created_at, customer_id, customers(full_name, whatsapp_phone)')
+        .eq('pme_id', pmeId)
+        .order('created_at', { ascending: false })
+        .limit(80);
+
+      const seen = new Set<string>();
+      const threads: Array<{
+        customerId: string;
+        name: string;
+        phone: string;
+        lastMessage: string;
+        lastAt: string;
+      }> = [];
+
+      for (const m of messages || []) {
+        if (!m.customer_id || seen.has(m.customer_id)) continue;
+        seen.add(m.customer_id);
+        const customerRel = (m as any).customers;
+        const customer = Array.isArray(customerRel) ? customerRel[0] : customerRel;
+        threads.push({
+          customerId: m.customer_id,
+          name: customer?.full_name || 'Client WhatsApp',
+          phone: customer?.whatsapp_phone || '',
+          lastMessage: m.content,
+          lastAt: m.created_at
+        });
+      }
+      return threads;
+    } catch (err) {
+      console.error('Erreur listInboxConversations:', err);
+      return [];
+    }
+  }
+
   async markReminderSent(orderId: string) {
     if (!config.supabaseUrl || config.supabaseUrl.includes('dummy')) {
       return true;

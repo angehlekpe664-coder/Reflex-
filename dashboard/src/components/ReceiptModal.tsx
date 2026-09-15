@@ -23,7 +23,7 @@ export function ReceiptModal({ isOpen, onClose, currentLang, order }: ReceiptPro
   const t = translations[currentLang] || translations.FR;
   const dateStr = order.createdAt || new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
   const timeStr = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-  const transactionHash = `0x${Math.random().toString(16).substr(2, 8).toUpperCase()}${Math.random().toString(16).substr(2, 8).toUpperCase()}`;
+  const transactionHash = `REF-${order.id}`.replace(/\s+/g, '');
 
   const handlePrint = () => {
     window.print();
@@ -155,7 +155,7 @@ export function ReceiptModal({ isOpen, onClose, currentLang, order }: ReceiptPro
               </div>
             )}
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: '#94a3b8' }}>SHA-256 Hash :</span>
+              <span style={{ color: '#94a3b8' }}>Référence :</span>
               <span style={{ fontFamily: 'monospace', fontSize: '11px', color: '#FF8800' }}>{transactionHash}</span>
             </div>
           </div>

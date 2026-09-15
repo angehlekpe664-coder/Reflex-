@@ -82,7 +82,8 @@ app.post('/api/onboarding', async (req, res) => {
         tone: assistantConfig?.tone || currentPmeConfig.tone,
         welcomeMessage: assistantConfig?.welcomeMessage || currentPmeConfig.welcomeMessage,
         deliveryInfo: assistantConfig?.deliveryInfo || currentPmeConfig.deliveryInfo,
-        catalogue: (productsList && productsList.length > 0) ? productsList : currentPmeConfig.catalogue
+        catalogue: (productsList && productsList.length > 0) ? productsList : currentPmeConfig.catalogue,
+        userId: req.body?.userId
       };
 
       try {
@@ -407,6 +408,16 @@ app.get('/api/dashboard/stats', requireAuth, (_req, res) => {
     stats: liveStats,
     recentOrders: liveOrders
   });
+});
+
+app.get('/api/dashboard/inbox', requireAuth, async (req: any, res) => {
+  try {
+    const conversations = await databaseService.listInboxConversations(req.user?.id);
+    res.json({ success: true, conversations });
+  } catch (error) {
+    console.error('Erreur inbox dashboard:', error);
+    res.status(500).json({ success: false, conversations: [] });
+  }
 });
 
 // Route FedaPay Payment Link Creation

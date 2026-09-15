@@ -91,6 +91,7 @@ export interface TranslationDict {
 
   // Dashboard Sidebar & Header
   dashOverview: string;
+  dashInbox: string;
   dashOrders: string;
   dashPayments: string;
   dashCatalog: string;
@@ -267,6 +268,7 @@ export const translations: Record<LanguageCode, TranslationDict> = {
 
     // Dashboard Sidebar & Header
     dashOverview: "Vue d'ensemble",
+    dashInbox: 'Inbox WhatsApp',
     dashOrders: 'Commandes',
     dashPayments: 'Paiements',
     dashCatalog: 'Catalogue',
@@ -442,6 +444,7 @@ export const translations: Record<LanguageCode, TranslationDict> = {
 
     // Dashboard Sidebar & Header
     dashOverview: 'Overview',
+    dashInbox: 'WhatsApp Inbox',
     dashOrders: 'Orders',
     dashPayments: 'Payments',
     dashCatalog: 'Catalog',

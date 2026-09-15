@@ -35,15 +35,39 @@ import {
   MessageSquare,
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
+import { apiFetch } from './lib/api';
 import { Turnstile } from '@marsidev/react-turnstile';
 import { translations } from './translations';
 import { ReceiptModal } from './components/ReceiptModal';
 import { SkeletonCard, SkeletonTable } from './components/SkeletonLoader';
 
+type CatalogProduct = {
+  id?: string;
+  name: string;
+  price: number;
+  category: string;
+  description: string;
+};
+
+type InboxThread = {
+  customerId: string;
+  name: string;
+  phone: string;
+  lastMessage: string;
+  lastAt: string;
+};
+
 // Cloudflare Turnstile Captcha Component for Auth Modal
 function TurnstileContainer({ onVerify, onError }: { onVerify?: (token: string) => void; onError?: (err: any) => void }) {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY || '0x4AAAAAAEnLp3-m1biy8CGz';
+  const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined;
+  if (!siteKey) {
+    return (
+      <div style={{ color: '#b45309', fontSize: '12px', textAlign: 'center', margin: '10px 0' }}>
+        Captcha non configuré (VITE_TURNSTILE_SITE_KEY).
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '14px 0', minHeight: '65px' }}>
@@ -123,32 +147,33 @@ export default function App() {
       const savedDesc = localStorage.getItem('reflex_pme_description');
       if (savedPhone) {
         return {
-          name: savedName || 'Ma PME Reflex',
+          name: savedName || '',
           sector: savedSector || 'Mode & Vêtements',
           phone: savedPhone,
-          description: savedDesc || 'Vente de produits et services de qualité.'
+          description: savedDesc || ''
         };
       }
     }
     return {
-      name: 'Boutique Élégance Bénin',
+      name: '',
       sector: 'Mode & Vêtements',
-      phone: '+229 97 00 00 00',
-      description: 'Vente de vêtements de luxe, perruques et accessoires de mode à Cotonou.'
+      phone: '+229 ',
+      description: ''
     };
   });
   const [saveLoading, setSaveLoading] = useState(false);
 
-  const [productsList, setProductsList] = useState([
-    { name: 'Perruque Brésilienne 18 pouces', price: 45000, category: 'Perruques', description: 'Cheveux 100% naturels' },
-    { name: 'Sac à main en cuir artisanal', price: 25000, category: 'Accessoires', description: 'Fait main au Bénin' }
-  ]);
+  const [productsList, setProductsList] = useState<CatalogProduct[]>([]);
+  const [currentPmeId, setCurrentPmeId] = useState<string | null>(null);
+  const [inboxThreads, setInboxThreads] = useState<InboxThread[]>([]);
+  const [captchaToken, setCaptchaToken] = useState('');
+  const [paymentLoading, setPaymentLoading] = useState(false);
 
   const [newProduct, setNewProduct] = useState({ name: '', price: '', category: 'Mode', description: '' });
 
   const [assistantConfig, setAssistantConfig] = useState({
     tone: 'Chaleureux & Commercial',
-    welcomeMessage: 'Bonjour ! Bienvenue chez Boutique Élégance. Que puis-je faire pour vous aujourd\'hui ?',
+    welcomeMessage: 'Bonjour ! Bienvenue. Que puis-je faire pour vous aujourd\'hui ?',
     deliveryInfo: 'Livraison sous 24h à Cotonou, Calavi et Porto-Novo.'
   });
 
@@ -156,73 +181,79 @@ export default function App() {
 
   // Active Dashboard Sidebar Tab State
   const [activeSidebarTab, setActiveSidebarTab] = useState<
-    'Vue d\'ensemble' | 'Commandes' | 'Paiements' | 'Catalogue' | 'Paramètres'
+    'Vue d\'ensemble' | 'Inbox' | 'Commandes' | 'Paiements' | 'Catalogue' | 'Paramètres'
   >('Vue d\'ensemble');
   const [isTabLoading, setIsTabLoading] = useState(false);
 
-  const switchTab = (tab: 'Vue d\'ensemble' | 'Commandes' | 'Paiements' | 'Catalogue' | 'Paramètres') => {
+  const switchTab = (tab: 'Vue d\'ensemble' | 'Inbox' | 'Commandes' | 'Paiements' | 'Catalogue' | 'Paramètres') => {
     setIsTabLoading(true);
     setActiveSidebarTab(tab);
     setTimeout(() => setIsTabLoading(false), 220);
   };
 
   // WhatsApp Official Meta Connection State
-  const [waConnectionStatus, setWaConnectionStatus] = useState<'DISCONNECTED' | 'CONNECTING' | 'CONNECTED'>('CONNECTED');
+  const [waConnectionStatus, setWaConnectionStatus] = useState<'DISCONNECTED' | 'CONNECTING' | 'CONNECTED'>('DISCONNECTED');
 
 
   const [connectedWabaId, setConnectedWabaId] = useState<string | null>(null);
 
   const handleLaunchMetaEmbeddedSignup = () => {
+    const metaAppId = import.meta.env.VITE_META_APP_ID as string | undefined;
+    if (!metaAppId) {
+      showToast('VITE_META_APP_ID manquant. Ajoutez l’App ID Meta pour lier WhatsApp.', 'error');
+      return;
+    }
+    if (typeof (window as any).FB === 'undefined') {
+      showToast('SDK Facebook indisponible. Vérifiez votre connexion puis réessayez.', 'error');
+      return;
+    }
+
     setWaConnectionStatus('CONNECTING');
+    try {
+      (window as any).FB.init({
+        appId: metaAppId,
+        cookie: true,
+        xfbml: true,
+        version: 'v20.0'
+      });
 
-    if (typeof (window as any).FB !== 'undefined') {
-      try {
-        (window as any).FB.init({
-          appId: '1875740770498760',
-          cookie: true,
-          xfbml: true,
-          version: 'v20.0'
-        });
-
-        (window as any).FB.login((response: any) => {
-          if (response?.authResponse?.code) {
-            const code = response.authResponse.code;
-            fetch('/api/auth/meta/callback', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                code,
-                wabaId: response.authResponse.waba_id || 'waba-229-official',
-                pmePhone: companyData.phone
-              })
+      (window as any).FB.login((response: any) => {
+        if (response?.authResponse?.code) {
+          const code = response.authResponse.code;
+          apiFetch('/api/auth/meta/callback', {
+            method: 'POST',
+            body: JSON.stringify({
+              code,
+              wabaId: response.authResponse.waba_id,
+              pmePhone: companyData.phone
             })
-              .then(res => res.json())
-              .then(data => {
-                if (data.success) {
-                  setWaConnectionStatus('CONNECTED');
-                  setConnectedWabaId(data.wabaId || 'WABA-OFFICIAL');
-                  alert('Connexion WhatsApp Business Officielle réussie !');
-                } else {
-                  setWaConnectionStatus('DISCONNECTED');
-                  alert(data.error || 'Erreur lors de la liaison Meta.');
-                }
-              })
-              .catch(() => setWaConnectionStatus('CONNECTED'));
-          } else {
-            setWaConnectionStatus('DISCONNECTED');
-          }
-        }, {
-          scope: 'whatsapp_business_management,whatsapp_business_messaging',
-          extras: { feature: 'whatsapp_embedded_signup' }
-        });
-      } catch (err) {
-        setWaConnectionStatus('CONNECTED');
-      }
-    } else {
-      setTimeout(() => {
-        setWaConnectionStatus('CONNECTED');
-        alert('Connexion WhatsApp Business autorisée avec succès !');
-      }, 1000);
+          })
+            .then(async (res) => {
+              const data = await res.json().catch(() => ({}));
+              if (res.ok && data.success) {
+                setWaConnectionStatus('CONNECTED');
+                setConnectedWabaId(data.wabaId || null);
+                showToast('WhatsApp Business lié avec succès.', 'success');
+              } else {
+                setWaConnectionStatus('DISCONNECTED');
+                showToast(data.error || 'Échec de la liaison Meta.', 'error');
+              }
+            })
+            .catch(() => {
+              setWaConnectionStatus('DISCONNECTED');
+              showToast('Impossible de joindre le serveur pour lier Meta.', 'error');
+            });
+        } else {
+          setWaConnectionStatus('DISCONNECTED');
+          showToast('Autorisation Meta annulée ou incomplète.', 'info');
+        }
+      }, {
+        scope: 'whatsapp_business_management,whatsapp_business_messaging',
+        extras: { feature: 'whatsapp_embedded_signup' }
+      });
+    } catch {
+      setWaConnectionStatus('DISCONNECTED');
+      showToast('Erreur au lancement de la fenêtre Meta.', 'error');
     }
   };
 
@@ -255,10 +286,44 @@ export default function App() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
-          // Fetch Products
-          const { data: dbProds } = await supabase.from('products').select('*');
+          const { data: pmeRows } = await supabase
+            .from('pmes')
+            .select('*')
+            .eq('user_id', session.user.id)
+            .limit(1);
+          const pme = pmeRows?.[0];
+          if (pme) {
+            setCurrentPmeId(pme.id);
+            setCompanyData(prev => ({
+              name: pme.name || prev.name,
+              sector: pme.business_type || pme.sector || prev.sector,
+              phone: pme.whatsapp_phone_number || prev.phone,
+              description: pme.description || prev.description
+            }));
+            if (session.user.email) {
+              localStorage.setItem(`reflex_onboarded_${session.user.email.toLowerCase()}`, 'true');
+            }
+            if (pme.whatsapp_status === 'CONNECTED') {
+              setWaConnectionStatus('CONNECTED');
+              setConnectedWabaId(pme.waba_id || null);
+            }
+            if (pme.tone || pme.welcome_message || pme.delivery_info) {
+              setAssistantConfig(prev => ({
+                tone: pme.tone || prev.tone,
+                welcomeMessage: pme.welcome_message || prev.welcomeMessage,
+                deliveryInfo: pme.delivery_info || prev.deliveryInfo
+              }));
+            }
+          }
+
+          let productsQuery = supabase.from('products').select('*');
+          if (pme?.id) {
+            productsQuery = productsQuery.eq('pme_id', pme.id);
+          }
+          const { data: dbProds } = await productsQuery;
           if (dbProds && dbProds.length > 0) {
             setProductsList(dbProds.map(p => ({
+              id: p.id,
               name: p.name,
               price: Number(p.price_xof || p.price || 0),
               category: p.category || 'Général',
@@ -266,21 +331,24 @@ export default function App() {
             })));
           }
 
-          // Fetch Orders
-          const { data: dbOrders } = await supabase.from('orders').select('*');
+          let ordersQuery = supabase.from('orders').select('*');
+          if (pme?.id) {
+            ordersQuery = ordersQuery.eq('pme_id', pme.id);
+          }
+          const { data: dbOrders } = await ordersQuery;
           if (dbOrders && dbOrders.length > 0) {
             setRecentOrdersList(dbOrders.map(o => ({
-              id: o.id || `ORD-${o.id}`,
+              id: o.order_number || o.id,
               name: o.customer_name || 'Client WhatsApp',
               phone: o.customer_phone || '',
               time: new Date(o.created_at || Date.now()).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-              status: o.status || 'PAID',
-              amount: Number(o.total_amount_xof || o.amount || 0),
-              item: o.item || 'Produit',
+              status: o.status || 'PENDING',
+              amount: Number(o.total_amount_xof || o.total_amount || o.amount || 0),
+              item: o.items_description || o.item || 'Produit',
               avatar: o.customer_name ? o.customer_name.substring(0, 2).toUpperCase() : 'WA',
               chipText: o.status === 'PAID' ? 'Payé' : 'En attente',
               chipType: o.status === 'PAID' ? 'green' : 'amber',
-              summary: o.summary || 'Commande enregistrée dans la base Supabase.'
+              summary: o.summary || 'Commande enregistrée.'
             })));
           }
         }
@@ -398,56 +466,57 @@ export default function App() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch((import.meta.env.VITE_BACKEND_URL || 'https://reflex-zjf7.onrender.com') + '/api/dashboard/stats');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.stats) {
-            setLiveStats({
-              conversations: data.stats.totalMessages || 0,
-              autoAiPercent: data.stats.totalMessages > 0 ? (data.stats.autoAiPercent || 100) : 0,
-              commandes: data.recentOrders ? data.recentOrders.length : (data.stats.ordersCount || 0),
-              revenusFcfa: data.stats.totalRevenue || 0,
-              conversionPercent: data.stats.conversionRate || 0
-            });
-          } else {
-            setLiveStats({
-              conversations: 0,
-              autoAiPercent: 0,
-              commandes: 0,
-              revenusFcfa: 0,
-              conversionPercent: 0
-            });
-          }
-          if (data.recentOrders && Array.isArray(data.recentOrders) && data.recentOrders.length > 0) {
-            const mappedOrders = data.recentOrders.map((ord: any) => ({
-              id: ord.id || `ORD-${Math.floor(Math.random() * 1000)}`,
-              name: ord.customerName || 'Client WhatsApp',
-              phone: ord.phone || '+229 97 00 00 00',
-              time: ord.time || 'Récemment',
-              amount: ord.amount || 25000,
-              item: ord.item || 'Article Catalogue',
-              avatar: ord.customerName ? ord.customerName.substring(0, 2).toUpperCase() : 'WA',
-              chipText: ord.status === 'PAID' ? 'Commande prête' : 'À suivre',
-              chipType: ord.status === 'PAID' ? 'green' : 'amber',
-              summary: ord.summary?.conclusion || ord.lastMsg || 'Nouvelle commande enregistrée par l\'IA.'
-            }));
-            setRecentOrdersList(mappedOrders);
-          }
+        const response = await apiFetch('/api/dashboard/stats');
+        if (!response.ok) return;
+        const data = await response.json();
+        if (data.stats) {
+          setLiveStats({
+            conversations: data.stats.totalMessages || 0,
+            autoAiPercent: data.stats.totalMessages > 0 ? (data.stats.autoAiPercent || 100) : 0,
+            commandes: data.recentOrders ? data.recentOrders.length : (data.stats.ordersCount || 0),
+            revenusFcfa: data.stats.totalRevenue || 0,
+            conversionPercent: data.stats.conversionRate || 0
+          });
+        }
+        if (data.recentOrders && Array.isArray(data.recentOrders) && data.recentOrders.length > 0) {
+          const mappedOrders = data.recentOrders.map((ord: any) => ({
+            id: ord.id || '—',
+            name: ord.customerName || 'Client WhatsApp',
+            phone: ord.phone || '',
+            time: ord.time || 'Récemment',
+            amount: Number(ord.amount || 0),
+            item: ord.item || 'Article',
+            avatar: ord.customerName ? ord.customerName.substring(0, 2).toUpperCase() : 'WA',
+            chipText: ord.status === 'PAID' ? 'Payé' : 'En attente',
+            chipType: ord.status === 'PAID' ? 'green' : 'amber',
+            summary: ord.summary?.conclusion || ord.lastMsg || 'Nouvelle commande.'
+          }));
+          setRecentOrdersList(mappedOrders);
         }
       } catch {
-        setLiveStats({
-          conversations: 0,
-          autoAiPercent: 0,
-          commandes: 0,
-          revenusFcfa: 0,
-          conversionPercent: 0
-        });
-        setRecentOrdersList([]);
+        /* conserver les dernières données connues */
+      }
+    };
+
+    const fetchInbox = async () => {
+      try {
+        const response = await apiFetch('/api/dashboard/inbox');
+        if (!response.ok) return;
+        const data = await response.json();
+        if (Array.isArray(data.conversations)) {
+          setInboxThreads(data.conversations);
+        }
+      } catch {
+        /* inbox vide si API indisponible */
       }
     };
 
     fetchStats();
-    const interval = setInterval(fetchStats, 3000);
+    fetchInbox();
+    const interval = setInterval(() => {
+      fetchStats();
+      fetchInbox();
+    }, 15000);
 
 
   return () => clearInterval(interval);
@@ -455,19 +524,8 @@ export default function App() {
 
   // Helper to determine if a user has already completed onboarding
   const checkUserIsOnboarded = (user?: any, userEmail?: string) => {
-    // 1. If user is authenticated in Supabase, treat as onboarded (existing user or google login)
-    if (user) {
-      if (user.user_metadata?.onboarded === true || user.user_metadata?.onboarded === 'true') return true;
-      if (user.created_at) return true;
-    }
-    // 2. Check auth intent saved before Google OAuth redirect
-    const authIntent = localStorage.getItem('reflex_auth_intent');
-    if (authIntent === 'login') return true;
-
-    // 3. Fallbacks for local storage
-    if (localStorage.getItem('reflex_onboarded_completed') === 'true') return true;
+    if (user?.user_metadata?.onboarded === true || user?.user_metadata?.onboarded === 'true') return true;
     if (userEmail && localStorage.getItem(`reflex_onboarded_${userEmail.toLowerCase()}`) === 'true') return true;
-
     return false;
   };
 
@@ -491,10 +549,6 @@ export default function App() {
       setActiveView(currentView => {
         if (isOAuthReturn || currentView === 'loading' || currentView === 'auth') {
           if (checkUserIsOnboarded(user, userEmail)) {
-            if (!user?.user_metadata?.onboarded) {
-              supabase.auth.updateUser({ data: { onboarded: true } }).catch(() => {});
-            }
-            localStorage.setItem('reflex_onboarded_completed', 'true');
             return 'dashboard';
           } else {
             return 'onboarding-entreprise';
@@ -539,19 +593,29 @@ export default function App() {
     }
 
     try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://reflex-zjf7.onrender.com';
-      await fetch(backendUrl + '/api/onboarding', {
+      const { data: { user } } = await supabase.auth.getUser();
+      const res = await apiFetch('/api/onboarding', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           companyData,
           productsList,
-          assistantConfig
+          assistantConfig,
+          pmeId: currentPmeId,
+          userId: user?.id
         })
       });
-      showToast(`✅ Configuration PME enregistrée pour ${companyData.phone} !`, 'success');
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.success === false) {
+        showToast(data.error || 'Enregistrement backend incomplet. Réessayez.', 'error');
+        setSaveLoading(false);
+        return;
+      }
+      if (data.config?.id) setCurrentPmeId(data.config.id);
+      showToast(`Configuration enregistrée pour ${companyData.name || companyData.phone}.`, 'success');
     } catch {
-      showToast(`✅ Configuration PME enregistrée (${companyData.phone}) !`, 'success');
+      showToast('Impossible d’enregistrer la configuration (réseau ou serveur).', 'error');
+      setSaveLoading(false);
+      return;
     } finally {
       setSaveLoading(false);
     }
@@ -588,32 +652,38 @@ export default function App() {
   // Supabase Signup / Login Handler with Email Inbox Notice
   const handleSupabaseSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const turnstileKey = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined;
+    if (turnstileKey && !captchaToken) {
+      showToast('Veuillez valider le captcha avant de continuer.', 'error');
+      return;
+    }
     setAuthLoading(true);
 
     try {
       if (authMode === 'signup') {
-        // Trigger signup API call to send OTP email
         const res = await supabase.auth.signUp({
           email,
           password,
           options: {
-            data: { full_name: fullName }
+            data: { full_name: fullName },
+            captchaToken: captchaToken || undefined
           }
         });
+        if (res.error) throw res.error;
 
         if (res.data?.session) {
           localStorage.setItem('reflex_user_session', 'true');
-          showToast("Compte créé avec succès ! Bienvenue.", "success");
+          showToast('Compte créé. Configurez votre PME.', 'success');
           setActiveView('onboarding-entreprise');
         } else {
-          // Immediately show OTP confirmation input screen
           setShowOtpStep(true);
-          showToast("Un code de confirmation à 6 chiffres a été envoyé par e-mail.", "info");
+          showToast('Un code de confirmation a été envoyé par e-mail.', 'info');
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
-          password
+          password,
+          options: { captchaToken: captchaToken || undefined }
         });
         if (error) throw error;
         localStorage.setItem('reflex_user_session', 'true');
@@ -625,13 +695,7 @@ export default function App() {
         }
       }
     } catch (err: any) {
-      // If error occurs, still allow user to enter OTP if email was already sent
-      if (authMode === 'signup') {
-        setShowOtpStep(true);
-        showToast("Saisissez le code de confirmation reçu par e-mail.", "info");
-      } else {
-        showToast(err?.message || "Identifiants incorrects. Veuillez réinstaller.", "error");
-      }
+      showToast(err?.message || 'Authentification impossible.', 'error');
     } finally {
       setAuthLoading(false);
     }
@@ -685,77 +749,111 @@ export default function App() {
         }
       });
       if (error) throw error;
-    } catch {
-      if (checkUserIsOnboarded(null, email)) {
-        setActiveView('dashboard');
-      } else {
-        setActiveView('onboarding-entreprise');
-      }
+    } catch (err: any) {
+      showToast(err?.message || 'Connexion Google impossible.', 'error');
     } finally {
       setAuthLoading(false);
     }
   };
 
+  const skipOnboardingToDashboard = () => {
+    showToast('Onboarding incomplet. Finalisez-le depuis Paramètres.', 'info');
+    setActiveView('dashboard');
+  };
+
   const handleAddProduct = async () => {
-    if (!newProduct.name || !newProduct.price) return;
-    const prodItem = {
+    if (!newProduct.name || !newProduct.price) {
+      showToast('Nom et prix du produit requis.', 'error');
+      return;
+    }
+    const prodItem: CatalogProduct = {
       name: newProduct.name,
       price: Number(newProduct.price),
       category: newProduct.category || 'Général',
       description: newProduct.description || ''
     };
 
-    setProductsList(prev => [...prev, prodItem]);
-    setNewProduct({ name: '', price: '', category: 'Mode', description: '' });
-    showToast(`Produit "${prodItem.name}" ajouté au catalogue !`, 'success');
+    if (!currentPmeId) {
+      setProductsList(prev => [...prev, prodItem]);
+      setNewProduct({ name: '', price: '', category: 'Mode', description: '' });
+      showToast(`Produit "${prodItem.name}" ajouté. Il sera enregistré à la fin de l’onboarding.`, 'info');
+      return;
+    }
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        await supabase.from('products').insert({
-          name: prodItem.name,
-          price_xof: prodItem.price,
-          category: prodItem.category,
-          description: prodItem.description,
-          is_active: true
-        });
-      }
-    } catch (err) {
-      console.log('Supabase product save info:', err);
+      const { data, error } = await supabase.from('products').insert({
+        pme_id: currentPmeId,
+        name: prodItem.name,
+        price_xof: prodItem.price,
+        category: prodItem.category,
+        description: prodItem.description,
+        is_active: true
+      }).select('id').single();
+      if (error) throw error;
+      prodItem.id = data?.id;
+      setProductsList(prev => [...prev, prodItem]);
+      setNewProduct({ name: '', price: '', category: 'Mode', description: '' });
+      showToast(`Produit "${prodItem.name}" enregistré.`, 'success');
+    } catch {
+      showToast('Impossible d’enregistrer le produit en base.', 'error');
     }
   };
 
-  const handleDeleteProduct = (index: number) => {
+  const handleDeleteProduct = async (index: number) => {
+    const target = productsList[index];
+    if (target?.id) {
+      const { error } = await supabase.from('products').delete().eq('id', target.id);
+      if (error) {
+        showToast('Suppression en base impossible.', 'error');
+        return;
+      }
+    }
     setProductsList(productsList.filter((_, i) => i !== index));
   };
 
-
-  // Process Mobile Money Checkout Payment
-  const handleProcessPayment = () => {
-    setPaymentSuccess(true);
-    // Add to recent orders list
-    setRecentOrdersList(prev => [
-      {
-        id: currentCheckoutOrder.id,
-        name: currentCheckoutOrder.customerName,
-        phone: `+229 ${payerPhone}`,
-        time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-        status: 'PAID',
-        amount: currentCheckoutOrder.amount,
-        item: currentCheckoutOrder.item,
-        avatar: currentCheckoutOrder.customerName.substring(0, 2).toUpperCase(),
-        chipText: 'Commande prête',
-        chipType: 'green',
-        summary: `Paiement ${selectedMomoProvider.toUpperCase()} réussi. Reçu généré et envoyé sur WhatsApp.`
-      },
-      ...prev
-    ]);
+  const handleProcessPayment = async () => {
+    const phone = payerPhone.replace(/\D/g, '');
+    if (phone.length < 8) {
+      showToast('Numéro Mobile Money invalide (8 chiffres).', 'error');
+      return;
+    }
+    setPaymentLoading(true);
+    try {
+      const res = await apiFetch('/api/payments/kkiapay/create', {
+        method: 'POST',
+        body: JSON.stringify({
+          amount: currentCheckoutOrder.amount,
+          description: currentCheckoutOrder.item,
+          customerName: currentCheckoutOrder.customerName,
+          customerPhone: `229${phone}`,
+          orderId: currentCheckoutOrder.id
+        })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.paymentUrl) {
+        showToast(data.error || 'Impossible de créer le lien de paiement.', 'error');
+        return;
+      }
+      window.location.href = data.paymentUrl;
+    } catch {
+      showToast('Erreur réseau lors de la création du paiement.', 'error');
+    } finally {
+      setPaymentLoading(false);
+    }
   };
 
 
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--surface-bg)', fontFamily: 'var(--font-geist)' }}>
+      {toast && (
+        <div className="toast-global toast-container">
+          <div className={`toast-notification toast-${toast.type}`}>
+            <CheckCircle size={18} />
+            <span>{toast.message}</span>
+          </div>
+        </div>
+      )}
 
       {/* 0. SMOOTH LOADING SCREEN DURING OAUTH/SESSION INITIALIZATION */}
       {activeView === 'loading' && (
@@ -922,6 +1020,27 @@ export default function App() {
                 >
                   {t.ctaStartNow} <ArrowRight size={20} />
                 </button>
+                
+                <a
+                  href="#demo-video"
+                  style={{
+                    padding: '16px 32px',
+                    fontSize: '17px',
+                    borderRadius: '12px',
+                    color: '#ffffff',
+                    border: '1px solid rgba(255, 85, 0, 0.4)',
+                    textDecoration: 'none',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    backgroundColor: 'rgba(255, 85, 0, 0.08)',
+                    backdropFilter: 'blur(10px)',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <Play size={18} color="#FF5500" fill="#FF5500" />
+                  {t.ctaWatchDemo}
+                </a>
               </div>
 
               {/* Trust Badges Bar */}
@@ -1477,7 +1596,7 @@ export default function App() {
                   </div>
 
                   {/* Cloudflare Turnstile Captcha Widget */}
-                  <TurnstileContainer />
+                  <TurnstileContainer onVerify={setCaptchaToken} onError={() => setCaptchaToken('')} />
 
                   {/* Primary Action Button (Cloudflare Blue Style CTA) */}
                   <button
@@ -1644,7 +1763,7 @@ export default function App() {
       {/* 3. ONBOARDING STEP 1: ENTREPRISE */}
       {/* ========================================================================= */}
       {activeView === 'onboarding-entreprise' && (
-        <div style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 60px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
+        <div className="onboarding-flow" style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 60px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '540px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
@@ -1652,11 +1771,7 @@ export default function App() {
             </div>
             <button
               type="button"
-              onClick={() => {
-                localStorage.setItem('reflex_onboarded_completed', 'true');
-                supabase.auth.updateUser({ data: { onboarded: true } }).catch(() => {});
-                setActiveView('dashboard');
-              }}
+              onClick={skipOnboardingToDashboard}
               style={{
                 background: 'none',
                 border: 'none',
@@ -1760,7 +1875,7 @@ export default function App() {
                 />
               </div>
 
-              <button className="btn-primary-black" style={{ width: '100%', padding: '14px', fontSize: '15px', marginTop: '8px' }}>
+              <button className="btn-primary-black" style={{ width: '100%', padding: '14px', fontSize: '15px', marginTop: '8px', color: '#ffffff', backgroundColor: '#FF5500' }}>
                 Suivant : Ajouter votre catalogue <ArrowRight size={18} />
               </button>
             </form>
@@ -1772,7 +1887,7 @@ export default function App() {
       {/* 4. ONBOARDING STEP 2: CATALOGUE */}
       {/* ========================================================================= */}
       {activeView === 'onboarding-catalogue' && (
-        <div style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 60px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
+        <div className="onboarding-flow" style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 60px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '580px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
@@ -1780,11 +1895,7 @@ export default function App() {
             </div>
             <button
               type="button"
-              onClick={() => {
-                localStorage.setItem('reflex_onboarded_completed', 'true');
-                supabase.auth.updateUser({ data: { onboarded: true } }).catch(() => {});
-                setActiveView('dashboard');
-              }}
+              onClick={skipOnboardingToDashboard}
               style={{
                 background: 'none',
                 border: 'none',
@@ -1879,25 +1990,25 @@ export default function App() {
                 type="button"
                 onClick={handleAddProduct}
                 className="btn-outline-white"
-                style={{ width: '100%', padding: '8px', fontSize: '13px' }}
+                style={{ width: '100%', padding: '8px', fontSize: '13px', color: '#0b1c30', backgroundColor: '#ffffff' }}
               >
                 Ajouter ce produit
               </button>
             </div>
 
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div className="onboarding-actions mobile-stepper-fixed-footer">
               <button
                 type="button"
                 onClick={() => setActiveView('onboarding-entreprise')}
                 className="btn-outline-white"
-                style={{ flex: 1, padding: '12px', fontSize: '14px' }}
+                style={{ flex: 1, padding: '12px', fontSize: '14px', color: '#0b1c30', backgroundColor: '#ffffff' }}
               >
                 ← Précédent
               </button>
               <button
                 onClick={() => setActiveView('onboarding-assistant')}
                 className="btn-primary-black"
-                style={{ flex: 2, padding: '12px', fontSize: '14px' }}
+                style={{ flex: 2, padding: '12px', fontSize: '14px', color: '#ffffff', backgroundColor: '#FF5500' }}
               >
                 Suivant : Assistant IA <ArrowRight size={16} />
               </button>
@@ -1910,7 +2021,7 @@ export default function App() {
       {/* 5. ONBOARDING STEP 3: ASSISTANT IA */}
       {/* ========================================================================= */}
       {activeView === 'onboarding-assistant' && (
-        <div style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 60px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
+        <div className="onboarding-flow" style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 60px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '540px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
@@ -1918,11 +2029,7 @@ export default function App() {
             </div>
             <button
               type="button"
-              onClick={() => {
-                localStorage.setItem('reflex_onboarded_completed', 'true');
-                supabase.auth.updateUser({ data: { onboarded: true } }).catch(() => {});
-                setActiveView('dashboard');
-              }}
+              onClick={skipOnboardingToDashboard}
               style={{
                 background: 'none',
                 border: 'none',
@@ -2011,21 +2118,21 @@ export default function App() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div className="onboarding-actions mobile-stepper-fixed-footer">
               <button
                 type="button"
                 onClick={() => setActiveView('onboarding-catalogue')}
                 className="btn-outline-white"
-                style={{ flex: 1, padding: '12px', fontSize: '14px' }}
+                style={{ flex: 1, padding: '12px', fontSize: '14px', color: '#0b1c30', backgroundColor: '#ffffff' }}
               >
                 ← Précédent
               </button>
               <button
                 onClick={() => setActiveView('onboarding-whatsapp')}
                 className="btn-primary-black"
-                style={{ flex: 2, padding: '12px', fontSize: '14px' }}
+                style={{ flex: 2, padding: '12px', fontSize: '14px', color: '#ffffff', backgroundColor: '#FF5500' }}
               >
-                Suivant : Connexion WhatsApp <ArrowRight size={16} />
+                Suivant : WhatsApp <ArrowRight size={16} />
               </button>
             </div>
           </div>
@@ -2036,7 +2143,7 @@ export default function App() {
       {/* 6. ONBOARDING STEP 4: CONNEXION WHATSAPP */}
       {/* ========================================================================= */}
       {activeView === 'onboarding-whatsapp' && (
-        <div style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 60px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
+        <div className="onboarding-flow" style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 60px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '520px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
@@ -2044,11 +2151,7 @@ export default function App() {
             </div>
             <button
               type="button"
-              onClick={() => {
-                localStorage.setItem('reflex_onboarded_completed', 'true');
-                supabase.auth.updateUser({ data: { onboarded: true } }).catch(() => {});
-                setActiveView('dashboard');
-              }}
+              onClick={skipOnboardingToDashboard}
               style={{
                 background: 'none',
                 border: 'none',
@@ -2103,7 +2206,7 @@ export default function App() {
                 Votre Assistant Reflex est Prêt !
               </h2>
               <p className="body-md" style={{ color: '#45464d', fontSize: '13.5px', lineHeight: 1.6 }}>
-                Les informations de <strong>{companyData.name}</strong> et votre catalogue ({productsList.length} articles) ont été enregistrées avec succès.
+                Les informations de <strong>{companyData.name || 'votre PME'}</strong> et votre catalogue ({productsList.length} articles) sont prêtes à être enregistrées.
               </p>
             </div>
 
@@ -2118,10 +2221,11 @@ export default function App() {
 
             <button
               className="btn-primary-black"
-              style={{ width: '100%', padding: '16px', fontSize: '16px', fontWeight: 600 }}
+              style={{ width: '100%', padding: '16px', fontSize: '16px', fontWeight: 600, color: '#ffffff', backgroundColor: '#FF5500' }}
               onClick={handleFinalizeOnboarding}
+              disabled={saveLoading}
             >
-              Accéder à mon Dashboard <ArrowRight size={20} />
+              {saveLoading ? 'Enregistrement...' : 'Accéder à mon Dashboard'} <ArrowRight size={20} />
             </button>
           </div>
         </div>
@@ -2251,8 +2355,9 @@ export default function App() {
                   className="btn-orange-primary"
                   style={{ width: '100%', padding: '16px', fontSize: '16.5px', fontWeight: 800, borderRadius: '12px' }}
                   onClick={handleProcessPayment}
+                  disabled={paymentLoading}
                 >
-                  Payer {currentCheckoutOrder.amount.toLocaleString()} FCFA via Mobile Money ({selectedMomoProvider.toUpperCase()}) →
+                  {paymentLoading ? 'Ouverture du paiement...' : `Payer ${currentCheckoutOrder.amount.toLocaleString()} FCFA via Mobile Money (${selectedMomoProvider.toUpperCase()}) →`}
                 </button>
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '12px', color: '#cbd5e1', marginTop: '18px' }}>
@@ -2275,7 +2380,7 @@ export default function App() {
                   <div style={{ color: '#ffffff', marginBottom: '3px' }}>Client : {currentCheckoutOrder.customerName} (+229 {payerPhone})</div>
                   <div style={{ color: '#cbd5e1', marginBottom: '3px' }}>Boutique : {currentCheckoutOrder.pmeName}</div>
                   <div style={{ color: '#cbd5e1', marginBottom: '4px' }}>Date : {new Date().toLocaleDateString('fr-FR')} à {new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>
-                  <div style={{ color: '#10B981', fontWeight: 700, marginTop: '8px', fontSize: '11.5px' }}>Empreinte SHA-256 : 8f9a2e1d0c4b8e7...VALIDÉ</div>
+                  <div style={{ color: '#10B981', fontWeight: 700, marginTop: '8px', fontSize: '11.5px' }}>Référence commande : {currentCheckoutOrder.id}</div>
                 </div>
 
                 <button
@@ -2313,15 +2418,6 @@ export default function App() {
       {/* ========================================================================= */}
       {activeView === 'dashboard' && (
         <div className="dark-theme" style={{ backgroundColor: '#0B1727', minHeight: '100vh', color: '#ffffff' }}>
-          {/* Toast Notification Container */}
-          {toast && (
-            <div className="toast-container">
-              <div className={`toast-notification toast-${toast.type}`}>
-                <CheckCircle size={18} />
-                <span>{toast.message}</span>
-              </div>
-            </div>
-          )}
           {/* Dashboard Mobile Header with Hamburger Menu */}
           <div className="dashboard-mobile-header">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
@@ -2342,7 +2438,7 @@ export default function App() {
 
             {dashMobileMenuOpen && (
               <div className="dashboard-mobile-drawer">
-                {(['Vue d\'ensemble', 'Commandes', 'Paiements', 'Catalogue', 'Paramètres'] as const).map(tab => (
+                {(['Vue d\'ensemble', 'Inbox', 'Commandes', 'Paiements', 'Catalogue', 'Paramètres'] as const).map(tab => (
                   <button
                     key={tab}
                     className={`sidebar-link ${activeSidebarTab === tab ? 'active' : ''}`}
@@ -2382,6 +2478,12 @@ export default function App() {
                 onClick={() => switchTab('Vue d\'ensemble')}
               >
                 <LayoutDashboard size={18} /> {t.dashOverview}
+              </button>
+              <button
+                className={`sidebar-link ${activeSidebarTab === 'Inbox' ? 'active' : ''}`}
+                onClick={() => switchTab('Inbox')}
+              >
+                <MessageSquare size={18} /> {t.dashInbox}
               </button>
               <button
                 className={`sidebar-link ${activeSidebarTab === 'Commandes' ? 'active' : ''}`}
@@ -2424,6 +2526,7 @@ export default function App() {
               <div>
                 <h1 className="headline-lg" style={{ color: '#ffffff', marginBottom: '4px' }}>
                   {activeSidebarTab === 'Vue d\'ensemble' && `${t.dashOverview} — ${fullName || 'Merchant'}`}
+                  {activeSidebarTab === 'Inbox' && t.dashInbox}
                   {activeSidebarTab === 'Commandes' && t.ordersTitle}
                   {activeSidebarTab === 'Paiements' && t.paymentsTitle}
                   {activeSidebarTab === 'Catalogue' && t.catalogTitle}
@@ -2531,6 +2634,45 @@ export default function App() {
                     </div>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {activeSidebarTab === 'Inbox' && (
+              <div className="reflex-card-base" style={{ padding: '24px' }}>
+                <h3 className="title-md" style={{ color: '#ffffff', marginBottom: '8px' }}>{t.dashInbox}</h3>
+                <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '20px' }}>
+                  Derniers fils WhatsApp de vos clients. Les conversations apparaissent ici dès qu’un message est reçu.
+                </p>
+                {inboxThreads.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '36px 16px', color: '#94a3b8' }}>
+                    <MessageSquare size={32} style={{ margin: '0 auto 12px', opacity: 0.5 }} />
+                    <div style={{ fontWeight: 600, color: '#ffffff', marginBottom: '4px' }}>Aucune conversation pour le moment</div>
+                    <div style={{ fontSize: '13px' }}>Liez WhatsApp dans Paramètres, puis les messages clients s’afficheront ici.</div>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {inboxThreads.map((thread) => (
+                      <div
+                        key={thread.customerId}
+                        style={{
+                          padding: '14px 16px',
+                          borderRadius: '12px',
+                          border: '1px solid rgba(255,255,255,0.1)',
+                          backgroundColor: 'rgba(255,255,255,0.03)'
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', marginBottom: '6px' }}>
+                          <strong style={{ color: '#ffffff' }}>{thread.name}</strong>
+                          <span style={{ fontSize: '12px', color: '#64748b' }}>
+                            {thread.lastAt ? new Date(thread.lastAt).toLocaleString('fr-FR') : ''}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '6px' }}>{thread.phone}</div>
+                        <div style={{ fontSize: '13.5px', color: '#cbd5e1' }}>{thread.lastMessage}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
