@@ -588,7 +588,8 @@ export default function App() {
         return;
       }
       if (data.config?.id) setCurrentPmeId(data.config.id);
-      showToast(`Configuration enregistrée pour ${companyData.name || companyData.phone}.`, 'success');
+      setWaConnectionStatus('CONNECTED');
+      showToast(`Configuration enregistrée et WhatsApp activé pour ${companyData.name || companyData.phone}.`, 'success');
     } catch {
       showToast('Impossible d’enregistrer la configuration (réseau ou serveur).', 'error');
       setSaveLoading(false);

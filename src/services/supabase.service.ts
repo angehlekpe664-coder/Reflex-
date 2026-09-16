@@ -290,8 +290,10 @@ export class DatabaseService {
           tone: pmeConfig.tone,
           welcome_message: pmeConfig.welcomeMessage,
           delivery_info: pmeConfig.deliveryInfo,
-          meta_phone_number_id: pmeConfig.metaPhoneNumberId,
-          meta_access_token: pmeConfig.metaAccessToken,
+          meta_phone_number_id: pmeConfig.metaPhoneNumberId || config.whatsapp.phoneNumberId,
+          meta_access_token: pmeConfig.metaAccessToken || config.whatsapp.token,
+          whatsapp_status: 'CONNECTED',
+          is_ai_active: true,
           user_id: pmeConfig.userId || undefined
         })
         .select()
