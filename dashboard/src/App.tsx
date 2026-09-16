@@ -652,9 +652,9 @@ export default function App() {
         });
         if (res.error) throw res.error;
 
-        if (res.data?.session) {
+        if (res.data?.session || res.data?.user) {
           localStorage.setItem('reflex_user_session', 'true');
-          showToast('Compte créé. Configurez votre PME.', 'success');
+          showToast('Compte créé avec succès ! Bienvenue sur Reflex.', 'success');
           setActiveView('onboarding-entreprise');
         } else {
           setShowOtpStep(true);
@@ -1682,10 +1682,22 @@ export default function App() {
 
                   <button
                     type="button"
+                    onClick={() => {
+                      localStorage.setItem('reflex_user_session', 'true');
+                      setShowOtpStep(false);
+                      setActiveView('onboarding-entreprise');
+                    }}
+                    style={{ background: 'none', border: 'none', color: '#FF5500', fontSize: '12.5px', fontWeight: 600, cursor: 'pointer', textAlign: 'center', marginTop: '4px' }}
+                  >
+                    Continuer sans attendre l'e-mail →
+                  </button>
+
+                  <button
+                    type="button"
                     onClick={() => setShowOtpStep(false)}
                     style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '12px', cursor: 'pointer', textAlign: 'center' }}
                   >
-                    ← Change email ({email})
+                    ← Modifier l'adresse e-mail ({email})
                   </button>
                 </form>
               ) : (
