@@ -860,6 +860,7 @@ export default function App() {
 
             <div className="nav-desktop-links" style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
               <a href="#features" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>{t.featuresNav}</a>
+              <a href="#pricing" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>{t.pricingNav}</a>
               <a href="#demo-video" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>{t.demoVideoNav}</a>
               <a href="#faq" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>{t.faqNav}</a>
 
@@ -911,6 +912,7 @@ export default function App() {
             {mobileMenuOpen && (
               <div className="mobile-menu-drawer open">
                 <a href="#features" onClick={() => setMobileMenuOpen(false)} style={{ color: '#ffffff', textDecoration: 'none', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>{t.featuresNav}</a>
+                <a href="#pricing" onClick={() => setMobileMenuOpen(false)} style={{ color: '#ffffff', textDecoration: 'none', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>{t.pricingNav}</a>
                 <a href="#demo-video" onClick={() => setMobileMenuOpen(false)} style={{ color: '#ffffff', textDecoration: 'none', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>{t.demoVideoNav}</a>
                 <a href="#faq" onClick={() => setMobileMenuOpen(false)} style={{ color: '#ffffff', textDecoration: 'none', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>{t.faqNav}</a>
 
@@ -1361,6 +1363,300 @@ export default function App() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+          {/* PRICING PLANS SECTION (STYLÉ, HIGH-TECH & RESPONSIVE) */}
+          <div id="pricing" style={{ maxWidth: '1200px', margin: '0 auto 120px', padding: '0 24px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '56px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 18px', borderRadius: '9999px', backgroundColor: 'rgba(255, 85, 0, 0.08)', border: '1px solid rgba(255, 85, 0, 0.25)', marginBottom: '16px' }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#FF5500' }} />
+                <span style={{ fontSize: '13px', fontWeight: 600, color: '#FF5500', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  {currentLang === 'FR' ? 'TARIFS SIMPLES & TRANSPARENTS' : 'SIMPLE & TRANSPARENT PRICING'}
+                </span>
+              </div>
+              <h2 className="headline-lg" style={{ color: '#ffffff', fontSize: '42px', fontWeight: 800, marginBottom: '16px', letterSpacing: '-0.02em' }}>
+                {currentLang === 'FR' ? 'Un plan adapté à chaque étape de votre PME' : 'A plan designed for every stage of your business'}
+              </h2>
+              <p style={{ fontSize: '16px', color: '#94a3b8', maxWidth: '640px', margin: '0 auto', lineHeight: 1.6 }}>
+                {currentLang === 'FR' 
+                  ? 'Automatisez vos ventes sur WhatsApp, encaissez par Mobile Money et développez votre chiffre d’affaires en toute simplicité.'
+                  : 'Automate sales on WhatsApp, accept Mobile Money payments and scale your business effortlessly.'}
+              </p>
+            </div>
+
+            {/* Responsive Grid 3 Cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(310px, 1fr))', gap: '28px', alignItems: 'stretch' }}>
+              
+              {/* Plan 1: Starter - 15 000 FCFA / mois */}
+              <div className="feature-card-hover" style={{
+                backgroundColor: '#0F172A',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '24px',
+                padding: '36px 28px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                position: 'relative',
+                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)'
+              }}>
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                    {currentLang === 'FR' ? 'Starter / Débutant' : 'Starter'}
+                  </div>
+                  <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '24px', minHeight: '38px' }}>
+                    {currentLang === 'FR' ? 'Pour les petites boutiques et créateurs qui se lancent.' : 'Ideal for small shops and new merchants.'}
+                  </div>
+                  
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '24px' }}>
+                    <span style={{ fontSize: '38px', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.03em' }}>15 000</span>
+                    <span style={{ fontSize: '16px', fontWeight: 700, color: '#FF5500' }}>FCFA</span>
+                    <span style={{ fontSize: '14px', color: '#64748b' }}>/ {currentLang === 'FR' ? 'mois' : 'month'}</span>
+                  </div>
+
+                  <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '24px', marginBottom: '32px' }}>
+                    <div style={{ fontWeight: 700, color: '#ffffff', fontSize: '13.5px', marginBottom: '16px' }}>
+                      {currentLang === 'FR' ? 'Ce qui est inclus :' : 'What is included:'}
+                    </div>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', color: '#cbd5e1' }}>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <CheckCircle size={18} color="#FF5500" />
+                        <span>Jusqu'à <strong>100 ventes conclues</strong> / mois</span>
+                      </li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <CheckCircle size={18} color="#FF5500" />
+                        <span>Jusqu'à <strong>1 500 000 FCFA</strong> encaissés</span>
+                      </li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <CheckCircle size={18} color="#FF5500" />
+                        <span>1 Numéro WhatsApp Business connecté</span>
+                      </li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <CheckCircle size={18} color="#FF5500" />
+                        <span>Assistant IA commercial 24/7 (GPT-4o)</span>
+                      </li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <CheckCircle size={18} color="#FF5500" />
+                        <span>Catalogue jusqu'à 20 produits</span>
+                      </li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <CheckCircle size={18} color="#FF5500" />
+                        <span>Reçus de paiement PDF certifiés</span>
+                      </li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <CheckCircle size={18} color="#FF5500" />
+                        <span>Support par email & ticket</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
+                  style={{
+                    width: '100%',
+                    padding: '14px',
+                    borderRadius: '12px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    color: '#ffffff',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    fontSize: '15px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {currentLang === 'FR' ? 'Choisir le plan Starter' : 'Choose Starter'}
+                </button>
+              </div>
+
+              {/* Plan 2: Pro / Croissance - 50 000 FCFA / mois (POPULAIRE) */}
+              <div className="feature-card-hover" style={{
+                backgroundColor: '#0F172A',
+                border: '2px solid #FF5500',
+                borderRadius: '24px',
+                padding: '36px 28px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                position: 'relative',
+                boxShadow: '0 20px 45px rgba(255, 85, 0, 0.22)'
+              }}>
+                {/* Badge Populaire */}
+                <div style={{
+                  position: 'absolute',
+                  top: '-16px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  backgroundColor: '#FF5500',
+                  color: '#ffffff',
+                  fontSize: '11.5px',
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  padding: '6px 18px',
+                  borderRadius: '9999px',
+                  boxShadow: '0 4px 15px rgba(255, 85, 0, 0.45)',
+                  whiteSpace: 'nowrap'
+                }}>
+                  {currentLang === 'FR' ? '★ LE PLUS POPULAIRE' : '★ MOST POPULAR'}
+                </div>
+
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#FF5500', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                    {currentLang === 'FR' ? 'Pro / Croissance' : 'Pro Growth'}
+                  </div>
+                  <div style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '24px', minHeight: '38px' }}>
+                    {currentLang === 'FR' ? 'Pour les PME actives voulant automatiser 100% de leurs ventes.' : 'For growing businesses automating 100% of sales.'}
+                  </div>
+                  
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '24px' }}>
+                    <span style={{ fontSize: '42px', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.03em' }}>50 000</span>
+                    <span style={{ fontSize: '18px', fontWeight: 800, color: '#FF5500' }}>FCFA</span>
+                    <span style={{ fontSize: '14px', color: '#64748b' }}>/ {currentLang === 'FR' ? 'mois' : 'month'}</span>
+                  </div>
+
+                  <div style={{ borderTop: '1px solid rgba(255, 85, 0, 0.25)', paddingTop: '24px', marginBottom: '32px' }}>
+                    <div style={{ fontWeight: 700, color: '#ffffff', fontSize: '13.5px', marginBottom: '16px' }}>
+                      {currentLang === 'FR' ? 'Tout le plan Starter, plus :' : 'Everything in Starter, plus:'}
+                    </div>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', color: '#ffffff' }}>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <CheckCircle size={18} color="#FF5500" />
+                        <span><strong>Ventes conclues illimitées</strong></span>
+                      </li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <CheckCircle size={18} color="#FF5500" />
+                        <span>Jusqu'à <strong>10 000 000 FCFA</strong> encaissements / mois</span>
+                      </li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <CheckCircle size={18} color="#FF5500" />
+                        <span>Catalogue & produits <strong>illimités</strong></span>
+                      </li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <CheckCircle size={18} color="#FF5500" />
+                        <span>Prise en main humaine 1-clic dans l'Inbox Live</span>
+                      </li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <CheckCircle size={18} color="#FF5500" />
+                        <span>Relances automatiques de paniers abandonnés</span>
+                      </li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <CheckCircle size={18} color="#FF5500" />
+                        <span>Personnalisation du logo sur les reçus</span>
+                      </li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <CheckCircle size={18} color="#FF5500" />
+                        <span>Support prioritaire WhatsApp 7j/7</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
+                  style={{
+                    width: '100%',
+                    padding: '16px',
+                    borderRadius: '12px',
+                    backgroundColor: '#FF5500',
+                    color: '#ffffff',
+                    border: 'none',
+                    fontSize: '15px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    boxShadow: '0 8px 25px rgba(255, 85, 0, 0.4)',
+                    transition: 'transform 0.2s'
+                  }}
+                >
+                  {currentLang === 'FR' ? 'Commencer le Plan Pro →' : 'Start Pro Plan →'}
+                </button>
+              </div>
+
+              {/* Plan 3: Enterprise / Illimité - 100 000 FCFA / mois */}
+              <div className="feature-card-hover" style={{
+                backgroundColor: '#0F172A',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '24px',
+                padding: '36px 28px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                position: 'relative',
+                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)'
+              }}>
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                    {currentLang === 'FR' ? 'Enterprise / Illimité' : 'Enterprise'}
+                  </div>
+                  <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '24px', minHeight: '38px' }}>
+                    {currentLang === 'FR' ? 'Pour les réseaux de vente, franchises et grands comptes.' : 'For multi-location brands and large networks.'}
+                  </div>
+                  
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '24px' }}>
+                    <span style={{ fontSize: '38px', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.03em' }}>100 000</span>
+                    <span style={{ fontSize: '16px', fontWeight: 700, color: '#38bdf8' }}>FCFA</span>
+                    <span style={{ fontSize: '14px', color: '#64748b' }}>/ {currentLang === 'FR' ? 'mois' : 'month'}</span>
+                  </div>
+
+                  <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '24px', marginBottom: '32px' }}>
+                    <div style={{ fontWeight: 700, color: '#ffffff', fontSize: '13.5px', marginBottom: '16px' }}>
+                      {currentLang === 'FR' ? 'Fonctionnalités avancées :' : 'Advanced features:'}
+                    </div>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', color: '#cbd5e1' }}>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <CheckCircle size={18} color="#38bdf8" />
+                        <span><strong>Ventes & Encaissements illimités</strong></span>
+                      </li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <CheckCircle size={18} color="#38bdf8" />
+                        <span>Multi-numéros WhatsApp (jusqu'à 5 numéros)</span>
+                      </li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <CheckCircle size={18} color="#38bdf8" />
+                        <span>Agrégation Mobile Money & Cartes sur mesure</span>
+                      </li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <CheckCircle size={18} color="#38bdf8" />
+                        <span>Paramétrage IA sur-mesure par un expert</span>
+                      </li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <CheckCircle size={18} color="#38bdf8" />
+                        <span>Intégrations API & Webhooks personnalisés</span>
+                      </li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <CheckCircle size={18} color="#38bdf8" />
+                        <span>Garantie de service SLA 99,9%</span>
+                      </li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <CheckCircle size={18} color="#38bdf8" />
+                        <span>Support VIP Dédié 24/7 & Account Manager</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
+                  style={{
+                    width: '100%',
+                    padding: '14px',
+                    borderRadius: '12px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    color: '#ffffff',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    fontSize: '15px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {currentLang === 'FR' ? 'Contacter l\'équipe Enterprise' : 'Contact Enterprise'}
+                </button>
+              </div>
+
             </div>
           </div>
 

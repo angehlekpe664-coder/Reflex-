@@ -4,6 +4,7 @@ export interface TranslationDict {
   // Navigation & Header
   activeService: string;
   featuresNav: string;
+  pricingNav: string;
   demoVideoNav: string;
   faqNav: string;
   login: string;
@@ -181,6 +182,7 @@ export const translations: Record<LanguageCode, TranslationDict> = {
     // Navigation & Header
     activeService: 'Service Actif 24/7',
     featuresNav: 'Fonctionnalités',
+    pricingNav: 'Tarifs',
     demoVideoNav: 'Démo Vidéo',
     faqNav: 'FAQ',
     login: 'Se connecter',
@@ -357,6 +359,7 @@ export const translations: Record<LanguageCode, TranslationDict> = {
     // Navigation & Header
     activeService: '24/7 Active Service',
     featuresNav: 'Features',
+    pricingNav: 'Pricing',
     demoVideoNav: 'Video Demo',
     faqNav: 'FAQ',
     login: 'Log In',
