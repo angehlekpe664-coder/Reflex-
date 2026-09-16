@@ -261,19 +261,7 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dashMobileMenuOpen, setDashMobileMenuOpen] = useState(false);
 
-  const heroBackgrounds = [
-    '/hero_bg.png',
-    '/pme_store.png'
-  ];
-  const [heroBgIndex, setHeroBgIndex] = useState(0);
 
-  // Rotating background images
-  useEffect(() => {
-    const bgTimer = setInterval(() => {
-      setHeroBgIndex((prev) => (prev + 1) % heroBackgrounds.length);
-    }, 7000);
-    return () => clearInterval(bgTimer);
-  }, []);
 
   // FAQ Accordion Open Index State
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
@@ -865,57 +853,39 @@ export default function App() {
       )}
 
       {/* ========================================================================= */}
-      {/* 1. STYLISH CONTEXTUAL LANDING PAGE WITH CLOUDFLARE COLORS & MOTION DESIGN */}
+      {/* 1. STYLISH CONTEXTUAL LANDING PAGE WITH RELAY TECH EXACT DESIGN & LAYOUT */}
       {/* ========================================================================= */}
       {activeView === 'landing' && (
-        <div className="landing-page-wrapper" style={{ backgroundColor: '#090d16', color: '#ffffff', minHeight: '100vh', overflowX: 'hidden' }}>
+        <div className="landing-page-wrapper relay-grid-background" style={{ minHeight: '100vh', overflowX: 'hidden', color: '#ffffff' }}>
 
-          {/* Cloudflare Tech Dot Grid & Motion Background System */}
-          <div className="whatsapp-motion-container">
-            <div className="tech-dot-grid"></div>
-
-            {/* Giant Spinning WhatsApp Orbs */}
-            <svg className="wa-bg-spin-giant" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.205 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
-            <svg className="wa-bg-spin-left" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.205 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
-
-            {/* Floating Dancing Icons */}
-            <svg className="wa-float-icon wa-float-1" width="60" height="60" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.205 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
-            <svg className="wa-float-icon wa-float-2" width="75" height="75" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.205 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
-          </div>
-
-          {/* Top Navigation Bar with Glassmorphic Blur */}
-          <header className="main-header" style={{ background: 'rgba(9, 13, 22, 0.92)', borderBottom: '1px solid rgba(255, 85, 0, 0.3)', backdropFilter: 'blur(16px)', boxShadow: '0 4px 30px rgba(255, 85, 0, 0.15)', position: 'sticky', top: 0, zIndex: 100 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-              <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '40px', width: 'auto', borderRadius: '10px', boxShadow: '0 4px 14px rgba(255, 85, 0, 0.4)' }} />
-              <span className="font-outfit" style={{ fontWeight: 800, fontSize: '24px', color: '#ffffff', letterSpacing: '-0.02em' }}>Reflex</span>
+          {/* Top Navigation Bar with Relay Clean Dark Style */}
+          <header className="main-header" style={{ background: 'rgba(10, 17, 29, 0.95)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', backdropFilter: 'blur(16px)', position: 'sticky', top: 0, zIndex: 100 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
+              <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
+              <span className="font-outfit" style={{ fontWeight: 800, fontSize: '22px', color: '#ffffff', letterSpacing: '-0.02em' }}>Reflex</span>
             </div>
 
-            <div className="nav-desktop-links" style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: '#FF5500', backgroundColor: 'rgba(255, 85, 0, 0.12)', padding: '6px 14px', borderRadius: '9999px', border: '1px solid rgba(255, 85, 0, 0.35)' }}>
-                <Radio size={14} className="animate-pulse" />
-                <span>{t.activeService}</span>
-              </div>
-
-              <a href="#features" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>{t.featuresNav}</a>
-              <a href="#demo-video" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>{t.demoVideoNav}</a>
-              <a href="#faq" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>{t.faqNav}</a>
+            <div className="nav-desktop-links" style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
+              <a href="#features" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>{t.featuresNav}</a>
+              <a href="#demo-video" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>{t.demoVideoNav}</a>
+              <a href="#faq" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>{t.faqNav}</a>
 
               {/* Interactive Language Selector Dropdown */}
               <div style={{ position: 'relative' }}>
                 <div
                   onClick={() => setLangMenuOpen(!langMenuOpen)}
-                  style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600, color: '#ffffff', cursor: 'pointer', backgroundColor: 'rgba(255, 255, 255, 0.08)', padding: '6px 14px', borderRadius: '9999px', border: '1px solid rgba(255, 255, 255, 0.15)', userSelect: 'none' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600, color: '#ffffff', cursor: 'pointer', backgroundColor: 'rgba(255, 255, 255, 0.06)', padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.12)', userSelect: 'none' }}
                 >
                   <Globe size={14} color="#FF5500" /> {availableLanguages.find(l => l.code === currentLang)?.flag} {availableLanguages.find(l => l.code === currentLang)?.code} ▾
                 </div>
 
                 {langMenuOpen && (
-                  <div style={{ position: 'absolute', top: '120%', right: 0, backgroundColor: '#0F172A', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '12px', padding: '6px', display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 12px 35px rgba(0,0,0,0.6)', zIndex: 100, minWidth: '150px' }}>
+                  <div style={{ position: 'absolute', top: '120%', right: 0, backgroundColor: '#0F172A', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '10px', padding: '6px', display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 12px 35px rgba(0,0,0,0.6)', zIndex: 100, minWidth: '150px' }}>
                     {availableLanguages.map(l => (
                       <div
                         key={l.code}
                         onClick={() => handleSelectLanguage(l.code as any)}
-                        style={{ padding: '8px 12px', borderRadius: '8px', fontSize: '13px', color: currentLang === l.code ? '#FF5500' : '#ffffff', fontWeight: currentLang === l.code ? 700 : 500, backgroundColor: currentLang === l.code ? 'rgba(255,85,0,0.15)' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                        style={{ padding: '8px 12px', borderRadius: '6px', fontSize: '13px', color: currentLang === l.code ? '#FF5500' : '#ffffff', fontWeight: currentLang === l.code ? 700 : 500, backgroundColor: currentLang === l.code ? 'rgba(255,85,0,0.15)' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                       >
                         <span>{l.flag}</span>
                         <span>{l.label}</span>
@@ -926,7 +896,7 @@ export default function App() {
               </div>
 
               <span
-                style={{ fontSize: '14.5px', fontWeight: 600, color: '#ffffff', cursor: 'pointer', transition: 'color 0.2s' }}
+                style={{ fontSize: '14px', fontWeight: 600, color: '#ffffff', cursor: 'pointer', transition: 'color 0.2s' }}
                 onClick={() => { setAuthMode('login'); setActiveView('auth'); }}
               >
                 {t.login}
@@ -934,10 +904,10 @@ export default function App() {
 
               <button
                 className="btn-orange-primary"
-                style={{ borderRadius: '10px', padding: '10px 22px', fontSize: '14px' }}
+                style={{ borderRadius: '8px', padding: '9px 20px', fontSize: '14px', fontWeight: 600 }}
                 onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
               >
-                {t.startFree} <ArrowRight size={16} />
+                {t.startFree}
               </button>
             </div>
 
@@ -947,11 +917,6 @@ export default function App() {
 
             {mobileMenuOpen && (
               <div className="mobile-menu-drawer open">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: '#FF5500', backgroundColor: 'rgba(255,85,0,0.1)', padding: '8px 14px', borderRadius: '9999px', border: '1px solid rgba(255,85,0,0.2)', width: 'fit-content' }}>
-                  <Radio size={14} className="animate-pulse" />
-                  <span>{t.activeService}</span>
-                </div>
-
                 <a href="#features" onClick={() => setMobileMenuOpen(false)} style={{ color: '#ffffff', textDecoration: 'none', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>{t.featuresNav}</a>
                 <a href="#demo-video" onClick={() => setMobileMenuOpen(false)} style={{ color: '#ffffff', textDecoration: 'none', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>{t.demoVideoNav}</a>
                 <a href="#faq" onClick={() => setMobileMenuOpen(false)} style={{ color: '#ffffff', textDecoration: 'none', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>{t.faqNav}</a>
@@ -969,66 +934,53 @@ export default function App() {
                   style={{ width: '100%', justifyContent: 'center' }}
                   onClick={() => { setMobileMenuOpen(false); setAuthMode('signup'); setActiveView('auth'); }}
                 >
-                  {t.startFree} <ArrowRight size={16} />
+                  {t.startFree}
                 </button>
               </div>
             )}
           </header>
 
-          {/* Hero Section with Cloudflare Electric Orange Ambient Glow & Typewriter Motion */}
-          <div className="hero-section-padding" style={{ padding: '100px 24px 90px', position: 'relative', overflow: 'hidden' }}>
-            <div className="hero-bg-crossfade" style={{ backgroundImage: `linear-gradient(180deg, rgba(9, 13, 22, 0.93) 0%, rgba(15, 23, 42, 0.97) 100%), url(${heroBackgrounds[heroBgIndex]})` }} />
-            <div style={{
-              position: 'absolute',
-              top: '5%',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: '850px',
-              height: '520px',
-              background: 'radial-gradient(circle, rgba(255, 85, 0, 0.28) 0%, rgba(243, 128, 32, 0.12) 50%, rgba(11, 23, 39, 0) 80%)',
-              filter: 'blur(110px)',
-              pointerEvents: 'none',
-              zIndex: 1
-            }} />
+          {/* Hero Section Relay Match */}
+          <div className="hero-section-padding" style={{ padding: '90px 24px 80px', position: 'relative', overflow: 'hidden' }}>
 
-            <div style={{ maxWidth: '980px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 10 }}>
+            <div style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 10 }}>
               
-              {/* Context Badge with Shimmer Glow */}
-              <div className="glow-orange-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '8px 22px', borderRadius: '9999px', marginBottom: '32px' }}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#FF5500' }} className="animate-pulse" />
-                <span className="font-outfit" style={{ fontSize: '13.5px', fontWeight: 700, color: '#FF8800', letterSpacing: '0.05em' }}>
+              {/* Context Badge matching Relay pill */}
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 18px', borderRadius: '9999px', backgroundColor: 'rgba(255, 85, 0, 0.08)', border: '1px solid rgba(255, 85, 0, 0.25)', marginBottom: '32px' }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#FF5500' }} />
+                <span style={{ fontSize: '13px', fontWeight: 500, color: '#FF5500', letterSpacing: '0.02em' }}>
                   {currentLang === 'FR' ? "• Nouveau : IA Commerciale & Mobile Money au Bénin" : "• Now live in Benin — Early Access"}
                 </span>
               </div>
 
               {/* Exact Relay Tech 3-Line Headline with Fraunces Italic Accent */}
-              <h1 className="display-lg" style={{ color: '#ffffff', marginBottom: '24px', lineHeight: 1.18, fontSize: '54px', fontWeight: 800 }}>
+              <h1 style={{ color: '#ffffff', marginBottom: '24px', lineHeight: 1.15, fontSize: '56px', fontWeight: 700, fontFamily: "var(--font-geist), 'Inter', sans-serif", letterSpacing: '-0.03em' }}>
                 {currentLang === 'FR' ? (
                   <>
                     Servez vos clients,<br />
                     encaissez vos paiements,<br />
-                    <span className="font-fraunces-italic" style={{ color: '#FF5500', fontSize: '60px', fontWeight: 400 }}>le tout sur WhatsApp</span>
+                    <span className="font-fraunces-italic" style={{ color: '#FF5500', fontSize: '64px', fontWeight: 400 }}>le tout sur WhatsApp</span>
                   </>
                 ) : (
                   <>
                     Serve customers,<br />
                     get paid,<br />
-                    <span className="font-fraunces-italic" style={{ color: '#FF5500', fontSize: '60px', fontWeight: 400 }}>all on WhatsApp</span>
+                    <span className="font-fraunces-italic" style={{ color: '#FF5500', fontSize: '64px', fontWeight: 400 }}>all on WhatsApp</span>
                   </>
                 )}
               </h1>
 
-              <p className="body-lg" style={{ color: '#cbd5e1', maxWidth: '780px', margin: '0 auto 40px', fontSize: '18.5px', lineHeight: 1.65 }}>
+              <p style={{ color: '#94a3b8', maxWidth: '720px', margin: '0 auto 36px', fontSize: '17.5px', lineHeight: 1.6, fontWeight: 400 }}>
                 {currentLang === 'FR'
-                  ? "Automation WhatsApp intelligente pour votre PME. Répondez aux demandes, présentez votre catalogue, enregistrez les commandes et encaissez par Mobile Money — automatiquement."
+                  ? "Automation WhatsApp intelligente pour toute entreprise. Répondez aux demandes, réservez des services, traitez les commandes et encaissez les paiements — automatiquement."
                   : "AI-powered WhatsApp automation for any business. Handle enquiries, book services, process orders, and collect payments — automatically."}
               </p>
 
-              {/* CTA Buttons with Motion Scale */}
-              <div className="hero-cta-container">
+              {/* CTA Buttons Matching Relay Tech */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '14px', flexWrap: 'wrap' }}>
                 <button
                   className="btn-orange-primary"
-                  style={{ padding: '16px 38px', fontSize: '17px', borderRadius: '12px', fontWeight: 700 }}
+                  style={{ padding: '14px 32px', fontSize: '16px', borderRadius: '8px', fontWeight: 600, border: 'none', backgroundColor: '#FF5500', color: '#ffffff', cursor: 'pointer' }}
                   onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
                 >
                   {currentLang === 'FR' ? 'Commencer gratuitement' : 'Get Started'}
@@ -1037,29 +989,26 @@ export default function App() {
                 <a
                   href="#demo-video"
                   style={{
-                    padding: '16px 32px',
-                    fontSize: '17px',
-                    borderRadius: '12px',
+                    padding: '14px 28px',
+                    fontSize: '16px',
+                    borderRadius: '8px',
                     color: '#ffffff',
-                    border: '1px solid rgba(255, 85, 0, 0.4)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
                     textDecoration: 'none',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '10px',
-                    backgroundColor: 'rgba(255, 85, 0, 0.08)',
-                    backdropFilter: 'blur(10px)',
-                    transition: 'all 0.2s ease',
-                    fontWeight: 600
+                    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                    fontWeight: 600,
+                    transition: 'all 0.2s ease'
                   }}
                 >
-                  <Play size={18} color="#FF5500" fill="#FF5500" />
                   {currentLang === 'FR' ? 'Voir la démo' : 'See How It Works'}
                 </a>
               </div>
 
               {/* Relay Sub-caption Guarantee */}
-              <div style={{ color: '#64748b', fontSize: '13.5px', marginTop: '16px' }}>
-                {currentLang === 'FR' ? 'Sans carte bancaire · Configuration en 3 min · Annulation à tout moment' : 'No credit card required · Cancel anytime'}
+              <div style={{ color: '#64748b', fontSize: '13px', marginTop: '20px', fontWeight: 400 }}>
+                {currentLang === 'FR' ? 'Sans carte bancaire · Annulation à tout moment' : 'No credit card required · Cancel anytime'}
               </div>
 
             </div>
@@ -1098,6 +1047,225 @@ export default function App() {
                   <Play size={36} color="#ffffff" fill="#ffffff" style={{ marginLeft: '4px' }} />
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* RELAY MATCH 1: 3-STEP PROCESS SECTION ("Up and running in 15 minutes") */}
+          <div style={{ maxWidth: '1140px', margin: '0 auto 100px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
+            <div style={{ textAlign: 'center', marginBottom: '56px' }}>
+              <h2 className="font-outfit" style={{ fontSize: '46px', fontWeight: 800, color: '#ffffff', lineHeight: 1.2 }}>
+                {currentLang === 'FR' ? (
+                  <>Opérationnel en <span style={{ color: '#FF5500' }}>15 minutes</span></>
+                ) : (
+                  <>Up and running in <span style={{ color: '#FF5500' }}>15 minutes</span></>
+                )}
+              </h2>
+              <p style={{ color: '#94a3b8', fontSize: '17px', maxWidth: '680px', margin: '14px auto 0', lineHeight: 1.6 }}>
+                {currentLang === 'FR'
+                  ? "Aucune connaissance technique requise. Si vous savez envoyer un message WhatsApp, vous savez utiliser Reflex."
+                  : "No technical knowledge needed. If you can send a WhatsApp message, you can use Reflex."}
+              </p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+              {/* STEP 01 */}
+              <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.7)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '36px 30px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ fontSize: '48px', fontWeight: 800, color: '#FF5500', fontFamily: 'var(--font-geist), sans-serif', lineHeight: 1 }}>01</div>
+                <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', color: '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Globe size={20} />
+                </div>
+                <h3 className="font-outfit" style={{ fontSize: '22px', fontWeight: 700, color: '#ffffff' }}>
+                  {currentLang === 'FR' ? "Connectez votre WhatsApp" : "Connect Your WhatsApp"}
+                </h3>
+                <p style={{ color: '#94a3b8', fontSize: '14.5px', lineHeight: 1.65 }}>
+                  {currentLang === 'FR'
+                    ? "Liez votre numéro en un clic. Vos clients vous joignent exactement comme avant — rien ne change pour eux."
+                    : "Link your number in one click. Your customers reach you exactly as before — nothing changes on their end."}
+                </p>
+              </div>
+
+              {/* STEP 02 */}
+              <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.7)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '36px 30px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ fontSize: '48px', fontWeight: 800, color: '#FF5500', fontFamily: 'var(--font-geist), sans-serif', lineHeight: 1 }}>02</div>
+                <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', color: '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Grid size={20} />
+                </div>
+                <h3 className="font-outfit" style={{ fontSize: '22px', fontWeight: 700, color: '#ffffff' }}>
+                  {currentLang === 'FR' ? "Configurez votre Offre" : "Set Up Your Offering"}
+                </h3>
+                <p style={{ color: '#94a3b8', fontSize: '14.5px', lineHeight: 1.65 }}>
+                  {currentLang === 'FR'
+                    ? "Ajoutez vos produits, vos services ou décrivez votre activité. Fixez vos prix. L’IA apprend votre métier et répond aux questions."
+                    : "Add products, list services, or describe what you do. Set prices and availability. The AI learns your business and handles questions."}
+                </p>
+              </div>
+
+              {/* STEP 03 */}
+              <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.7)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '36px 30px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ fontSize: '48px', fontWeight: 800, color: '#FF5500', fontFamily: 'var(--font-geist), sans-serif', lineHeight: 1 }}>03</div>
+                <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', color: '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <CheckCircle size={20} />
+                </div>
+                <h3 className="font-outfit" style={{ fontSize: '22px', fontWeight: 700, color: '#ffffff' }}>
+                  {currentLang === 'FR' ? "Servez, Livrez & Encaissez" : "Serve, Deliver & Get Paid"}
+                </h3>
+                <p style={{ color: '#94a3b8', fontSize: '14.5px', lineHeight: 1.65 }}>
+                  {currentLang === 'FR'
+                    ? "L’IA répond 24h/24 et 7j/7 — réservation, enregistrement des commandes, réponses. Vous êtes notifié. Paiement encaissé directement par Mobile Money."
+                    : "AI responds to enquiries 24/7 — booking services, taking orders, answering questions. You get notified. Payment collected inside the chat."}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* RELAY MATCH 2: USE CASES GRID ("Products, services, or anything in between") */}
+          <div style={{ maxWidth: '1140px', margin: '0 auto 100px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
+            <div style={{ textAlign: 'center', marginBottom: '56px' }}>
+              <h2 className="font-outfit" style={{ fontSize: '46px', fontWeight: 800, color: '#ffffff', lineHeight: 1.2 }}>
+                {currentLang === 'FR' ? (
+                  <>Produits, services, ou <span style={{ color: '#FF5500' }}>tout le reste</span></>
+                ) : (
+                  <>Products, services, or <span style={{ color: '#FF5500' }}>anything in between</span></>
+                )}
+              </h2>
+              <p style={{ color: '#94a3b8', fontSize: '17px', maxWidth: '720px', margin: '14px auto 0', lineHeight: 1.6 }}>
+                {currentLang === 'FR'
+                  ? "Que vous vendiez des vêtements, gériez un restaurant, une clinique ou une agence — Reflex gère tout directement sur WhatsApp."
+                  : "Whether you sell jollof, run a clinic, or manage land registrations — Reflex handles it all through WhatsApp."}
+              </p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+              {/* CARD 1: Fashion & Retail */}
+              <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.7)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative' }}>
+                <div style={{ width: '44px', height: '44px', borderRadius: '12px', backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', color: '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <ShoppingBag size={20} />
+                </div>
+                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff' }}>
+                  {currentLang === 'FR' ? "Mode & Commerce" : "Fashion & Retail"}
+                </h3>
+                <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: 1.6 }}>
+                  {currentLang === 'FR'
+                    ? "Partagez vos catalogues, prenez les commandes, gériez les tailles et encaissez vos paiements — sans quitter WhatsApp."
+                    : "Share catalogues, take orders, handle size queries, and collect payments — all without leaving WhatsApp."}
+                </p>
+              </div>
+
+              {/* CARD 2: Food & Catering (Popular) */}
+              <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.7)', borderRadius: '20px', border: '1px solid rgba(255, 85, 0, 0.4)', padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative' }}>
+                <span style={{ position: 'absolute', top: '24px', right: '24px', backgroundColor: 'rgba(255, 85, 0, 0.15)', border: '1px solid rgba(255, 85, 0, 0.4)', color: '#FF5500', fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '9999px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Popular</span>
+                <div style={{ width: '44px', height: '44px', borderRadius: '12px', backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', color: '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Store size={20} />
+                </div>
+                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff' }}>
+                  {currentLang === 'FR' ? "Restauration & Traiteurs" : "Food & Catering"}
+                </h3>
+                <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: 1.6 }}>
+                  {currentLang === 'FR'
+                    ? "Gériez vos menus, prenez des précommandes, confirmez les réservations et envoyez le suivi des livraisons automatiquement."
+                    : "Manage menus, take pre-orders, confirm bookings, and send delivery updates — hands-free."}
+                </p>
+              </div>
+
+              {/* CARD 3: Schools & Academies (Enterprise) */}
+              <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.7)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative' }}>
+                <span style={{ position: 'absolute', top: '24px', right: '24px', backgroundColor: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.15)', color: '#cbd5e1', fontSize: '11px', fontWeight: 600, padding: '4px 10px', borderRadius: '9999px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Enterprise</span>
+                <div style={{ width: '44px', height: '44px', borderRadius: '12px', backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', color: '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Building size={20} />
+                </div>
+                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff' }}>
+                  {currentLang === 'FR' ? "Écoles & Académies" : "Schools & Academies"}
+                </h3>
+                <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: 1.6 }}>
+                  {currentLang === 'FR'
+                    ? "Traitez les demandes d’admission, partagez les résultats, envoyez les rappels de frais et encaissez les écolages automatiquement."
+                    : "Handle admissions enquiries, share results, send fee reminders, and collect payments automatically."}
+                </p>
+              </div>
+
+              {/* CARD 4: Professional Services */}
+              <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.7)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ width: '44px', height: '44px', borderRadius: '12px', backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', color: '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Zap size={20} />
+                </div>
+                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff' }}>
+                  {currentLang === 'FR' ? "Services Professionnels" : "Professional Services"}
+                </h3>
+                <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: 1.6 }}>
+                  {currentLang === 'FR'
+                    ? "Consultants, avocats, comptables — envoyez vos devis, planifiez des rendez-vous et relancez vos factures."
+                    : "Consultants, lawyers, accountants — quote, schedule appointments, follow up, and invoice clients automatically."}
+                </p>
+              </div>
+
+              {/* CARD 5: Records & Status Enquiries */}
+              <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.7)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative' }}>
+                <span style={{ position: 'absolute', top: '24px', right: '24px', backgroundColor: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.15)', color: '#cbd5e1', fontSize: '11px', fontWeight: 600, padding: '4px 10px', borderRadius: '9999px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Enterprise</span>
+                <div style={{ width: '44px', height: '44px', borderRadius: '12px', backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', color: '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Receipt size={20} />
+                </div>
+                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff' }}>
+                  {currentLang === 'FR' ? "Gestion des Demandes & Suivis" : "Records & Status Enquiries"}
+                </h3>
+                <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: 1.6 }}>
+                  {currentLang === 'FR'
+                    ? "Agences, coopératives, services publics — permettez aux clients de suivre l'avancement de leur dossier par simple message."
+                    : "Any organisation with records — agencies, registries, cooperatives — let people text in to check status, track progress, or request docs."}
+                </p>
+              </div>
+
+              {/* CARD 6: Health & Wellness */}
+              <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.7)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ width: '44px', height: '44px', borderRadius: '12px', backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', color: '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Sparkles size={20} />
+                </div>
+                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff' }}>
+                  {currentLang === 'FR' ? "Santé & Bien-être" : "Health & Wellness"}
+                </h3>
+                <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: 1.6 }}>
+                  {currentLang === 'FR'
+                    ? "Prise de rendez-vous, rappels de soins, résultats d'analyses et réponse aux questions des patients sans personnel supplémentaire."
+                    : "Book appointments, send medication reminders, share lab results, and manage patient queries without extra staff."}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* RELAY MATCH 3: TESTIMONIALS SECTION ("Impactful Successes") */}
+          <div style={{ maxWidth: '1140px', margin: '0 auto 100px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
+            <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+              <h2 className="font-outfit" style={{ fontSize: '46px', fontWeight: 800, color: '#ffffff', lineHeight: 1.2 }}>
+                {currentLang === 'FR' ? (
+                  <>Résultats & <span className="font-fraunces-italic" style={{ color: '#FF5500', fontSize: '52px', fontWeight: 400 }}>Témoignages</span></>
+                ) : (
+                  <>Impactful <span className="font-fraunces-italic" style={{ color: '#FF5500', fontSize: '52px', fontWeight: 400 }}>Successes</span></>
+                )}
+              </h2>
+            </div>
+
+            <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.85)', borderRadius: '24px', border: '1px solid rgba(255, 85, 0, 0.3)', padding: '60px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '32px', flexWrap: 'wrap', position: 'relative', overflow: 'hidden' }}>
+              {/* Giant Left Quote SVG */}
+              <div style={{ fontSize: '140px', lineHeight: 0.6, color: '#FF5500', opacity: 0.35, fontFamily: 'serif', userSelect: 'none' }}>“</div>
+
+              <div style={{ flex: 1, minWidth: '280px', textAlign: 'left' }}>
+                <p style={{ fontSize: '22px', color: '#ffffff', lineHeight: 1.6, fontWeight: 500, fontStyle: 'italic', marginBottom: '24px' }}>
+                  {currentLang === 'FR'
+                    ? "« Avant Reflex, je passais 3 heures chaque soir à répondre aux messages des clients. L'IA gère maintenant 90% des demandes. J'ai enfin pu passer des soirées sereines. »"
+                    : "“I used to spend 3 hours every evening replying to customer messages. Reflex handles 90% of it. I actually slept last night.”"}
+                </p>
+                <div style={{ color: '#FF5500', fontWeight: 700, fontSize: '18px' }}>Amina Sow</div>
+                <div style={{ color: '#94a3b8', fontSize: '14px', marginTop: '2px' }}>AO Fashion Boutique, Cotonou</div>
+              </div>
+
+              {/* Giant Right Quote SVG */}
+              <div style={{ fontSize: '140px', lineHeight: 0.6, color: '#FF5500', opacity: 0.35, fontFamily: 'serif', userSelect: 'none' }}>”</div>
+            </div>
+
+            {/* Carousel Indicators */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '24px' }}>
+              <span style={{ width: '28px', height: '8px', borderRadius: '9999px', backgroundColor: '#FF5500' }} />
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.2)' }} />
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.2)' }} />
             </div>
           </div>
 
