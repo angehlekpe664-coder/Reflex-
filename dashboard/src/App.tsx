@@ -60,14 +60,7 @@ type InboxThread = {
 // Cloudflare Turnstile Captcha Component for Auth Modal
 function TurnstileContainer({ onVerify, onError }: { onVerify?: (token: string) => void; onError?: (err: any) => void }) {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined;
-  if (!siteKey) {
-    return (
-      <div style={{ color: '#b45309', fontSize: '12px', textAlign: 'center', margin: '10px 0' }}>
-        Captcha non configuré (VITE_TURNSTILE_SITE_KEY).
-      </div>
-    );
-  }
+  const siteKey = (import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined) || '0x4AAAAAAEnLp3-m1biy8CGz';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '14px 0', minHeight: '65px' }}>
