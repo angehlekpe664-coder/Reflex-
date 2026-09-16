@@ -2379,29 +2379,57 @@ export default function App() {
                 Numéro WhatsApp configuré : <strong>{companyData.phone}</strong>. Reflex répondra directement aux demandes des clients sur ce numéro.
               </p>
               {waConnectionStatus !== 'CONNECTED' && (
-                <button
-                  type="button"
-                  onClick={handleLaunchMetaEmbeddedSignup}
-                  disabled={waConnectionStatus === 'CONNECTING'}
-                  style={{
-                    width: '100%',
-                    padding: '10px 14px',
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    borderRadius: '8px',
-                    backgroundColor: '#1877F2',
-                    color: '#ffffff',
-                    border: 'none',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px'
-                  }}
-                >
-                  <MessageSquare size={16} />
-                  {waConnectionStatus === 'CONNECTING' ? 'Connexion Meta en cours...' : 'Connecter mon WhatsApp Business (Meta)'}
-                </button>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <button
+                    type="button"
+                    onClick={handleLaunchMetaEmbeddedSignup}
+                    disabled={waConnectionStatus === 'CONNECTING'}
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      borderRadius: '8px',
+                      backgroundColor: '#1877F2',
+                      color: '#ffffff',
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    <MessageSquare size={16} />
+                    {waConnectionStatus === 'CONNECTING' ? 'Connexion Meta en cours...' : 'Option 1 : Connecter via Meta / Facebook'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setWaConnectionStatus('CONNECTED');
+                      showToast(`WhatsApp Business activé directement sur ${companyData.phone || 'votre numéro'}.`, 'success');
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      borderRadius: '8px',
+                      backgroundColor: '#10b981',
+                      color: '#ffffff',
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    <Zap size={16} />
+                    Option 2 : Activer la connexion directe sur {companyData.phone || 'votre numéro'}
+                  </button>
+                </div>
               )}
             </div>
 
@@ -3185,26 +3213,53 @@ export default function App() {
 
                   <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
                     {waConnectionStatus !== 'CONNECTED' ? (
-                      <button
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '10px',
-                          backgroundColor: '#1877F2',
-                          color: '#ffffff',
-                          border: 'none',
-                          padding: '12px 24px',
-                          borderRadius: '8px',
-                          fontSize: '14px',
-                          fontWeight: 700,
-                          cursor: 'pointer'
-                        }}
-                        onClick={handleLaunchMetaEmbeddedSignup}
-                        disabled={waConnectionStatus === 'CONNECTING'}
-                      >
-                        <Radio size={18} />
-                        {waConnectionStatus === 'CONNECTING' ? 'Connexion à Meta en cours...' : 'Connecter mon WhatsApp Business avec Meta'}
-                      </button>
+                      <>
+                        <button
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            backgroundColor: '#1877F2',
+                            color: '#ffffff',
+                            border: 'none',
+                            padding: '12px 24px',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            fontWeight: 700,
+                            cursor: 'pointer'
+                          }}
+                          onClick={handleLaunchMetaEmbeddedSignup}
+                          disabled={waConnectionStatus === 'CONNECTING'}
+                        >
+                          <Radio size={18} />
+                          {waConnectionStatus === 'CONNECTING' ? 'Connexion à Meta en cours...' : 'Option 1 : Connexion via Meta / Facebook'}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            setWaConnectionStatus('CONNECTED');
+                            showToast(`WhatsApp Business activé directement sur ${companyData.phone || 'votre numéro'}.`, 'success');
+                            await handleFinalizeOnboarding();
+                          }}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            backgroundColor: '#10b981',
+                            color: '#ffffff',
+                            border: 'none',
+                            padding: '12px 24px',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            fontWeight: 700,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <Zap size={18} />
+                          Option 2 : Activer la connexion directe ({companyData.phone || 'PME'})
+                        </button>
+                      </>
                     ) : (
                       <button
                         style={{
