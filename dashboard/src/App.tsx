@@ -191,11 +191,7 @@ export default function App() {
   const [connectedWabaId, setConnectedWabaId] = useState<string | null>(null);
 
   const handleLaunchMetaEmbeddedSignup = () => {
-    const metaAppId = import.meta.env.VITE_META_APP_ID as string | undefined;
-    if (!metaAppId) {
-      showToast('VITE_META_APP_ID manquant. Ajoutez l’App ID Meta pour lier WhatsApp.', 'error');
-      return;
-    }
+    const metaAppId = (import.meta.env.VITE_META_APP_ID as string | undefined) || '1875740770498760';
     if (typeof (window as any).FB === 'undefined') {
       showToast('SDK Facebook indisponible. Vérifiez votre connexion puis réessayez.', 'error');
       return;
