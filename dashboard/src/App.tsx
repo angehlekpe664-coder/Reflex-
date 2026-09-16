@@ -642,29 +642,32 @@ export default function App() {
 
     try {
       if (authMode === 'signup') {
+        const signUpOptions: any = { data: { full_name: fullName } };
+        if (captchaToken) signUpOptions.captchaToken = captchaToken;
+
         const res = await supabase.auth.signUp({
           email,
           password,
-          options: {
-            data: { full_name: fullName },
-            captchaToken: captchaToken || undefined
-          }
+          options: signUpOptions
         });
         if (res.error) throw res.error;
 
-        if (res.data?.session || res.data?.user) {
+        if (res.data?.session) {
           localStorage.setItem('reflex_user_session', 'true');
-          showToast('Compte créé avec succès ! Bienvenue sur Reflex.', 'success');
+          showToast('Compte créé. Configurez votre PME.', 'success');
           setActiveView('onboarding-entreprise');
         } else {
           setShowOtpStep(true);
           showToast('Un code de confirmation a été envoyé par e-mail.', 'info');
         }
       } else {
+        const signInOptions: any = {};
+        if (captchaToken) signInOptions.captchaToken = captchaToken;
+
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
-          options: { captchaToken: captchaToken || undefined }
+          options: Object.keys(signInOptions).length ? signInOptions : undefined
         });
         if (error) throw error;
         localStorage.setItem('reflex_user_session', 'true');
@@ -1678,18 +1681,6 @@ export default function App() {
 
                   <button type="submit" style={{ width: '100%', padding: '11px', fontSize: '14.5px', borderRadius: '8px', backgroundColor: '#2563eb', color: '#ffffff', border: 'none', fontWeight: 700, cursor: 'pointer' }} disabled={authLoading}>
                     {authLoading ? 'Validating...' : 'Validate Code →'}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      localStorage.setItem('reflex_user_session', 'true');
-                      setShowOtpStep(false);
-                      setActiveView('onboarding-entreprise');
-                    }}
-                    style={{ background: 'none', border: 'none', color: '#FF5500', fontSize: '12.5px', fontWeight: 600, cursor: 'pointer', textAlign: 'center', marginTop: '4px' }}
-                  >
-                    Continuer sans attendre l'e-mail →
                   </button>
 
                   <button
