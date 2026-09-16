@@ -852,7 +852,7 @@ export default function App() {
         <div className="landing-page-wrapper relay-grid-background" style={{ minHeight: '100vh', overflowX: 'hidden', color: '#ffffff' }}>
 
           {/* Top Navigation Bar with Relay Clean Dark Style */}
-          <header className="main-header" style={{ background: 'rgba(10, 17, 29, 0.95)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', backdropFilter: 'blur(16px)', position: 'sticky', top: 0, zIndex: 100 }}>
+          <header className="main-header" style={{ background: 'rgba(10, 17, 29, 0.95)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', backdropFilter: 'blur(16px)', position: 'fixed', top: 0, left: 0, right: 0, width: '100%', boxSizing: 'border-box', zIndex: 1000 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
               <span className="font-outfit" style={{ fontWeight: 800, fontSize: '22px', color: '#ffffff', letterSpacing: '-0.02em' }}>Reflex</span>
@@ -934,7 +934,7 @@ export default function App() {
           </header>
 
           {/* Hero Section Relay Match */}
-          <div className="hero-section-padding" style={{ padding: '90px 24px 80px', position: 'relative', overflow: 'hidden' }}>
+          <div className="hero-section-padding" style={{ padding: '140px 24px 80px', position: 'relative', overflow: 'hidden' }}>
 
             <div style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 10 }}>
               
