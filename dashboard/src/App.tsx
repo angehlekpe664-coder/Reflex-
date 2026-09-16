@@ -1547,32 +1547,7 @@ export default function App() {
             </button>
           )}
 
-          {/* Mobile Quick Action WhatsApp Button */}
-          <a
-            href="https://wa.me/22997000000?text=Bonjour%20Reflex"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              position: 'fixed',
-              bottom: '24px',
-              left: '24px',
-              zIndex: 9998,
-              backgroundColor: '#25D366',
-              color: '#ffffff',
-              borderRadius: '50px',
-              padding: '12px 18px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              fontSize: '13.5px',
-              fontWeight: 700,
-              boxShadow: '0 8px 25px rgba(37, 211, 102, 0.4)',
-              textDecoration: 'none'
-            }}
-          >
-            <MessageSquare size={18} />
-            <span>WhatsApp Live</span>
-          </a>
+
 
         </div>
       )}
