@@ -2363,13 +2363,50 @@ export default function App() {
               </p>
             </div>
 
-            <div style={{ backgroundColor: '#eff4ff', border: '1px solid #c4b5fd', borderRadius: '12px', padding: '16px', marginBottom: '32px', textAlign: 'left' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, color: '#4b41e1', fontSize: '13px', marginBottom: '6px' }}>
-                <Zap size={16} /> Synchronisation IA Active
+            <div style={{ backgroundColor: '#eff4ff', border: '1px solid #c4b5fd', borderRadius: '12px', padding: '16px', marginBottom: '24px', textAlign: 'left' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, color: '#4b41e1', fontSize: '13px' }}>
+                  <Zap size={16} /> Statut WhatsApp Business Meta
+                </div>
+                <span style={{
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  padding: '3px 8px',
+                  borderRadius: '20px',
+                  backgroundColor: waConnectionStatus === 'CONNECTED' ? '#d1fae5' : '#fef3c7',
+                  color: waConnectionStatus === 'CONNECTED' ? '#047857' : '#b45309'
+                }}>
+                  {waConnectionStatus === 'CONNECTED' ? '● CONNECTÉ' : '○ NON CONNECTÉ'}
+                </span>
               </div>
-              <p style={{ fontSize: '12px', color: '#45464d', margin: 0, lineHeight: 1.4 }}>
-                Numéro WhatsApp : <strong>{companyData.phone}</strong>. Reflex répondra directement aux questions sur votre catalogue.
+              <p style={{ fontSize: '12px', color: '#45464d', margin: '0 0 12px 0', lineHeight: 1.4 }}>
+                Numéro WhatsApp configuré : <strong>{companyData.phone}</strong>. Reflex répondra directement aux demandes des clients sur ce numéro.
               </p>
+              {waConnectionStatus !== 'CONNECTED' && (
+                <button
+                  type="button"
+                  onClick={handleLaunchMetaEmbeddedSignup}
+                  disabled={waConnectionStatus === 'CONNECTING'}
+                  style={{
+                    width: '100%',
+                    padding: '10px 14px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    borderRadius: '8px',
+                    backgroundColor: '#1877F2',
+                    color: '#ffffff',
+                    border: 'none',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  <MessageSquare size={16} />
+                  {waConnectionStatus === 'CONNECTING' ? 'Connexion Meta en cours...' : 'Connecter mon WhatsApp Business (Meta)'}
+                </button>
+              )}
             </div>
 
             <button
