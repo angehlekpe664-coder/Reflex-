@@ -110,7 +110,7 @@ class WhatsAppQueueService {
         aiResponse,
         {
           phoneNumberId: pmeRecord?.pme?.meta_phone_number_id || metaPhoneNumberId || config.whatsapp.phoneNumberId,
-          token: config.whatsapp.token
+          token: pmeRecord?.pme?.meta_access_token || config.whatsapp.token
         }
       );
 

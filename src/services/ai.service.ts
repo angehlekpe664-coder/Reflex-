@@ -24,13 +24,15 @@ export class AIService {
     if (!config.openaiApiKey || config.openaiApiKey.includes('your-key-here')) {
       const firstProd = pmeContext.catalogue[0]?.name || 'nos articles';
       const orderId = `ORD-229-${Math.floor(100 + Math.random() * 900)}`;
+      const appUrl = process.env.FRONTEND_URL || 'https://reflex-dashboard-lfp6.onrender.com';
       return `Bonjour ! Bienvenue chez ${pmeContext.name}. 😊\n\n` +
         `Nous avons actuellement *${firstProd}* à ${pmeContext.catalogue[0]?.price.toLocaleString() || '45 000'} FCFA.\n\n` +
         `💳 *Lien de règlement Mobile Money sécurisé (MTN / Moov / Wave)* :\n` +
-        `http://localhost:5173/pay/${orderId}`;
+        `${appUrl}/#payment-checkout?orderId=${orderId}`;
     }
 
     try {
+      const appUrl = process.env.FRONTEND_URL || 'https://reflex-dashboard-lfp6.onrender.com';
       const systemPrompt = `Tu es Reflex, l'assistant commercial IA autonome de la PME "${pmeContext.name}" au Bénin / Afrique de l'Ouest.
 Description de l'entreprise : ${pmeContext.description || 'Commerce général'}
 Ton de communication imposé : ${pmeContext.tone || 'Chaleureux & Commercial'}
@@ -44,7 +46,7 @@ Consignes de vente cruciales :
 1. Adopte rigoureusement le ton imposé (${pmeContext.tone || 'Chaleureux'}).
 2. Réponds précisément aux questions sur les produits, les prix (en FCFA / XOF) et la livraison.
 3. Dès que le client est d'accord pour acheter ou demande comment payer, génère IMMÉDIATEMENT un lien de paiement sous ce format exact :
-   "💳 *Lien de règlement Mobile Money sécurisé* : http://localhost:5173/pay/ORD-229-XXX" (remplace XXX par 3 chiffres aléatoires).
+   "💳 *Lien de règlement Mobile Money sécurisé* : ${appUrl}/#payment-checkout?orderId=ORD-229-XXX" (remplace XXX par 3 chiffres aléatoires).
 4. Précise que le paiement est sécurisé et disponible via MTN Mobile Money, Moov Money et Wave avec reçu instantané.
 5. Garde des réponses synthétiques adaptées à WhatsApp.`;
 
