@@ -49,14 +49,6 @@ type CatalogProduct = {
   description: string;
 };
 
-type InboxThread = {
-  customerId: string;
-  name: string;
-  phone: string;
-  lastMessage: string;
-  lastAt: string;
-};
-
 // Cloudflare Turnstile Captcha Component for Auth Modal
 function TurnstileContainer({ onVerify, onError }: { onVerify?: (token: string) => void; onError?: (err: any) => void }) {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -158,7 +150,6 @@ export default function App() {
 
   const [productsList, setProductsList] = useState<CatalogProduct[]>([]);
   const [currentPmeId, setCurrentPmeId] = useState<string | null>(null);
-  const [inboxThreads, setInboxThreads] = useState<InboxThread[]>([]);
   const [captchaToken, setCaptchaToken] = useState('');
   const [paymentLoading, setPaymentLoading] = useState(false);
 
@@ -475,28 +466,12 @@ export default function App() {
       }
     };
 
-    const fetchInbox = async () => {
-      try {
-        const response = await apiFetch('/api/dashboard/inbox');
-        if (!response.ok) return;
-        const data = await response.json();
-        if (Array.isArray(data.conversations)) {
-          setInboxThreads(data.conversations);
-        }
-      } catch {
-        /* inbox vide si API indisponible */
-      }
-    };
-
     fetchStats();
-    fetchInbox();
     const interval = setInterval(() => {
       fetchStats();
-      fetchInbox();
     }, 15000);
 
-
-  return () => clearInterval(interval);
+    return () => clearInterval(interval);
   }, []);
 
   // Helper to determine if a user has already completed onboarding
@@ -2938,12 +2913,6 @@ export default function App() {
                 <LayoutDashboard size={18} /> {t.dashOverview}
               </button>
               <button
-                className={`sidebar-link ${activeSidebarTab === 'Inbox' ? 'active' : ''}`}
-                onClick={() => switchTab('Inbox')}
-              >
-                <MessageSquare size={18} /> {t.dashInbox}
-              </button>
-              <button
                 className={`sidebar-link ${activeSidebarTab === 'Commandes' ? 'active' : ''}`}
                 onClick={() => switchTab('Commandes')}
               >
@@ -3092,45 +3061,6 @@ export default function App() {
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {activeSidebarTab === 'Inbox' && (
-              <div className="reflex-card-base" style={{ padding: '24px' }}>
-                <h3 className="title-md" style={{ color: '#ffffff', marginBottom: '8px' }}>{t.dashInbox}</h3>
-                <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '20px' }}>
-                  Derniers fils WhatsApp de vos clients. Les conversations apparaissent ici dès qu’un message est reçu.
-                </p>
-                {inboxThreads.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '36px 16px', color: '#94a3b8' }}>
-                    <MessageSquare size={32} style={{ margin: '0 auto 12px', opacity: 0.5 }} />
-                    <div style={{ fontWeight: 600, color: '#ffffff', marginBottom: '4px' }}>Aucune conversation pour le moment</div>
-                    <div style={{ fontSize: '13px' }}>Liez WhatsApp dans Paramètres, puis les messages clients s’afficheront ici.</div>
-                  </div>
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {inboxThreads.map((thread) => (
-                      <div
-                        key={thread.customerId}
-                        style={{
-                          padding: '14px 16px',
-                          borderRadius: '12px',
-                          border: '1px solid rgba(255,255,255,0.1)',
-                          backgroundColor: 'rgba(255,255,255,0.03)'
-                        }}
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', marginBottom: '6px' }}>
-                          <strong style={{ color: '#ffffff' }}>{thread.name}</strong>
-                          <span style={{ fontSize: '12px', color: '#64748b' }}>
-                            {thread.lastAt ? new Date(thread.lastAt).toLocaleString('fr-FR') : ''}
-                          </span>
-                        </div>
-                        <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '6px' }}>{thread.phone}</div>
-                        <div style={{ fontSize: '13.5px', color: '#cbd5e1' }}>{thread.lastMessage}</div>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
             )}
 
