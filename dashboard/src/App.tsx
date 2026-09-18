@@ -2187,7 +2187,7 @@ export default function App() {
           <div className="reflex-card-base" style={{ width: '100%', maxWidth: '540px', padding: '32px 28px', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.06)' }}>
 
             {/* Onboarding Stepper Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '24px', width: '100%' }}>
+            <div className="onboarding-stepper-container">
               {[
                 { step: 1, label: 'Entreprise' },
                 { step: 2, label: 'Catalogue' },
@@ -2311,7 +2311,7 @@ export default function App() {
           <div className="reflex-card-base" style={{ width: '100%', maxWidth: '580px', padding: '32px 28px', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.06)' }}>
 
             {/* Onboarding Stepper Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '24px', width: '100%' }}>
+            <div className="onboarding-stepper-container">
               {[
                 { step: 1, label: 'Entreprise' },
                 { step: 2, label: 'Catalogue' },
@@ -2366,7 +2366,7 @@ export default function App() {
 
             <div style={{ backgroundColor: '#ffffff', border: '1px dashed #c4b5fd', padding: '16px', borderRadius: '10px', marginBottom: '28px' }}>
               <div style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '12px' }}>+ Ajouter un article</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
+              <div className="product-input-grid" style={{ marginBottom: '10px' }}>
                 <input
                   type="text"
                   placeholder="Nom de l'article"
@@ -2445,7 +2445,7 @@ export default function App() {
           <div className="reflex-card-base" style={{ width: '100%', maxWidth: '540px', padding: '32px 28px', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.06)' }}>
 
             {/* Onboarding Stepper Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '24px', width: '100%' }}>
+            <div className="onboarding-stepper-container">
               {[
                 { step: 1, label: 'Entreprise' },
                 { step: 2, label: 'Catalogue' },
@@ -2567,7 +2567,7 @@ export default function App() {
           <div className="reflex-card-base" style={{ width: '100%', maxWidth: '520px', padding: '32px 28px', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.06)', textAlign: 'center' }}>
 
             {/* Onboarding Stepper Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '24px', width: '100%' }}>
+            <div className="onboarding-stepper-container">
               {[
                 { step: 1, label: 'Entreprise' },
                 { step: 2, label: 'Catalogue' },
@@ -2949,24 +2949,23 @@ export default function App() {
           </aside>
 
           <main className="dashboard-main-content">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
-              <div>
-                <h1 className="headline-lg" style={{ color: '#ffffff', marginBottom: '4px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+              <div style={{ flex: 1, minWidth: '220px' }}>
+                <h1 style={{ color: '#ffffff', marginBottom: '6px', fontSize: 'clamp(20px, 4.5vw, 30px)', fontWeight: 800, lineHeight: 1.25, letterSpacing: '-0.02em' }}>
                   {activeSidebarTab === 'Vue d\'ensemble' && `${t.dashOverview} — ${fullName || 'Merchant'}`}
-                  {activeSidebarTab === 'Inbox' && t.dashInbox}
                   {activeSidebarTab === 'Commandes' && t.ordersTitle}
                   {activeSidebarTab === 'Paiements' && t.paymentsTitle}
                   {activeSidebarTab === 'Catalogue' && t.catalogTitle}
                   {activeSidebarTab === 'Paramètres' && t.settingsTitle}
                 </h1>
-                <p className="body-md" style={{ color: '#cbd5e1' }}>
+                <p style={{ color: '#cbd5e1', fontSize: '13.5px', lineHeight: 1.4 }}>
                   {t.dashPmeActive} : <strong style={{ color: '#FF5500' }}>{companyData.name}</strong> ({companyData.phone})
                 </p>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(255,85,0,0.12)', border: '1px solid rgba(255,85,0,0.3)', padding: '6px 14px', borderRadius: '9999px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(255,85,0,0.12)', border: '1px solid rgba(255,85,0,0.35)', padding: '6px 14px', borderRadius: '9999px', whiteSpace: 'nowrap' }}>
                 <Radio size={14} color="#FF5500" />
-                <span className="label-xs" style={{ color: '#ffffff', fontWeight: 600 }}>
+                <span style={{ color: '#ffffff', fontWeight: 600, fontSize: '12px' }}>
                   {t.dashAiActive}
                 </span>
               </div>
