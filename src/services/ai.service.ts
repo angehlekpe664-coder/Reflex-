@@ -21,7 +21,7 @@ export class AIService {
       catalogue: Array<{ name: string; price: number; category?: string; description?: string }>;
     }
   ): Promise<string> {
-    if (!config.openaiApiKey || config.openaiApiKey.includes('your-key-here')) {
+    if (!config.openaiApiKey || !config.openaiApiKey.startsWith('sk-') || config.openaiApiKey.includes('your-key-here') || config.openaiApiKey.includes('mock-key')) {
       const firstProd = pmeContext.catalogue[0]?.name || 'nos articles';
       const orderId = `ORD-229-${Math.floor(100 + Math.random() * 900)}`;
       const appUrl = process.env.FRONTEND_URL || 'https://reflex-dashboard-lfp6.onrender.com';
