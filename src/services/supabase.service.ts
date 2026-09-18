@@ -90,13 +90,28 @@ export class DatabaseService {
           if (allPmes && allPmes.length > 0) {
             pme = allPmes.find(p => {
               const cleanPmePhone = (p.whatsapp_phone_number || '').replace(/\D/g, '');
-              return cleanPmePhone && (cleanPmePhone.endsWith(cleanIdentifier) || cleanIdentifier.endsWith(cleanPmePhone));
+              const cleanMetaId = (p.meta_phone_number_id || '').replace(/\D/g, '');
+              return (cleanPmePhone && (cleanPmePhone.endsWith(cleanIdentifier) || cleanIdentifier.endsWith(cleanPmePhone))) ||
+                     (cleanMetaId && cleanMetaId === cleanIdentifier);
             }) || allPmes[0];
           }
         }
       }
 
       if (!pme) return null;
+
+      // Auto-liaison de l'identifiant Meta s'il n'était pas encore enregistré
+      if (!pme.meta_phone_number_id && identifier && !identifier.includes('+')) {
+        pme.meta_phone_number_id = identifier;
+        pme.is_ai_active = true;
+        pme.whatsapp_status = 'CONNECTED';
+        await supabase.from('pmes').update({
+          meta_phone_number_id: identifier,
+          is_ai_active: true,
+          whatsapp_status: 'CONNECTED'
+        }).eq('id', pme.id);
+        console.log(`🔗 Auto-liaison Meta Phone Number ID (${identifier}) effectuée pour la PME "${pme.name}"`);
+      }
 
       const { data: products } = await supabase
         .from('products')

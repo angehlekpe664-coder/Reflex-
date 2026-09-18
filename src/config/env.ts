@@ -23,9 +23,9 @@ export const config = {
     environment: process.env.FEDAPAY_ENVIRONMENT || 'live',
   },
   kkiapay: {
-    publicKey: process.env.KKIAPAY_PUBLIC_KEY || '0efb5b708b2911f1a8dd67bbdaba00dc',
-    privateKey: process.env.KKIAPAY_PRIVATE_KEY || 'tpk_0efb82818b2911f1a8dd67bbdaba00dc',
-    secretKey: process.env.KKIAPAY_SECRET_KEY || 'tsk_0efb82828b2911f1a8dd67bbdaba00dc',
-    environment: process.env.KKIAPAY_ENVIRONMENT || 'sandbox',
+    publicKey: process.env.KKIAPAY_PUBLIC_KEY || 'e5a70a2c8cee07413917bdd6d116b763ef620c7c',
+    privateKey: process.env.KKIAPAY_PRIVATE_KEY || 'pk_8f6502aaf47f224c424cc2990cca69e2c553dd3c65b7e21a2c0c7f5dcbf697e',
+    secretKey: process.env.KKIAPAY_SECRET_KEY || 'sk_ab1d4164735f4858ad2b29582bb0c723e67972d2bb3e18261c5f2dc95520afc3',
+    environment: process.env.KKIAPAY_ENVIRONMENT || 'live',
   },
 };

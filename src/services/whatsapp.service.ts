@@ -34,7 +34,8 @@ export class WhatsAppService {
       );
       console.log(`📤 Message WhatsApp envoyé à ${toPhone} via le sous-compte ${phoneNumberId}`);
     } catch (error: any) {
-      console.error('Erreur lors de l’envoi du message WhatsApp:', error?.response?.data || error.message);
+      const errDetails = error?.response?.data || error.message;
+      console.error(`❌ Erreur Meta WhatsApp Cloud API [PhoneId: ${phoneNumberId}] -> Destinataire: ${toPhone} :`, JSON.stringify(errDetails));
     }
   }
 
