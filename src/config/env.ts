@@ -9,7 +9,7 @@ export const config = {
   supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
   meta: {
     appId: process.env.META_APP_ID || '1875740770498760',
-    appSecret: process.env.META_APP_SECRET || '',
+    appSecret: process.env.META_APP_SECRET || 'a4f8e7b3b607c0f3d79025cfaad7b4c6',
     configId: process.env.META_CONFIG_ID || '',
   },
   whatsapp: {
