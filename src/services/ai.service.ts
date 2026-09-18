@@ -64,7 +64,14 @@ Consignes de vente cruciales :
       return response.choices[0]?.message?.content || `Bonjour ! Merci d'avoir contacté ${pmeContext.name}. Comment puis-je vous aider ?`;
     } catch (error: any) {
       console.error('Erreur OpenAI LLM:', error.message);
-      return `Bonjour ! Merci d'avoir contacté ${pmeContext.name}. L'équipe commerciale prendra la suite dans un instant.`;
+      const firstProd = pmeContext.catalogue[0]?.name || 'nos articles';
+      const firstPrice = pmeContext.catalogue[0]?.price?.toLocaleString() || '35 000';
+      const orderId = `ORD-229-${Math.floor(100 + Math.random() * 900)}`;
+      const appUrl = process.env.FRONTEND_URL || 'https://reflex-dashboard-lfp6.onrender.com';
+      return `Bonjour et bienvenue chez *${pmeContext.name}* ! 😊\n\n` +
+        `Nous proposons *${firstProd}* à ${firstPrice} FCFA.\n\n` +
+        `💳 *Lien de règlement Mobile Money (MTN / Moov / Wave)* :\n` +
+        `${appUrl}/#payment-checkout?orderId=${orderId}`;
     }
   }
 }
