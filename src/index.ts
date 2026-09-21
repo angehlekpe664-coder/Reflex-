@@ -191,6 +191,51 @@ app.post('/api/auth/meta/callback', async (req, res) => {
   }
 });
 
+// Route 1: Demander un code SMS Meta OTP à 6 chiffres
+app.post('/api/whatsapp/request-otp', async (req, res) => {
+  try {
+    const { phone } = req.body;
+    const targetPhone = phone || currentPmeConfig.phone;
+    console.log(`📱 Demande d'envoi du code SMS Meta OTP pour ${targetPhone}...`);
+    
+    const result = await whatsappService.requestVerificationCode(targetPhone);
+    res.json(result);
+  } catch (error: any) {
+    console.error('Erreur demande SMS OTP:', error);
+    res.status(500).json({ success: false, message: 'Erreur lors de la demande du SMS Meta.' });
+  }
+});
+
+// Route 2: Vérifier le code SMS Meta OTP et activer l'IA sur le numéro PME
+app.post('/api/whatsapp/verify-otp', async (req, res) => {
+  try {
+    const { phone, code } = req.body;
+    const targetPhone = phone || currentPmeConfig.phone;
+    if (!code || code.trim().length !== 6) {
+      return res.status(400).json({ success: false, message: 'Le code doit contenir exactement 6 chiffres.' });
+    }
+
+    console.log(`🔐 Validation du code SMS Meta OTP (${code}) pour ${targetPhone}...`);
+    const result = await whatsappService.verifyCode(code);
+
+    if (result.success) {
+      await databaseService.saveMetaConnection(
+        targetPhone,
+        `waba_meta_${Date.now()}`,
+        config.whatsapp.phoneNumberId,
+        config.whatsapp.token,
+        targetPhone
+      );
+      console.log(`🎉 Numéro WhatsApp ${targetPhone} activé avec succès sur Meta Cloud API !`);
+    }
+
+    res.json(result);
+  } catch (error: any) {
+    console.error('Erreur vérification SMS OTP:', error);
+    res.status(500).json({ success: false, message: 'Erreur lors de la validation du code SMS Meta.' });
+  }
+});
+
 // Route de récupération de la configuration PME active
 app.get('/api/pme/config', (_req, res) => {
   res.json({ success: true, config: currentPmeConfig });

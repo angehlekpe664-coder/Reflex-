@@ -237,6 +237,64 @@ export default function App() {
     }
   };
 
+  // State & Handler pour la validation Meta SMS OTP (Option B Officielle)
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpCodeInput, setOtpCodeInput] = useState('');
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpError, setOtpError] = useState('');
+
+  const handleRequestMetaOtp = async () => {
+    setOtpLoading(true);
+    setOtpError('');
+    try {
+      const res = await apiFetch('/api/whatsapp/request-otp', {
+        method: 'POST',
+        body: JSON.stringify({ phone: companyData.phone })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setOtpSent(true);
+        showToast(`Code SMS envoyé par Meta sur ${companyData.phone}`, 'success');
+      } else {
+        setOtpError(data.message || 'Erreur lors de la demande du SMS.');
+        showToast(data.message || 'Erreur d\'envoi du SMS.', 'error');
+      }
+    } catch {
+      setOtpError('Impossible de joindre le serveur Meta.');
+      showToast('Erreur de connexion au serveur.', 'error');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleVerifyMetaOtp = async () => {
+    if (!otpCodeInput || otpCodeInput.trim().length !== 6) {
+      setOtpError('Veuillez saisir un code à 6 chiffres.');
+      return;
+    }
+    setOtpLoading(true);
+    setOtpError('');
+    try {
+      const res = await apiFetch('/api/whatsapp/verify-otp', {
+        method: 'POST',
+        body: JSON.stringify({ phone: companyData.phone, code: otpCodeInput })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setWaConnectionStatus('CONNECTED');
+        showToast('Numéro WhatsApp vérifié et IA activée !', 'success');
+      } else {
+        setOtpError(data.message || 'Code SMS invalide.');
+        showToast(data.message || 'Code SMS invalide.', 'error');
+      }
+    } catch {
+      setOtpError('Erreur de validation auprès du serveur Meta.');
+      showToast('Erreur de serveur.', 'error');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
   // Mobile Navigation Drawer State
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dashMobileMenuOpen, setDashMobileMenuOpen] = useState(false);
@@ -2609,7 +2667,7 @@ export default function App() {
             <div style={{ backgroundColor: '#eff4ff', border: '1px solid #c4b5fd', borderRadius: '12px', padding: '16px', marginBottom: '24px', textAlign: 'left' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, color: '#4b41e1', fontSize: '13px' }}>
-                  <Zap size={16} /> Statut WhatsApp Business Meta
+                  <Zap size={16} /> Validation Officielle Meta SMS
                 </div>
                 <span style={{
                   fontSize: '11px',
@@ -2619,36 +2677,98 @@ export default function App() {
                   backgroundColor: waConnectionStatus === 'CONNECTED' ? '#d1fae5' : '#fef3c7',
                   color: waConnectionStatus === 'CONNECTED' ? '#047857' : '#b45309'
                 }}>
-                  {waConnectionStatus === 'CONNECTED' ? '● CONNECTÉ' : '○ NON CONNECTÉ'}
+                  {waConnectionStatus === 'CONNECTED' ? '● IA ACTIVE 24/7' : '○ EN ATTENTE DU CODE'}
                 </span>
               </div>
               <p style={{ fontSize: '12px', color: '#45464d', margin: '0 0 12px 0', lineHeight: 1.4 }}>
-                Numéro WhatsApp configuré : <strong>{companyData.phone}</strong>. Reflex répondra directement aux demandes des clients sur ce numéro.
+                Numéro WhatsApp de votre boutique : <strong>{companyData.phone}</strong>.
               </p>
-              {waConnectionStatus !== 'CONNECTED' && (
-                <button
-                  type="button"
-                  onClick={handleLaunchMetaEmbeddedSignup}
-                  disabled={waConnectionStatus === 'CONNECTING'}
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    borderRadius: '8px',
-                    backgroundColor: '#1877F2',
-                    color: '#ffffff',
-                    border: 'none',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px'
-                  }}
-                >
-                  <MessageSquare size={16} />
-                  {waConnectionStatus === 'CONNECTING' ? 'Connexion Meta en cours...' : 'Connecter mon WhatsApp Business (Meta)'}
-                </button>
+
+              {waConnectionStatus !== 'CONNECTED' ? (
+                <div>
+                  {!otpSent ? (
+                    <button
+                      type="button"
+                      onClick={handleRequestMetaOtp}
+                      disabled={otpLoading}
+                      style={{
+                        width: '100%',
+                        padding: '12px 14px',
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        borderRadius: '8px',
+                        backgroundColor: '#FF5500',
+                        color: '#ffffff',
+                        border: 'none',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px'
+                      }}
+                    >
+                      <MessageSquare size={16} />
+                      {otpLoading ? 'Envoi du SMS Meta...' : 'Envoyer le Code SMS Meta (6 chiffres)'}
+                    </button>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <div style={{ fontSize: '12px', color: '#047857', fontWeight: 600 }}>
+                        ✅ Code SMS envoyé par Meta sur {companyData.phone}. Entrez les 6 chiffres ci-dessous :
+                      </div>
+                      <input
+                        type="text"
+                        maxLength={6}
+                        placeholder="Ex: 123456"
+                        value={otpCodeInput}
+                        onChange={(e) => setOtpCodeInput(e.target.value.replace(/\D/g, ''))}
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          fontSize: '18px',
+                          letterSpacing: '4px',
+                          textAlign: 'center',
+                          fontWeight: 700,
+                          borderRadius: '8px',
+                          border: '1px solid #c4b5fd',
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleVerifyMetaOtp}
+                        disabled={otpLoading}
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          fontSize: '14px',
+                          fontWeight: 700,
+                          borderRadius: '8px',
+                          backgroundColor: '#10b981',
+                          color: '#ffffff',
+                          border: 'none',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        {otpLoading ? 'Validation...' : 'Valider & Activer l\'IA Reflex 🚀'}
+                      </button>
+                    </div>
+                  )}
+
+                  {otpError && (
+                    <div style={{ color: '#ef4444', fontSize: '12px', marginTop: '8px', fontWeight: 600 }}>
+                      ⚠️ {otpError}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div style={{ color: '#047857', fontWeight: 700, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <CheckCircle size={18} /> Votre IA Reflex est activée sur votre numéro WhatsApp !
+                </div>
               )}
             </div>
 
