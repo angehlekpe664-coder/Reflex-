@@ -93,39 +93,100 @@ export class WhatsAppService {
    */
   async requestVerificationCode(toPhone: string, creds?: WhatsAppCredentials): Promise<{ success: boolean; message: string }> {
     const cleanPhone = toPhone.replace(/\D/g, '');
-    const realCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = Date.now() + 10 * 60 * 1000; // Valable 10 minutes
-
-    this.activeOtpStore.set(cleanPhone, { code: realCode, expiresAt });
-    console.log(`📩 [REAL OTP ENGINE] Code généré pour ${cleanPhone} : ${realCode}`);
-
-    // Tentative d'envoi du message contenant le code via Meta WhatsApp API
-    const messageBody = `🔑 Code de vérification Reflex : ${realCode}\n\nEntrez ce code à 6 chiffres sur votre Dashboard Reflex pour valider et activer l'IA sur votre numéro. (Valable 10 minutes)`;
+    const phoneNumberId = creds?.phoneNumberId || config.whatsapp.phoneNumberId;
+    const token = creds?.token || config.whatsapp.token;
+    
+    // 1. Appeler l'API Meta Cloud Officielle /request_code pour l'envoi du vrai SMS
+    const apiUrl = `https://graph.facebook.com/v20.0/${phoneNumberId}/request_code`;
     
     try {
-      await this.sendTextMessage(toPhone, messageBody, creds);
-    } catch (e) {
-      console.log(`💡 Notification d'envoi du code ${realCode} enregistrée pour ${toPhone}.`);
-    }
+      console.log(`📡 [META GRAPH API] Demande d'envoi de SMS réel à Meta pour le numéro +${cleanPhone}...`);
+      const response = await axios.post(
+        apiUrl,
+        {
+          code_method: 'SMS',
+          language: 'fr',
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      console.log(`✅ [META GRAPH API] Réponse Meta SMS :`, response.data);
+      return { 
+        success: true, 
+        message: `Code SMS envoyé par Meta sur le numéro +${cleanPhone}.` 
+      };
+    } catch (error: any) {
+      const errDetails = error?.response?.data || error.message;
+      console.error(`❌ [META GRAPH API ERROR] Échec de l'envoi du SMS Meta :`, JSON.stringify(errDetails));
 
-    return { 
-      success: true, 
-      message: `Code de vérification à 6 chiffres envoyé avec succès sur le numéro ${toPhone}.` 
-    };
+      // 2. Générer un code OTP local réel envoyé par message texte direct
+      const realCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiresAt = Date.now() + 10 * 60 * 1000;
+      this.activeOtpStore.set(cleanPhone, { code: realCode, expiresAt });
+
+      // Envoi du message avec le code
+      const otpText = `🔑 Code de vérification Reflex : ${realCode}. Entrez ce code sur votre Dashboard pour activer l'IA sur votre numéro.`;
+      
+      try {
+        await this.sendTextMessage(toPhone, otpText, creds);
+      } catch (msgErr: any) {
+        console.error('Échec envoi WhatsApp direct:', msgErr?.response?.data || msgErr.message);
+      }
+
+      if (error?.response?.data?.error?.message) {
+        return {
+          success: false,
+          message: `Erreur Meta : ${error.response.data.error.message}`
+        };
+      }
+
+      return {
+        success: true,
+        message: `Code de vérification envoyé sur le numéro ${toPhone}.`
+      };
+    }
   }
 
   /**
    * Vérifie STRICTEMENT que le code à 6 chiffres saisi est EXACTEMENT celui qui a été envoyé
    */
-  async verifyCode(toPhone: string, code: string): Promise<{ success: boolean; message: string }> {
+  async verifyCode(toPhone: string, code: string, creds?: WhatsAppCredentials): Promise<{ success: boolean; message: string }> {
     const cleanPhone = toPhone.replace(/\D/g, '');
     const trimmedCode = (code || '').trim();
+    const phoneNumberId = creds?.phoneNumberId || config.whatsapp.phoneNumberId;
+    const token = creds?.token || config.whatsapp.token;
+
+    // 1. Tenter la vérification directe auprès de Meta Graph API
+    const apiUrl = `https://graph.facebook.com/v20.0/${phoneNumberId}/verify_code`;
+    try {
+      console.log(`🔐 [META GRAPH API] Vérification du code ${trimmedCode} auprès de Meta pour +${cleanPhone}...`);
+      const response = await axios.post(
+        apiUrl,
+        { code: trimmedCode },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      console.log(`✅ [META GRAPH API] Code validé par Meta :`, response.data);
+      return { success: true, message: 'Numéro WhatsApp vérifié et IA activée sur Meta Cloud API !' };
+    } catch (metaErr: any) {
+      console.log(`💡 Résultat vérification Meta direct :`, metaErr?.response?.data || metaErr.message);
+    }
+
+    // 2. Vérification auprès du magasin OTP local strict
     const record = this.activeOtpStore.get(cleanPhone);
 
     if (!record) {
       return { 
         success: false, 
-        message: 'Aucun code SMS trouvé pour ce numéro. Veuillez cliquer sur "Envoyer le Code SMS".' 
+        message: 'Aucun code trouvé pour ce numéro. Veuillez cliquer sur "Envoyer le Code SMS".' 
       };
     }
 
