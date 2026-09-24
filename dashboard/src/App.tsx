@@ -182,59 +182,64 @@ export default function App() {
   const [connectedWabaId, setConnectedWabaId] = useState<string | null>(null);
 
   const handleLaunchMetaEmbeddedSignup = () => {
-    const metaAppId = (import.meta.env.VITE_META_APP_ID as string | undefined) || '1875740770498760';
-    if (typeof (window as any).FB === 'undefined') {
-      showToast('SDK Facebook indisponible. Vérifiez votre connexion puis réessayez.', 'error');
-      return;
-    }
-
+    const metaAppId = (import.meta.env.VITE_META_APP_ID as string | undefined) || '1579762199589304';
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
     setWaConnectionStatus('CONNECTING');
-    try {
-      (window as any).FB.init({
-        appId: metaAppId,
-        cookie: true,
-        xfbml: true,
-        version: 'v20.0'
-      });
 
-      (window as any).FB.login((response: any) => {
-        if (response?.authResponse?.code) {
-          const code = response.authResponse.code;
-          apiFetch('/api/auth/meta/callback', {
-            method: 'POST',
-            body: JSON.stringify({
-              code,
-              wabaId: response.authResponse.waba_id,
-              pmePhone: companyData.phone
+    if (typeof (window as any).FB !== 'undefined' && !isMobile) {
+      try {
+        (window as any).FB.init({
+          appId: metaAppId,
+          cookie: true,
+          xfbml: true,
+          version: 'v20.0'
+        });
+
+        (window as any).FB.login((response: any) => {
+          if (response?.authResponse?.code) {
+            const code = response.authResponse.code;
+            apiFetch('/api/auth/meta/callback', {
+              method: 'POST',
+              body: JSON.stringify({
+                code,
+                wabaId: response.authResponse.waba_id,
+                pmePhone: companyData.phone
+              })
             })
-          })
-            .then(async (res) => {
-              const data = await res.json().catch(() => ({}));
-              if (res.ok && data.success) {
-                setWaConnectionStatus('CONNECTED');
-                setConnectedWabaId(data.wabaId || null);
-                showToast('WhatsApp Business lié avec succès.', 'success');
-              } else {
+              .then(async (res) => {
+                const data = await res.json().catch(() => ({}));
+                if (res.ok && data.success) {
+                  setWaConnectionStatus('CONNECTED');
+                  setConnectedWabaId(data.wabaId || null);
+                  showToast('🎉 WhatsApp Business (Meta Embedded Signup) lié avec succès !', 'success');
+                } else {
+                  setWaConnectionStatus('DISCONNECTED');
+                  showToast(data.error || 'Échec de la liaison Meta.', 'error');
+                }
+              })
+              .catch(() => {
                 setWaConnectionStatus('DISCONNECTED');
-                showToast(data.error || 'Échec de la liaison Meta.', 'error');
-              }
-            })
-            .catch(() => {
-              setWaConnectionStatus('DISCONNECTED');
-              showToast('Impossible de joindre le serveur pour lier Meta.', 'error');
-            });
-        } else {
-          setWaConnectionStatus('DISCONNECTED');
-          showToast('Autorisation Meta annulée ou incomplète.', 'info');
-        }
-      }, {
-        scope: 'whatsapp_business_management,whatsapp_business_messaging',
-        extras: { feature: 'whatsapp_embedded_signup' }
-      });
-    } catch {
-      setWaConnectionStatus('DISCONNECTED');
-      showToast('Erreur au lancement de la fenêtre Meta.', 'error');
+                showToast('Impossible de joindre le serveur pour lier Meta.', 'error');
+              });
+          } else {
+            setWaConnectionStatus('DISCONNECTED');
+            showToast('Autorisation Meta annulée ou incomplète.', 'info');
+          }
+        }, {
+          scope: 'whatsapp_business_management,whatsapp_business_messaging',
+          extras: { feature: 'whatsapp_embedded_signup' }
+        });
+        return;
+      } catch (e) {
+        console.log('FB.login fallback redirect');
+      }
     }
+
+    // Full page OAuth redirect for mobile / popup-blocked environments
+    const redirectUri = encodeURIComponent(window.location.origin);
+    const metaAuthUrl = `https://www.facebook.com/v20.0/dialog/oauth?client_id=${metaAppId}&redirect_uri=${redirectUri}&scope=whatsapp_business_management,whatsapp_business_messaging&response_type=code&extras=%7B%22feature%22%3A%22whatsapp_embedded_signup%22%7D`;
+    window.location.href = metaAuthUrl;
   };
 
   // State & Handler pour la validation Meta SMS OTP (Option B Officielle)
@@ -2656,110 +2661,107 @@ export default function App() {
               </p>
             </div>
 
-            <div style={{ backgroundColor: '#eff4ff', border: '1px solid #c4b5fd', borderRadius: '12px', padding: '16px', marginBottom: '24px', textAlign: 'left' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, color: '#4b41e1', fontSize: '13px' }}>
-                  <Zap size={16} /> Validation Officielle Meta SMS
+            <div style={{ backgroundColor: '#eff4ff', border: '1px solid #c4b5fd', borderRadius: '12px', padding: '18px', marginBottom: '24px', textAlign: 'left' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, color: '#1877F2', fontSize: '13.5px' }}>
+                  <Zap size={18} /> Meta WhatsApp Business Platform
                 </div>
                 <span style={{
                   fontSize: '11px',
                   fontWeight: 700,
-                  padding: '3px 8px',
+                  padding: '4px 10px',
                   borderRadius: '20px',
                   backgroundColor: waConnectionStatus === 'CONNECTED' ? '#d1fae5' : '#fef3c7',
                   color: waConnectionStatus === 'CONNECTED' ? '#047857' : '#b45309'
                 }}>
-                  {waConnectionStatus === 'CONNECTED' ? '● IA ACTIVE 24/7' : '○ EN ATTENTE DU CODE'}
+                  {waConnectionStatus === 'CONNECTED' ? '● META CONNECTÉ & IA ACTIVE' : '○ NON CONNECTÉ'}
                 </span>
               </div>
-              <p style={{ fontSize: '12px', color: '#45464d', margin: '0 0 12px 0', lineHeight: 1.4 }}>
-                Numéro WhatsApp de votre boutique : <strong>{companyData.phone}</strong>.
+              <p style={{ fontSize: '12.5px', color: '#45464d', margin: '0 0 16px 0', lineHeight: 1.5 }}>
+                Connectez directement votre compte <strong>WhatsApp Business ({companyData.phone})</strong> avec le système officiel Meta Embedded Signup pour activer le moteur IA Reflex 24/7.
               </p>
 
               {waConnectionStatus !== 'CONNECTED' ? (
-                <div>
-                  {!otpSent ? (
-                    <button
-                      type="button"
-                      onClick={handleRequestMetaOtp}
-                      disabled={otpLoading}
-                      style={{
-                        width: '100%',
-                        padding: '12px 14px',
-                        fontSize: '14px',
-                        fontWeight: 600,
-                        borderRadius: '8px',
-                        backgroundColor: '#FF5500',
-                        color: '#ffffff',
-                        border: 'none',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '8px'
-                      }}
-                    >
-                      <MessageSquare size={16} />
-                      {otpLoading ? 'Envoi du SMS Meta...' : 'Envoyer le Code SMS Meta (6 chiffres)'}
-                    </button>
-                  ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      <div style={{ fontSize: '12px', color: '#047857', fontWeight: 600 }}>
-                        ✅ Code SMS envoyé par Meta sur {companyData.phone}. Entrez les 6 chiffres ci-dessous :
-                      </div>
-                      <input
-                        type="text"
-                        maxLength={6}
-                        placeholder="Ex: 123456"
-                        value={otpCodeInput}
-                        onChange={(e) => setOtpCodeInput(e.target.value.replace(/\D/g, ''))}
-                        style={{
-                          width: '100%',
-                          padding: '12px',
-                          fontSize: '18px',
-                          letterSpacing: '4px',
-                          textAlign: 'center',
-                          fontWeight: 700,
-                          borderRadius: '8px',
-                          border: '1px solid #c4b5fd',
-                          outline: 'none',
-                          boxSizing: 'border-box'
-                        }}
-                      />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <button
+                    type="button"
+                    onClick={handleLaunchMetaEmbeddedSignup}
+                    disabled={waConnectionStatus === 'CONNECTING'}
+                    style={{
+                      width: '100%',
+                      padding: '14px',
+                      fontSize: '15px',
+                      fontWeight: 700,
+                      borderRadius: '10px',
+                      backgroundColor: '#1877F2',
+                      color: '#ffffff',
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '10px',
+                      boxShadow: '0 4px 12px rgba(24, 119, 242, 0.3)'
+                    }}
+                  >
+                    <MessageSquare size={20} />
+                    {waConnectionStatus === 'CONNECTING' ? 'Connexion Meta en cours...' : 'Connecter avec WhatsApp Business (Meta Embedded Signup)'}
+                  </button>
+
+                  <div style={{ borderTop: '1px solid #c4b5fd', paddingTop: '12px', marginTop: '4px' }}>
+                    <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px', fontWeight: 600 }}>
+                      Ou vérifiez votre numéro par SMS Meta :
+                    </div>
+                    {!otpSent ? (
                       <button
                         type="button"
-                        onClick={handleVerifyMetaOtp}
+                        onClick={handleRequestMetaOtp}
                         disabled={otpLoading}
                         style={{
                           width: '100%',
-                          padding: '12px',
-                          fontSize: '14px',
-                          fontWeight: 700,
+                          padding: '10px',
+                          fontSize: '13px',
+                          fontWeight: 600,
                           borderRadius: '8px',
-                          backgroundColor: '#10b981',
+                          backgroundColor: '#FF5500',
                           color: '#ffffff',
                           border: 'none',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '6px'
+                          cursor: 'pointer'
                         }}
                       >
-                        {otpLoading ? 'Validation...' : 'Valider & Activer l\'IA Reflex 🚀'}
+                        {otpLoading ? 'Envoi...' : 'Envoyer Code SMS (6 chiffres)'}
                       </button>
-                    </div>
-                  )}
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <input
+                          type="text"
+                          maxLength={6}
+                          placeholder="Code à 6 chiffres"
+                          value={otpCodeInput}
+                          onChange={(e) => setOtpCodeInput(e.target.value.replace(/\D/g, ''))}
+                          style={{ width: '100%', padding: '10px', fontSize: '16px', textAlign: 'center', borderRadius: '8px', border: '1px solid #c4b5fd', boxSizing: 'border-box' }}
+                        />
+                        <button
+                          type="button"
+                          onClick={handleVerifyMetaOtp}
+                          disabled={otpLoading}
+                          style={{ width: '100%', padding: '10px', fontSize: '13.5px', fontWeight: 700, borderRadius: '8px', backgroundColor: '#10b981', color: '#ffffff', border: 'none' }}
+                        >
+                          Valider Code & Activer IA 🚀
+                        </button>
+                      </div>
+                    )}
+                  </div>
 
                   {otpError && (
-                    <div style={{ color: '#ef4444', fontSize: '12px', marginTop: '8px', fontWeight: 600 }}>
+                    <div style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px', fontWeight: 600 }}>
                       ⚠️ {otpError}
                     </div>
                   )}
                 </div>
               ) : (
                 <div style={{ color: '#047857', fontWeight: 700, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <CheckCircle size={18} /> Votre IA Reflex est activée sur votre numéro WhatsApp !
+                  <CheckCircle size={18} /> Compte Meta WhatsApp Business lié et IA activée !
                 </div>
               )}
             </div>
