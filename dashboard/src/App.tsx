@@ -888,7 +888,6 @@ export default function App() {
           <header className="main-header" style={{ background: 'rgba(10, 17, 29, 0.95)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', backdropFilter: 'blur(16px)', position: 'fixed', top: 0, left: 0, right: 0, width: '100%', boxSizing: 'border-box', zIndex: 1000 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
-              <span className="font-outfit" style={{ fontWeight: 800, fontSize: '22px', color: '#ffffff', letterSpacing: '-0.02em' }}>Reflex</span>
             </div>
 
             <div className="nav-desktop-links" style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
@@ -1779,7 +1778,6 @@ export default function App() {
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
                     <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '38px', borderRadius: '10px' }} />
-                    <span className="font-outfit" style={{ fontWeight: 800, fontSize: '24px', color: '#ffffff' }}>Reflex</span>
                   </div>
                   <p style={{ fontSize: '13.5px', color: '#94a3b8', lineHeight: 1.6, maxWidth: '300px', marginBottom: '16px' }}>
                     {t.footerDesc}
@@ -1833,7 +1831,6 @@ export default function App() {
               <div style={{ textAlign: 'center', marginBottom: '20px' }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
                   <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '34px', borderRadius: '8px' }} />
-                  <span className="font-outfit" style={{ fontWeight: 800, fontSize: '22px', color: '#ffffff' }}>Reflex</span>
                 </div>
                 <p style={{ fontSize: '13px', color: '#94a3b8', margin: '0 auto 12px', maxWidth: '280px', lineHeight: 1.4 }}>
                   {t.footerDesc}
@@ -1893,7 +1890,6 @@ export default function App() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
                 <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '32px', width: 'auto', borderRadius: '6px' }} />
-                <span style={{ fontWeight: 800, fontSize: '20px', color: '#0b1c30', letterSpacing: '-0.5px' }}>Reflex</span>
               </div>
             </div>
 
@@ -2221,7 +2217,6 @@ export default function App() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '540px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
-              <span style={{ fontWeight: 800, fontSize: '20px', color: '#0b1c30' }}>Reflex</span>
             </div>
             <button
               type="button"
@@ -2345,7 +2340,6 @@ export default function App() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '580px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
-              <span style={{ fontWeight: 800, fontSize: '20px', color: '#0b1c30' }}>Reflex</span>
             </div>
             <button
               type="button"
@@ -2479,7 +2473,6 @@ export default function App() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '540px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
-              <span style={{ fontWeight: 800, fontSize: '20px', color: '#0b1c30' }}>Reflex</span>
             </div>
             <button
               type="button"
@@ -2601,7 +2594,6 @@ export default function App() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '520px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
-              <span style={{ fontWeight: 800, fontSize: '20px', color: '#0b1c30' }}>Reflex</span>
             </div>
             <button
               type="button"
@@ -2791,7 +2783,7 @@ export default function App() {
         <div style={{ minHeight: '100vh', backgroundColor: '#0B1727', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
             <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '38px', width: 'auto', borderRadius: '10px' }} />
-            <span className="font-outfit" style={{ fontWeight: 800, fontSize: '22px', color: '#ffffff' }}>Reflex <span style={{ color: '#FF5500' }}>Pay</span></span>
+            <span className="font-outfit" style={{ fontWeight: 800, fontSize: '22px', color: '#FF5500' }}>Pay</span>
           </div>
 
           <div className="glass-card-dark" style={{ width: '100%', maxWidth: '520px', padding: '36px', borderRadius: '24px', border: '1px solid rgba(255, 85, 0, 0.35)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
@@ -2975,10 +2967,7 @@ export default function App() {
           <div className="dashboard-mobile-header">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '34px', borderRadius: '8px' }} />
-              <div>
-                <span className="font-outfit" style={{ fontWeight: 800, fontSize: '18px', color: 'var(--text-main, #ffffff)' }}>Reflex</span>
-                <span style={{ fontSize: '11px', color: '#94a3b8', display: 'block' }}>{companyData.name}</span>
-              </div>
+              <span style={{ fontSize: '11px', color: '#94a3b8', display: 'block' }}>{companyData.name}</span>
             </div>
 
             <button
@@ -3019,10 +3008,7 @@ export default function App() {
             <aside className="dashboard-sidebar-container desktop-sidebar-only">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingLeft: '4px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
-              <div>
-                <div style={{ fontWeight: 700, fontSize: '16px', color: '#ffffff', lineHeight: 1.1 }}>Reflex</div>
-                <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 500 }}>{companyData.name}</div>
-              </div>
+              <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 500 }}>{companyData.name}</div>
             </div>
 
             <nav className="dashboard-sidebar-nav">
