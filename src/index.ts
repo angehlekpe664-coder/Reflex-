@@ -216,7 +216,7 @@ app.post('/api/whatsapp/verify-otp', async (req, res) => {
     }
 
     console.log(`🔐 Validation du code SMS Meta OTP (${code}) pour ${targetPhone}...`);
-    const result = await whatsappService.verifyCode(code);
+    const result = await whatsappService.verifyCode(targetPhone, code);
 
     if (result.success) {
       await databaseService.saveMetaConnection(
