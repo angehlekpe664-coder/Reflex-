@@ -242,64 +242,6 @@ export default function App() {
     window.location.href = metaAuthUrl;
   };
 
-  // State & Handler pour la validation Meta SMS OTP (Option B Officielle)
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpCodeInput, setOtpCodeInput] = useState('');
-  const [otpLoading, setOtpLoading] = useState(false);
-  const [otpError, setOtpError] = useState('');
-
-  const handleRequestMetaOtp = async () => {
-    setOtpLoading(true);
-    setOtpError('');
-    try {
-      const res = await apiFetch('/api/whatsapp/request-otp', {
-        method: 'POST',
-        body: JSON.stringify({ phone: companyData.phone })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setOtpSent(true);
-        showToast(`Code SMS envoyé par Meta sur ${companyData.phone}`, 'success');
-      } else {
-        setOtpError(data.message || 'Erreur lors de la demande du SMS.');
-        showToast(data.message || 'Erreur d\'envoi du SMS.', 'error');
-      }
-    } catch {
-      setOtpError('Impossible de joindre le serveur Meta.');
-      showToast('Erreur de connexion au serveur.', 'error');
-    } finally {
-      setOtpLoading(false);
-    }
-  };
-
-  const handleVerifyMetaOtp = async () => {
-    if (!otpCodeInput || otpCodeInput.trim().length !== 6) {
-      setOtpError('Veuillez saisir un code à 6 chiffres.');
-      return;
-    }
-    setOtpLoading(true);
-    setOtpError('');
-    try {
-      const res = await apiFetch('/api/whatsapp/verify-otp', {
-        method: 'POST',
-        body: JSON.stringify({ phone: companyData.phone, code: otpCodeInput })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setWaConnectionStatus('CONNECTED');
-        showToast('Numéro WhatsApp vérifié et IA activée !', 'success');
-      } else {
-        setOtpError(data.message || 'Code SMS invalide.');
-        showToast(data.message || 'Code SMS invalide.', 'error');
-      }
-    } catch {
-      setOtpError('Erreur de validation auprès du serveur Meta.');
-      showToast('Erreur de serveur.', 'error');
-    } finally {
-      setOtpLoading(false);
-    }
-  };
-
   // Mobile Navigation Drawer State
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dashMobileMenuOpen, setDashMobileMenuOpen] = useState(false);
@@ -775,10 +717,7 @@ export default function App() {
     }
   };
 
-  const skipOnboardingToDashboard = () => {
-    showToast('Onboarding incomplet. Finalisez-le depuis Paramètres.', 'info');
-    setActiveView('dashboard');
-  };
+
 
   const handleAddProduct = async () => {
     if (!newProduct.name || !newProduct.price) {
@@ -2219,27 +2158,10 @@ export default function App() {
       {/* ========================================================================= */}
       {activeView === 'onboarding-entreprise' && (
         <div className="onboarding-flow" style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 60px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '540px', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '540px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
             </div>
-            <button
-              type="button"
-              onClick={skipOnboardingToDashboard}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#4f46e5',
-                fontWeight: 600,
-                fontSize: '13px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}
-            >
-              Accéder au Dashboard →
-            </button>
           </div>
 
           <div className="reflex-card-base" style={{ width: '100%', maxWidth: '540px', padding: '32px 28px', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.06)' }}>
@@ -2342,27 +2264,10 @@ export default function App() {
       {/* ========================================================================= */}
       {activeView === 'onboarding-catalogue' && (
         <div className="onboarding-flow" style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 60px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '580px', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '580px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
             </div>
-            <button
-              type="button"
-              onClick={skipOnboardingToDashboard}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#4f46e5',
-                fontWeight: 600,
-                fontSize: '13px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}
-            >
-              Accéder au Dashboard →
-            </button>
           </div>
 
           <div className="reflex-card-base" style={{ width: '100%', maxWidth: '580px', padding: '32px 28px', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.06)' }}>
@@ -2475,27 +2380,10 @@ export default function App() {
       {/* ========================================================================= */}
       {activeView === 'onboarding-assistant' && (
         <div className="onboarding-flow" style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 60px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '540px', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '540px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
             </div>
-            <button
-              type="button"
-              onClick={skipOnboardingToDashboard}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#4f46e5',
-                fontWeight: 600,
-                fontSize: '13px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}
-            >
-              Accéder au Dashboard →
-            </button>
           </div>
 
           <div className="reflex-card-base" style={{ width: '100%', maxWidth: '540px', padding: '32px 28px', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.06)' }}>
@@ -2596,27 +2484,10 @@ export default function App() {
       {/* ========================================================================= */}
       {activeView === 'onboarding-whatsapp' && (
         <div className="onboarding-flow" style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 60px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '520px', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '520px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
             </div>
-            <button
-              type="button"
-              onClick={skipOnboardingToDashboard}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#4f46e5',
-                fontWeight: 600,
-                fontSize: '13px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}
-            >
-              Accéder au Dashboard →
-            </button>
           </div>
 
           <div className="reflex-card-base" style={{ width: '100%', maxWidth: '520px', padding: '32px 28px', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.06)', textAlign: 'center' }}>
@@ -2661,118 +2532,68 @@ export default function App() {
               </p>
             </div>
 
-            <div style={{ backgroundColor: '#eff4ff', border: '1px solid #c4b5fd', borderRadius: '12px', padding: '18px', marginBottom: '24px', textAlign: 'left' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, color: '#1877F2', fontSize: '13.5px' }}>
-                  <Zap size={18} /> Meta WhatsApp Business Platform
-                </div>
-                <span style={{
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  padding: '4px 10px',
-                  borderRadius: '20px',
-                  backgroundColor: waConnectionStatus === 'CONNECTED' ? '#d1fae5' : '#fef3c7',
-                  color: waConnectionStatus === 'CONNECTED' ? '#047857' : '#b45309'
-                }}>
-                  {waConnectionStatus === 'CONNECTED' ? '● META CONNECTÉ & IA ACTIVE' : '○ NON CONNECTÉ'}
-                </span>
+            <div style={{ backgroundColor: '#eff4ff', border: '1px solid #c4b5fd', borderRadius: '16px', padding: '24px', marginBottom: '24px', textAlign: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: 700, color: '#1877F2', fontSize: '15px', marginBottom: '8px' }}>
+                <Zap size={20} /> Meta WhatsApp Business Platform
               </div>
-              <p style={{ fontSize: '12.5px', color: '#45464d', margin: '0 0 16px 0', lineHeight: 1.5 }}>
-                Connectez directement votre compte <strong>WhatsApp Business ({companyData.phone})</strong> avec le système officiel Meta Embedded Signup pour activer le moteur IA Reflex 24/7.
+              <p style={{ fontSize: '13px', color: '#45464d', margin: '0 0 20px 0', lineHeight: 1.5 }}>
+                Connectez votre numéro <strong>WhatsApp ({companyData.phone})</strong> pour activer l'IA Reflex sur votre boutique.
               </p>
 
               {waConnectionStatus !== 'CONNECTED' ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', alignItems: 'center' }}>
                   <button
                     type="button"
                     onClick={handleLaunchMetaEmbeddedSignup}
                     disabled={waConnectionStatus === 'CONNECTING'}
                     style={{
                       width: '100%',
-                      padding: '14px',
-                      fontSize: '15px',
-                      fontWeight: 700,
-                      borderRadius: '10px',
-                      backgroundColor: '#1877F2',
+                      padding: '16px 20px',
+                      fontSize: '16px',
+                      fontWeight: 800,
+                      borderRadius: '12px',
+                      background: 'linear-gradient(135deg, #25D366, #128C7E)',
                       color: '#ffffff',
                       border: 'none',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '10px',
-                      boxShadow: '0 4px 12px rgba(24, 119, 242, 0.3)'
+                      gap: '12px',
+                      boxShadow: '0 8px 20px rgba(37, 211, 102, 0.35)',
+                      transition: 'transform 0.2s ease'
                     }}
                   >
-                    <MessageSquare size={20} />
-                    {waConnectionStatus === 'CONNECTING' ? 'Connexion Meta en cours...' : 'Connecter avec WhatsApp Business (Meta Embedded Signup)'}
+                    <MessageSquare size={22} />
+                    {waConnectionStatus === 'CONNECTING' ? 'Connexion Meta en cours...' : 'Connecter mon WhatsApp'}
                   </button>
 
-                  <div style={{ borderTop: '1px solid #c4b5fd', paddingTop: '12px', marginTop: '4px' }}>
-                    <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px', fontWeight: 600 }}>
-                      Ou vérifiez votre numéro par SMS Meta :
-                    </div>
-                    {!otpSent ? (
-                      <button
-                        type="button"
-                        onClick={handleRequestMetaOtp}
-                        disabled={otpLoading}
-                        style={{
-                          width: '100%',
-                          padding: '10px',
-                          fontSize: '13px',
-                          fontWeight: 600,
-                          borderRadius: '8px',
-                          backgroundColor: '#FF5500',
-                          color: '#ffffff',
-                          border: 'none',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        {otpLoading ? 'Envoi...' : 'Envoyer Code SMS (6 chiffres)'}
-                      </button>
-                    ) : (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <input
-                          type="text"
-                          maxLength={6}
-                          placeholder="Code à 6 chiffres"
-                          value={otpCodeInput}
-                          onChange={(e) => setOtpCodeInput(e.target.value.replace(/\D/g, ''))}
-                          style={{ width: '100%', padding: '10px', fontSize: '16px', textAlign: 'center', borderRadius: '8px', border: '1px solid #c4b5fd', boxSizing: 'border-box' }}
-                        />
-                        <button
-                          type="button"
-                          onClick={handleVerifyMetaOtp}
-                          disabled={otpLoading}
-                          style={{ width: '100%', padding: '10px', fontSize: '13.5px', fontWeight: 700, borderRadius: '8px', backgroundColor: '#10b981', color: '#ffffff', border: 'none' }}
-                        >
-                          Valider Code & Activer IA 🚀
-                        </button>
-                      </div>
-                    )}
+                  <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, backgroundColor: '#ffffff', padding: '8px 14px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}>
+                    ⚠️ La connexion WhatsApp est obligatoire avant d'accéder au Dashboard.
                   </div>
-
-                  {otpError && (
-                    <div style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px', fontWeight: 600 }}>
-                      ⚠️ {otpError}
-                    </div>
-                  )}
                 </div>
               ) : (
-                <div style={{ color: '#047857', fontWeight: 700, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <CheckCircle size={18} /> Compte Meta WhatsApp Business lié et IA activée !
+                <div style={{ color: '#047857', fontWeight: 800, fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', backgroundColor: '#d1fae5', padding: '14px', borderRadius: '10px' }}>
+                  <CheckCircle size={22} color="#047857" /> WhatsApp Connecté & IA Active 24/7 !
                 </div>
               )}
             </div>
 
             <button
               className="btn-primary-black"
-              style={{ width: '100%', padding: '16px', fontSize: '16px', fontWeight: 600, color: '#ffffff', backgroundColor: '#FF5500' }}
+              style={{
+                width: '100%',
+                padding: '16px',
+                fontSize: '16px',
+                fontWeight: 700,
+                color: '#ffffff',
+                backgroundColor: waConnectionStatus === 'CONNECTED' ? '#FF5500' : '#94a3b8',
+                cursor: waConnectionStatus === 'CONNECTED' ? 'pointer' : 'not-allowed'
+              }}
               onClick={handleFinalizeOnboarding}
-              disabled={saveLoading}
+              disabled={waConnectionStatus !== 'CONNECTED' || saveLoading}
             >
-              {saveLoading ? 'Enregistrement...' : 'Accéder à mon Dashboard'} <ArrowRight size={20} />
+              {saveLoading ? 'Enregistrement...' : 'Valider & Accéder à mon Dashboard'} <ArrowRight size={20} />
             </button>
           </div>
         </div>
