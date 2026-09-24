@@ -182,7 +182,7 @@ export default function App() {
   const [connectedWabaId, setConnectedWabaId] = useState<string | null>(null);
 
   const handleLaunchMetaEmbeddedSignup = () => {
-    const metaAppId = (import.meta.env.VITE_META_APP_ID as string | undefined) || '1579762199589304';
+    const metaAppId = (import.meta.env.VITE_META_APP_ID as string | undefined) || '1875740770498760';
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     
     setWaConnectionStatus('CONNECTING');
