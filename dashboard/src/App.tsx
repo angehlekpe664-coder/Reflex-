@@ -33,6 +33,8 @@ import {
   ChevronDown,
   ChevronUp,
   MessageSquare,
+  Key,
+  Check,
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
 import { apiFetch } from './lib/api';
@@ -177,69 +179,48 @@ export default function App() {
 
   // WhatsApp Official Meta Connection State
   const [waConnectionStatus, setWaConnectionStatus] = useState<'DISCONNECTED' | 'CONNECTING' | 'CONNECTED'>('DISCONNECTED');
-
-
   const [connectedWabaId, setConnectedWabaId] = useState<string | null>(null);
+  const [manualToken, setManualToken] = useState('');
+  const [showManualTokenInput, setShowManualTokenInput] = useState(false);
+  const [manualTokenLoading, setManualTokenLoading] = useState(false);
 
   const handleLaunchMetaEmbeddedSignup = () => {
     const metaAppId = (import.meta.env.VITE_META_APP_ID as string | undefined) || '1875740770498760';
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    
     setWaConnectionStatus('CONNECTING');
-
-    if (typeof (window as any).FB !== 'undefined' && !isMobile) {
-      try {
-        (window as any).FB.init({
-          appId: metaAppId,
-          cookie: true,
-          xfbml: true,
-          version: 'v20.0'
-        });
-
-        (window as any).FB.login((response: any) => {
-          if (response?.authResponse?.code) {
-            const code = response.authResponse.code;
-            apiFetch('/api/auth/meta/callback', {
-              method: 'POST',
-              body: JSON.stringify({
-                code,
-                wabaId: response.authResponse.waba_id,
-                pmePhone: companyData.phone
-              })
-            })
-              .then(async (res) => {
-                const data = await res.json().catch(() => ({}));
-                if (res.ok && data.success) {
-                  setWaConnectionStatus('CONNECTED');
-                  setConnectedWabaId(data.wabaId || null);
-                  showToast('🎉 WhatsApp Business (Meta Embedded Signup) lié avec succès !', 'success');
-                } else {
-                  setWaConnectionStatus('DISCONNECTED');
-                  showToast(data.error || 'Échec de la liaison Meta.', 'error');
-                }
-              })
-              .catch(() => {
-                setWaConnectionStatus('DISCONNECTED');
-                showToast('Impossible de joindre le serveur pour lier Meta.', 'error');
-              });
-          } else {
-            setWaConnectionStatus('DISCONNECTED');
-            showToast('Autorisation Meta annulée ou incomplète.', 'info');
-          }
-        }, {
-          scope: 'whatsapp_business_management,whatsapp_business_messaging',
-          extras: { feature: 'whatsapp_embedded_signup' }
-        });
-        return;
-      } catch (e) {
-        console.log('FB.login fallback redirect');
-      }
-    }
-
-    // Full page OAuth redirect for mobile / popup-blocked environments
+    // Redirection directe pleine page dans le même onglet (pas de fenêtre pop-up intempestive)
     const redirectUri = encodeURIComponent(window.location.origin);
     const metaAuthUrl = `https://www.facebook.com/v20.0/dialog/oauth?client_id=${metaAppId}&redirect_uri=${redirectUri}&scope=whatsapp_business_management,whatsapp_business_messaging&response_type=code&extras=%7B%22feature%22%3A%22whatsapp_embedded_signup%22%7D`;
     window.location.href = metaAuthUrl;
+  };
+
+  const handleConnectWithDirectToken = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!manualToken.trim()) {
+      showToast('Veuillez saisir votre Token Système Meta.', 'error');
+      return;
+    }
+    setManualTokenLoading(true);
+    try {
+      const res = await apiFetch('/api/auth/meta/direct-token', {
+        method: 'POST',
+        body: JSON.stringify({
+          token: manualToken,
+          pmePhone: companyData.phone
+        })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
+        setWaConnectionStatus('CONNECTED');
+        setConnectedWabaId(data.wabaId || 'waba_direct');
+        showToast('WhatsApp Business connecté avec succès via votre Token Meta !', 'success');
+      } else {
+        showToast(data.error || 'Erreur lors de la validation du Token Meta.', 'error');
+      }
+    } catch (err) {
+      showToast('Impossible de joindre le serveur Reflex.', 'error');
+    } finally {
+      setManualTokenLoading(false);
+    }
   };
 
   // Mobile Navigation Drawer State
@@ -2157,71 +2138,80 @@ export default function App() {
       {/* 3. ONBOARDING STEP 1: ENTREPRISE */}
       {/* ========================================================================= */}
       {activeView === 'onboarding-entreprise' && (
-        <div className="onboarding-flow" style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 60px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '540px', marginBottom: '24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-              <img src="/logo.png" alt="Reflex Logo" style={{ height: '50px', width: 'auto', borderRadius: '8px' }} />
+        <div className="onboarding-flow" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 20px 80px 20px', boxSizing: 'border-box', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '720px', marginBottom: '32px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
+              <img src="/logo.png" alt="Reflex Logo" style={{ height: '52px', width: 'auto', borderRadius: '10px' }} />
             </div>
           </div>
 
-          <div className="reflex-card-base" style={{ width: '100%', maxWidth: '540px', padding: '32px 28px', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.06)' }}>
-
+          <div className="onboarding-card-dark" style={{ width: '100%', maxWidth: '720px', padding: '38px 34px' }}>
             {/* Onboarding Stepper Header */}
-            <div className="onboarding-stepper-container">
-              {[
-                { step: 1, label: 'Entreprise' },
-                { step: 2, label: 'Catalogue' },
-                { step: 3, label: 'Assistant IA' },
-                { step: 4, label: 'WhatsApp' }
-              ].map((s) => (
-                <div key={s.step} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <div style={{
-                    width: '26px',
-                    height: '26px',
-                    borderRadius: '50%',
-                    backgroundColor: 1 >= s.step ? '#4F46E5' : '#E2E8F0',
-                    color: 1 >= s.step ? '#FFFFFF' : '#64748B',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 700,
-                    fontSize: '11.5px'
-                  }}>
-                    {s.step}
-                  </div>
-                  <span style={{ fontSize: '11.5px', fontWeight: 1 === s.step ? 700 : 500, color: 1 === s.step ? '#0B1C30' : '#94A3B8' }}>{s.label}</span>
-                  {s.step < 4 && <span style={{ color: '#CBD5E1', fontSize: '11px' }}>→</span>}
+            <div style={{ width: '100%', marginBottom: '32px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
+                <div style={{ position: 'absolute', top: '18px', left: '10%', right: '10%', height: '2px', backgroundColor: 'rgba(255, 255, 255, 0.1)', zIndex: 1 }}>
+                  <div style={{ height: '100%', backgroundColor: '#FF5500', width: '0%', transition: 'width 0.3s ease', boxShadow: '0 0 10px rgba(255, 85, 0, 0.8)' }} />
                 </div>
-              ))}
+                {[
+                  { step: 1, label: 'Entreprise' },
+                  { step: 2, label: 'Catalogue' },
+                  { step: 3, label: 'Assistant IA' },
+                  { step: 4, label: 'WhatsApp' }
+                ].map((s) => (
+                  <div key={s.step} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', zIndex: 2, position: 'relative' }}>
+                    <div style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%',
+                      backgroundColor: 1 >= s.step ? '#0B1727' : 'rgba(15, 23, 42, 0.9)',
+                      border: 1 === s.step ? '2px solid #FF5500' : '2px solid rgba(255, 255, 255, 0.15)',
+                      color: 1 === s.step ? '#FFFFFF' : '#64748B',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 700,
+                      fontSize: '13px',
+                      boxShadow: 1 === s.step ? '0 0 15px rgba(255, 85, 0, 0.5)' : 'none'
+                    }}>
+                      {s.step}
+                    </div>
+                    <span style={{ fontSize: '12px', fontWeight: 1 === s.step ? 700 : 500, color: 1 === s.step ? '#FF5500' : '#64748B' }}>{s.label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-              <Building size={32} color="#4b41e1" style={{ marginBottom: '12px' }} />
-              <h2 className="headline-lg-mobile" style={{ color: '#0b1c30', marginBottom: '8px' }}>
+
+            <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+              <div style={{ width: '60px', height: '60px', borderRadius: '16px', backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                <Building size={28} color="#FF5500" />
+              </div>
+              <h2 style={{ color: '#ffffff', fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>
                 Présentez votre entreprise
               </h2>
-              <p className="body-md" style={{ color: '#45464d', fontSize: '13px' }}>
-                Reflex utilisera ces informations pour personnaliser les réponses envoyées à vos clients WhatsApp.
+              <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: 1.6 }}>
+                Reflex utilisera ces informations pour configurer l'IA et personnaliser toutes les réponses envoyées à vos clients WhatsApp.
               </p>
             </div>
 
-            <form onSubmit={(e) => { e.preventDefault(); setActiveView('onboarding-catalogue'); }} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <form onSubmit={(e) => { e.preventDefault(); setActiveView('onboarding-catalogue'); }} style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
               <div>
-                <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Nom de l'entreprise / PME</label>
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginBottom: '8px', display: 'block' }}>Nom de l'entreprise / PME</label>
                 <input
                   type="text"
                   required
+                  placeholder="Ex: Boutique Élégance Bénin"
                   value={companyData.name}
                   onChange={(e) => setCompanyData({ ...companyData, name: e.target.value })}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }}
+                  style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.15)', outline: 'none', fontSize: '14px' }}
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Secteur d'activité</label>
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginBottom: '8px', display: 'block' }}>Secteur d'activité</label>
                 <select
                   value={companyData.sector}
                   onChange={(e) => setCompanyData({ ...companyData, sector: e.target.value })}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px', backgroundColor: '#ffffff' }}
+                  style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.15)', outline: 'none', fontSize: '14px' }}
                 >
                   <option value="Mode & Vêtements">Mode & Vêtements</option>
                   <option value="Cosmétique & Beauté">Cosmétique & Beauté</option>
@@ -2231,27 +2221,29 @@ export default function App() {
               </div>
 
               <div>
-                <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Numéro WhatsApp Business</label>
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginBottom: '8px', display: 'block' }}>Numéro WhatsApp Business</label>
                 <input
                   type="text"
                   required
+                  placeholder="+229 97 00 00 00"
                   value={companyData.phone}
                   onChange={(e) => setCompanyData({ ...companyData, phone: e.target.value })}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }}
+                  style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.15)', outline: 'none', fontSize: '14px' }}
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Description de vos services / produits</label>
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginBottom: '8px', display: 'block' }}>Description de vos services / produits</label>
                 <textarea
                   rows={3}
+                  placeholder="Décrivez brièvement vos articles et les questions fréquentes..."
                   value={companyData.description}
                   onChange={(e) => setCompanyData({ ...companyData, description: e.target.value })}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px', resize: 'vertical' }}
+                  style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.15)', outline: 'none', fontSize: '14px', resize: 'vertical' }}
                 />
               </div>
 
-              <button className="btn-primary-black" style={{ width: '100%', padding: '14px', fontSize: '15px', marginTop: '8px', color: '#ffffff', backgroundColor: '#FF5500' }}>
+              <button type="submit" className="btn-primary-orange" style={{ width: '100%', padding: '16px', fontSize: '15px', marginTop: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
                 Suivant : Ajouter votre catalogue <ArrowRight size={18} />
               </button>
             </form>
@@ -2263,112 +2255,134 @@ export default function App() {
       {/* 4. ONBOARDING STEP 2: CATALOGUE */}
       {/* ========================================================================= */}
       {activeView === 'onboarding-catalogue' && (
-        <div className="onboarding-flow" style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 60px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '580px', marginBottom: '24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-              <img src="/logo.png" alt="Reflex Logo" style={{ height: '50px', width: 'auto', borderRadius: '8px' }} />
+        <div className="onboarding-flow" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 20px 80px 20px', boxSizing: 'border-box', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '720px', marginBottom: '32px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
+              <img src="/logo.png" alt="Reflex Logo" style={{ height: '52px', width: 'auto', borderRadius: '10px' }} />
             </div>
           </div>
 
-          <div className="reflex-card-base" style={{ width: '100%', maxWidth: '580px', padding: '32px 28px', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.06)' }}>
-
+          <div className="onboarding-card-dark" style={{ width: '100%', maxWidth: '720px', padding: '38px 34px' }}>
             {/* Onboarding Stepper Header */}
-            <div className="onboarding-stepper-container">
-              {[
-                { step: 1, label: 'Entreprise' },
-                { step: 2, label: 'Catalogue' },
-                { step: 3, label: 'Assistant IA' },
-                { step: 4, label: 'WhatsApp' }
-              ].map((s) => (
-                <div key={s.step} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <div style={{
-                    width: '26px',
-                    height: '26px',
-                    borderRadius: '50%',
-                    backgroundColor: 2 >= s.step ? '#4F46E5' : '#E2E8F0',
-                    color: 2 >= s.step ? '#FFFFFF' : '#64748B',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 700,
-                    fontSize: '11.5px'
-                  }}>
-                    {s.step}
-                  </div>
-                  <span style={{ fontSize: '11.5px', fontWeight: 2 === s.step ? 700 : 500, color: 2 === s.step ? '#0B1C30' : '#94A3B8' }}>{s.label}</span>
-                  {s.step < 4 && <span style={{ color: '#CBD5E1', fontSize: '11px' }}>→</span>}
+            <div style={{ width: '100%', marginBottom: '32px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
+                <div style={{ position: 'absolute', top: '18px', left: '10%', right: '10%', height: '2px', backgroundColor: 'rgba(255, 255, 255, 0.1)', zIndex: 1 }}>
+                  <div style={{ height: '100%', backgroundColor: '#FF5500', width: '33.3%', transition: 'width 0.3s ease', boxShadow: '0 0 10px rgba(255, 85, 0, 0.8)' }} />
                 </div>
-              ))}
+                {[
+                  { step: 1, label: 'Entreprise' },
+                  { step: 2, label: 'Catalogue' },
+                  { step: 3, label: 'Assistant IA' },
+                  { step: 4, label: 'WhatsApp' }
+                ].map((s) => (
+                  <div key={s.step} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', zIndex: 2, position: 'relative' }}>
+                    <div style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%',
+                      backgroundColor: 2 >= s.step ? '#0B1727' : 'rgba(15, 23, 42, 0.9)',
+                      border: 2 >= s.step ? '2px solid #FF5500' : '2px solid rgba(255, 255, 255, 0.15)',
+                      color: 2 >= s.step ? '#FFFFFF' : '#64748B',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 700,
+                      fontSize: '13px',
+                      boxShadow: 2 === s.step ? '0 0 15px rgba(255, 85, 0, 0.5)' : 'none'
+                    }}>
+                      {1 > s.step ? s.step : 2 > s.step ? <Check size={18} color="#FF5500" /> : s.step}
+                    </div>
+                    <span style={{ fontSize: '12px', fontWeight: 2 === s.step ? 700 : 500, color: 2 === s.step ? '#FF5500' : 2 > s.step ? '#FFFFFF' : '#64748B' }}>{s.label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-              <Store size={32} color="#4b41e1" style={{ marginBottom: '12px' }} />
-              <h2 className="headline-lg-mobile" style={{ color: '#0b1c30', marginBottom: '8px' }}>
+
+            <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+              <div style={{ width: '60px', height: '60px', borderRadius: '16px', backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                <Store size={28} color="#FF5500" />
+              </div>
+              <h2 style={{ color: '#ffffff', fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>
                 Ajoutez vos premiers produits
               </h2>
+              <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: 1.6 }}>
+                L'IA Reflex utilisera votre catalogue pour répondre aux demandes de prix et prendre les commandes WhatsApp.
+              </p>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
-              {productsList.map((prod, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', backgroundColor: '#f8f9ff', border: '1px solid #E2E8F0', borderRadius: '8px' }}>
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: '14px', color: '#0b1c30' }}>{prod.name}</div>
-                    <span className="label-xs" style={{ color: '#45464d' }}>{prod.category}</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ fontWeight: 700, fontSize: '15px', color: '#4b41e1', fontFamily: 'var(--font-mono)' }}>
-                      {prod.price.toLocaleString()} FCFA
-                    </div>
-                    <button onClick={() => handleDeleteProduct(i)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#EF4444' }}>
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
+            {/* List of Products */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
+              {productsList.length === 0 ? (
+                <div style={{ padding: '24px', textAlign: 'center', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.15)', borderRadius: '16px', color: '#94a3b8', fontSize: '13.5px' }}>
+                  Aucun produit dans votre catalogue pour l'instant. Utilisez le formulaire ci-dessous pour en ajouter un.
                 </div>
-              ))}
+              ) : (
+                productsList.map((prod, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', backgroundColor: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '12px' }}>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: '14.5px', color: '#ffffff' }}>{prod.name}</div>
+                      <span style={{ fontSize: '12px', color: '#94a3b8' }}>{prod.category}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <div style={{ fontWeight: 800, fontSize: '15px', color: '#FF5500' }}>
+                        {prod.price.toLocaleString()} FCFA
+                      </div>
+                      <button onClick={() => handleDeleteProduct(i)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#EF4444', padding: '4px' }}>
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
 
-            <div style={{ backgroundColor: '#ffffff', border: '1px dashed #c4b5fd', padding: '16px', borderRadius: '10px', marginBottom: '28px' }}>
-              <div style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '12px' }}>+ Ajouter un article</div>
-              <div className="product-input-grid" style={{ marginBottom: '10px' }}>
+            {/* Add New Product Box */}
+            <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px dashed rgba(255, 85, 0, 0.4)', padding: '20px', borderRadius: '16px', marginBottom: '32px' }}>
+              <div style={{ fontSize: '14px', fontWeight: 700, color: '#ffffff', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Plus size={18} color="#FF5500" /> Ajouter un produit au catalogue
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
                 <input
                   type="text"
-                  placeholder="Nom de l'article"
+                  placeholder="Nom du produit (Ex: Perruque 18 pouces)"
                   value={newProduct.name}
                   onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-                  style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '13px' }}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.15)', outline: 'none', fontSize: '13.5px' }}
                 />
                 <input
                   type="number"
-                  placeholder="Prix FCFA"
+                  placeholder="Prix en FCFA (Ex: 45000)"
                   value={newProduct.price}
                   onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-                  style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '13px' }}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.15)', outline: 'none', fontSize: '13.5px' }}
                 />
               </div>
               <button
                 type="button"
                 onClick={handleAddProduct}
-                className="btn-outline-white"
-                style={{ width: '100%', padding: '8px', fontSize: '13px', color: '#0b1c30', backgroundColor: '#ffffff' }}
+                className="btn-secondary-dark"
+                style={{ width: '100%', padding: '10px', fontSize: '13.5px', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
-                Ajouter ce produit
+                <Plus size={16} /> Ajouter cet article
               </button>
             </div>
 
-            <div className="onboarding-actions mobile-stepper-fixed-footer">
+            <div className="onboarding-actions">
               <button
                 type="button"
                 onClick={() => setActiveView('onboarding-entreprise')}
-                className="btn-outline-white"
-                style={{ flex: 1, padding: '12px', fontSize: '14px', color: '#0b1c30', backgroundColor: '#ffffff' }}
+                className="btn-secondary-dark"
+                style={{ flex: 1, padding: '14px', fontSize: '14px', fontWeight: 600 }}
               >
                 ← Précédent
               </button>
               <button
+                type="button"
                 onClick={() => setActiveView('onboarding-assistant')}
-                className="btn-primary-black"
-                style={{ flex: 2, padding: '12px', fontSize: '14px', color: '#ffffff', backgroundColor: '#FF5500' }}
+                className="btn-primary-orange"
+                style={{ flex: 2, padding: '14px', fontSize: '14.5px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
               >
-                Suivant : Assistant IA <ArrowRight size={16} />
+                Suivant : Assistant IA <ArrowRight size={18} />
               </button>
             </div>
           </div>
@@ -2379,57 +2393,68 @@ export default function App() {
       {/* 5. ONBOARDING STEP 3: ASSISTANT IA */}
       {/* ========================================================================= */}
       {activeView === 'onboarding-assistant' && (
-        <div className="onboarding-flow" style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 60px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '540px', marginBottom: '24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-              <img src="/logo.png" alt="Reflex Logo" style={{ height: '50px', width: 'auto', borderRadius: '8px' }} />
+        <div className="onboarding-flow" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 20px 80px 20px', boxSizing: 'border-box', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '720px', marginBottom: '32px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
+              <img src="/logo.png" alt="Reflex Logo" style={{ height: '52px', width: 'auto', borderRadius: '10px' }} />
             </div>
           </div>
 
-          <div className="reflex-card-base" style={{ width: '100%', maxWidth: '540px', padding: '32px 28px', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.06)' }}>
-
+          <div className="onboarding-card-dark" style={{ width: '100%', maxWidth: '720px', padding: '38px 34px' }}>
             {/* Onboarding Stepper Header */}
-            <div className="onboarding-stepper-container">
-              {[
-                { step: 1, label: 'Entreprise' },
-                { step: 2, label: 'Catalogue' },
-                { step: 3, label: 'Assistant IA' },
-                { step: 4, label: 'WhatsApp' }
-              ].map((s) => (
-                <div key={s.step} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <div style={{
-                    width: '26px',
-                    height: '26px',
-                    borderRadius: '50%',
-                    backgroundColor: 3 >= s.step ? '#4F46E5' : '#E2E8F0',
-                    color: 3 >= s.step ? '#FFFFFF' : '#64748B',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 700,
-                    fontSize: '11.5px'
-                  }}>
-                    {s.step}
-                  </div>
-                  <span style={{ fontSize: '11.5px', fontWeight: 3 === s.step ? 700 : 500, color: 3 === s.step ? '#0B1C30' : '#94A3B8' }}>{s.label}</span>
-                  {s.step < 4 && <span style={{ color: '#CBD5E1', fontSize: '11px' }}>→</span>}
+            <div style={{ width: '100%', marginBottom: '32px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
+                <div style={{ position: 'absolute', top: '18px', left: '10%', right: '10%', height: '2px', backgroundColor: 'rgba(255, 255, 255, 0.1)', zIndex: 1 }}>
+                  <div style={{ height: '100%', backgroundColor: '#FF5500', width: '66.6%', transition: 'width 0.3s ease', boxShadow: '0 0 10px rgba(255, 85, 0, 0.8)' }} />
                 </div>
-              ))}
+                {[
+                  { step: 1, label: 'Entreprise' },
+                  { step: 2, label: 'Catalogue' },
+                  { step: 3, label: 'Assistant IA' },
+                  { step: 4, label: 'WhatsApp' }
+                ].map((s) => (
+                  <div key={s.step} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', zIndex: 2, position: 'relative' }}>
+                    <div style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%',
+                      backgroundColor: 3 >= s.step ? '#0B1727' : 'rgba(15, 23, 42, 0.9)',
+                      border: 3 >= s.step ? '2px solid #FF5500' : '2px solid rgba(255, 255, 255, 0.15)',
+                      color: 3 >= s.step ? '#FFFFFF' : '#64748B',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 700,
+                      fontSize: '13px',
+                      boxShadow: 3 === s.step ? '0 0 15px rgba(255, 85, 0, 0.5)' : 'none'
+                    }}>
+                      {2 >= s.step ? <Check size={18} color="#FF5500" /> : s.step}
+                    </div>
+                    <span style={{ fontSize: '12px', fontWeight: 3 === s.step ? 700 : 500, color: 3 === s.step ? '#FF5500' : 3 > s.step ? '#FFFFFF' : '#64748B' }}>{s.label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-              <Sparkles size={32} color="#4b41e1" style={{ marginBottom: '12px' }} />
-              <h2 className="headline-lg-mobile" style={{ color: '#0b1c30', marginBottom: '8px' }}>
+
+            <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+              <div style={{ width: '60px', height: '60px', borderRadius: '16px', backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                <Sparkles size={28} color="#FF5500" />
+              </div>
+              <h2 style={{ color: '#ffffff', fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>
                 Personnalisez votre Assistant IA
               </h2>
+              <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: 1.6 }}>
+                Définissez le comportement et les règles de réponses automatiques de votre agent IA Reflex.
+              </p>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '28px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '22px', marginBottom: '32px' }}>
               <div>
-                <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Ton de communication</label>
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginBottom: '8px', display: 'block' }}>Ton de communication</label>
                 <select
                   value={assistantConfig.tone}
                   onChange={(e) => setAssistantConfig({ ...assistantConfig, tone: e.target.value })}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px', backgroundColor: '#ffffff' }}
+                  style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.15)', outline: 'none', fontSize: '14px' }}
                 >
                   <option value="Chaleureux & Commercial">Chaleureux & Commercial</option>
                   <option value="Strictement Professionnel">Strictement Professionnel</option>
@@ -2438,41 +2463,42 @@ export default function App() {
               </div>
 
               <div>
-                <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Message de bienvenue automatique</label>
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginBottom: '8px', display: 'block' }}>Message de bienvenue automatique</label>
                 <textarea
                   rows={3}
                   value={assistantConfig.welcomeMessage}
                   onChange={(e) => setAssistantConfig({ ...assistantConfig, welcomeMessage: e.target.value })}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px', resize: 'vertical' }}
+                  style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.15)', outline: 'none', fontSize: '14px', resize: 'vertical' }}
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: '13px', fontWeight: 600, color: '#0b1c30', marginBottom: '6px', display: 'block' }}>Informations de livraison & FAQ</label>
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginBottom: '8px', display: 'block' }}>Informations de livraison & FAQ</label>
                 <textarea
                   rows={2}
                   value={assistantConfig.deliveryInfo}
                   onChange={(e) => setAssistantConfig({ ...assistantConfig, deliveryInfo: e.target.value })}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px', resize: 'vertical' }}
+                  style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.15)', outline: 'none', fontSize: '14px', resize: 'vertical' }}
                 />
               </div>
             </div>
 
-            <div className="onboarding-actions mobile-stepper-fixed-footer">
+            <div className="onboarding-actions">
               <button
                 type="button"
                 onClick={() => setActiveView('onboarding-catalogue')}
-                className="btn-outline-white"
-                style={{ flex: 1, padding: '12px', fontSize: '14px', color: '#0b1c30', backgroundColor: '#ffffff' }}
+                className="btn-secondary-dark"
+                style={{ flex: 1, padding: '14px', fontSize: '14px', fontWeight: 600 }}
               >
                 ← Précédent
               </button>
               <button
+                type="button"
                 onClick={() => setActiveView('onboarding-whatsapp')}
-                className="btn-primary-black"
-                style={{ flex: 2, padding: '12px', fontSize: '14px', color: '#ffffff', backgroundColor: '#FF5500' }}
+                className="btn-primary-orange"
+                style={{ flex: 2, padding: '14px', fontSize: '14.5px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
               >
-                Suivant : WhatsApp <ArrowRight size={16} />
+                Suivant : Connexion WhatsApp <ArrowRight size={18} />
               </button>
             </div>
           </div>
@@ -2483,76 +2509,82 @@ export default function App() {
       {/* 6. ONBOARDING STEP 4: CONNEXION WHATSAPP */}
       {/* ========================================================================= */}
       {activeView === 'onboarding-whatsapp' && (
-        <div className="onboarding-flow" style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 60px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '520px', marginBottom: '24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-              <img src="/logo.png" alt="Reflex Logo" style={{ height: '50px', width: 'auto', borderRadius: '8px' }} />
+        <div className="onboarding-flow" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 20px 80px 20px', boxSizing: 'border-box', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '720px', marginBottom: '32px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
+              <img src="/logo.png" alt="Reflex Logo" style={{ height: '52px', width: 'auto', borderRadius: '10px' }} />
             </div>
           </div>
 
-          <div className="reflex-card-base" style={{ width: '100%', maxWidth: '520px', padding: '32px 28px', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.06)', textAlign: 'center' }}>
-
+          <div className="onboarding-card-dark" style={{ width: '100%', maxWidth: '720px', padding: '38px 34px', textAlign: 'center' }}>
             {/* Onboarding Stepper Header */}
-            <div className="onboarding-stepper-container">
-              {[
-                { step: 1, label: 'Entreprise' },
-                { step: 2, label: 'Catalogue' },
-                { step: 3, label: 'Assistant IA' },
-                { step: 4, label: 'WhatsApp' }
-              ].map((s) => (
-                <div key={s.step} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <div style={{
-                    width: '26px',
-                    height: '26px',
-                    borderRadius: '50%',
-                    backgroundColor: 4 >= s.step ? '#4F46E5' : '#E2E8F0',
-                    color: 4 >= s.step ? '#FFFFFF' : '#64748B',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 700,
-                    fontSize: '11.5px'
-                  }}>
-                    {s.step}
-                  </div>
-                  <span style={{ fontSize: '11.5px', fontWeight: 4 === s.step ? 700 : 500, color: 4 === s.step ? '#0B1C30' : '#94A3B8' }}>{s.label}</span>
-                  {s.step < 4 && <span style={{ color: '#CBD5E1', fontSize: '11px' }}>→</span>}
+            <div style={{ width: '100%', marginBottom: '32px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
+                <div style={{ position: 'absolute', top: '18px', left: '10%', right: '10%', height: '2px', backgroundColor: 'rgba(255, 255, 255, 0.1)', zIndex: 1 }}>
+                  <div style={{ height: '100%', backgroundColor: '#FF5500', width: '100%', transition: 'width 0.3s ease', boxShadow: '0 0 10px rgba(255, 85, 0, 0.8)' }} />
                 </div>
-              ))}
+                {[
+                  { step: 1, label: 'Entreprise' },
+                  { step: 2, label: 'Catalogue' },
+                  { step: 3, label: 'Assistant IA' },
+                  { step: 4, label: 'WhatsApp' }
+                ].map((s) => (
+                  <div key={s.step} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', zIndex: 2, position: 'relative' }}>
+                    <div style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%',
+                      backgroundColor: '#0B1727',
+                      border: '2px solid #FF5500',
+                      color: '#FFFFFF',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 700,
+                      fontSize: '13px',
+                      boxShadow: 4 === s.step ? '0 0 15px rgba(255, 85, 0, 0.5)' : 'none'
+                    }}>
+                      <Check size={18} color="#FF5500" />
+                    </div>
+                    <span style={{ fontSize: '12px', fontWeight: 700, color: '#FF5500' }}>{s.label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div style={{ marginBottom: '24px' }}>
-              <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: '#d1fae5', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+
+            <div style={{ marginBottom: '32px' }}>
+              <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.4)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
                 <CheckCircle size={36} />
               </div>
-              <h2 className="headline-lg-mobile" style={{ color: '#0b1c30', marginBottom: '8px' }}>
+              <h2 style={{ color: '#ffffff', fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>
                 Votre Assistant Reflex est Prêt !
               </h2>
-              <p className="body-md" style={{ color: '#45464d', fontSize: '13.5px', lineHeight: 1.6 }}>
-                Les informations de <strong>{companyData.name || 'votre PME'}</strong> et votre catalogue ({productsList.length} articles) sont prêtes à être enregistrées.
+              <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: 1.6 }}>
+                Les informations de <strong style={{ color: '#ffffff' }}>{companyData.name || 'votre PME'}</strong> et votre catalogue ({productsList.length} articles) sont prêtes à être enregistrées.
               </p>
             </div>
 
-            <div style={{ backgroundColor: '#eff4ff', border: '1px solid #c4b5fd', borderRadius: '16px', padding: '24px', marginBottom: '24px', textAlign: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: 700, color: '#1877F2', fontSize: '15px', marginBottom: '8px' }}>
-                <Zap size={20} /> Meta WhatsApp Business Platform
+            <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 85, 0, 0.25)', borderRadius: '20px', padding: '28px', marginBottom: '28px', textAlign: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontWeight: 800, color: '#FF5500', fontSize: '16px', marginBottom: '10px' }}>
+                <Zap size={22} color="#FF5500" /> Meta WhatsApp Business Platform
               </div>
-              <p style={{ fontSize: '13px', color: '#45464d', margin: '0 0 20px 0', lineHeight: 1.5 }}>
-                Connectez votre numéro <strong>WhatsApp ({companyData.phone})</strong> pour activer l'IA Reflex sur votre boutique.
+              <p style={{ fontSize: '13.5px', color: '#94a3b8', margin: '0 0 24px 0', lineHeight: 1.6 }}>
+                Connectez votre numéro <strong style={{ color: '#ffffff' }}>WhatsApp ({companyData.phone})</strong> pour activer l'IA Reflex sur votre boutique.
               </p>
 
               {waConnectionStatus !== 'CONNECTED' ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', alignItems: 'center' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
                   <button
                     type="button"
                     onClick={handleLaunchMetaEmbeddedSignup}
                     disabled={waConnectionStatus === 'CONNECTING'}
                     style={{
                       width: '100%',
-                      padding: '16px 20px',
-                      fontSize: '16px',
+                      padding: '16px 24px',
+                      fontSize: '15.5px',
                       fontWeight: 800,
-                      borderRadius: '12px',
-                      background: 'linear-gradient(135deg, #25D366, #128C7E)',
+                      borderRadius: '14px',
+                      background: 'linear-gradient(135deg, #FF5500 0%, #E63900 100%)',
                       color: '#ffffff',
                       border: 'none',
                       cursor: 'pointer',
@@ -2560,35 +2592,75 @@ export default function App() {
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '12px',
-                      boxShadow: '0 8px 20px rgba(37, 211, 102, 0.35)',
-                      transition: 'transform 0.2s ease'
+                      boxShadow: '0 8px 24px rgba(255, 85, 0, 0.35)',
+                      transition: 'all 0.2s ease'
                     }}
                   >
                     <MessageSquare size={22} />
-                    {waConnectionStatus === 'CONNECTING' ? 'Connexion Meta en cours...' : 'Connecter mon WhatsApp'}
+                    {waConnectionStatus === 'CONNECTING' ? 'Connexion Meta en cours...' : 'Connecter mon WhatsApp Business (Meta OAuth Direct)'}
                   </button>
 
-                  <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, backgroundColor: '#ffffff', padding: '8px 14px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}>
-                    ⚠️ La connexion WhatsApp est obligatoire avant d'accéder au Dashboard.
+                  <div style={{ fontSize: '12.5px', color: '#cbd5e1', fontWeight: 500, backgroundColor: 'rgba(255, 255, 255, 0.04)', padding: '10px 16px', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.1)', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <Shield size={16} color="#FF5500" /> La connexion WhatsApp est obligatoire avant d'accéder au Dashboard.
+                  </div>
+
+                  {/* Manual Meta Token Fallback Collapsible */}
+                  <div style={{ width: '100%', marginTop: '8px' }}>
+                    <button
+                      type="button"
+                      onClick={() => setShowManualTokenInput(!showManualTokenInput)}
+                      style={{ background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', margin: '0 auto' }}
+                    >
+                      <Key size={15} color="#FF5500" />
+                      {showManualTokenInput ? 'Masquer la saisie de Token' : 'Saisir un Token Système Meta directement'}
+                      {showManualTokenInput ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                    </button>
+
+                    {showManualTokenInput && (
+                      <form onSubmit={handleConnectWithDirectToken} style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '14px', backgroundColor: 'rgba(11, 23, 39, 0.8)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                        <input
+                          type="text"
+                          placeholder="Collez votre Access Token Meta (EAAapZBe...)"
+                          value={manualToken}
+                          onChange={(e) => setManualToken(e.target.value)}
+                          style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', fontSize: '13px' }}
+                        />
+                        <button
+                          type="submit"
+                          disabled={manualTokenLoading}
+                          className="btn-secondary-dark"
+                          style={{ width: '100%', padding: '10px', fontSize: '13px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                        >
+                          <Key size={14} color="#FF5500" />
+                          {manualTokenLoading ? 'Vérification...' : 'Valider & Lier WhatsApp'}
+                        </button>
+                      </form>
+                    )}
                   </div>
                 </div>
               ) : (
-                <div style={{ color: '#047857', fontWeight: 800, fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', backgroundColor: '#d1fae5', padding: '14px', borderRadius: '10px' }}>
-                  <CheckCircle size={22} color="#047857" /> WhatsApp Connecté & IA Active 24/7 !
+                <div style={{ color: '#10b981', fontWeight: 800, fontSize: '15.5px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '16px', borderRadius: '12px' }}>
+                  <CheckCircle size={24} color="#10b981" /> WhatsApp Connecté & IA Active 24/7 !
                 </div>
               )}
             </div>
 
             <button
-              className="btn-primary-black"
+              type="button"
+              className="btn-primary-orange"
               style={{
                 width: '100%',
                 padding: '16px',
                 fontSize: '16px',
                 fontWeight: 700,
                 color: '#ffffff',
-                backgroundColor: waConnectionStatus === 'CONNECTED' ? '#FF5500' : '#94a3b8',
-                cursor: waConnectionStatus === 'CONNECTED' ? 'pointer' : 'not-allowed'
+                backgroundColor: waConnectionStatus === 'CONNECTED' ? '#FF5500' : '#475569',
+                cursor: waConnectionStatus === 'CONNECTED' ? 'pointer' : 'not-allowed',
+                opacity: waConnectionStatus === 'CONNECTED' ? 1 : 0.6,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px'
               }}
               onClick={handleFinalizeOnboarding}
               disabled={waConnectionStatus !== 'CONNECTED' || saveLoading}
@@ -3309,8 +3381,8 @@ export default function App() {
                   </div>
 
                   <div style={{ backgroundColor: 'rgba(255,255,255,0.04)', padding: '18px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', marginBottom: '20px', fontSize: '13.5px', color: '#cbd5e1', lineHeight: 1.6 }}>
-                    🔒 <strong style={{ color: '#ffffff' }}>Autorisation Sécurisée Meta (0 Saisie Technique) :</strong><br />
-                    Cliquez ci-dessous pour autoriser Reflex via la fenêtre pop-up officielle Meta/Facebook. Votre compte WhatsApp Business sera associé instantanément à votre espace PME sans saisir de token ni d'ID.
+                    <Lock size={16} color="#10b981" style={{ verticalAlign: 'middle', marginRight: '6px' }} /> <strong style={{ color: '#ffffff' }}>Autorisation Sécurisée Meta (0 Saisie Technique) :</strong><br />
+                    Cliquez ci-dessous pour autoriser Reflex via la fenêtre officielle Meta. Votre compte WhatsApp Business sera associé instantanément à votre espace PME.
                   </div>
 
                   <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>

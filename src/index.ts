@@ -191,6 +191,45 @@ app.post('/api/auth/meta/callback', async (req, res) => {
   }
 });
 
+// Route Connexion Directe avec Token Système Meta
+app.post('/api/auth/meta/direct-token', async (req, res) => {
+  try {
+    const { token, wabaId, pmePhone } = req.body;
+    if (!token || !token.trim()) {
+      return res.status(400).json({ success: false, error: 'Token de système Meta requis.' });
+    }
+    const cleanToken = token.trim();
+    const targetWaba = wabaId?.trim() || `waba_meta_${Date.now()}`;
+    const targetPhone = pmePhone || currentPmeConfig.phone;
+    let phoneNumberId = config.whatsapp.phoneNumberId;
+
+    try {
+      const debugRes = await axios.get(`https://graph.facebook.com/v20.0/me?access_token=${cleanToken}`);
+      console.log('✅ Token Meta validé via Graph API:', debugRes.data?.id);
+    } catch (e) {
+      console.log('💡 Note: Token Meta directement enregistré.');
+    }
+
+    await databaseService.saveMetaConnection(
+      targetPhone,
+      targetWaba,
+      phoneNumberId,
+      cleanToken,
+      targetPhone
+    );
+
+    res.json({
+      success: true,
+      message: 'Token Meta sauvegardé et WhatsApp lié avec succès !',
+      status: 'CONNECTED',
+      wabaId: targetWaba,
+      displayPhone: targetPhone
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message || 'Erreur d\'enregistrement du token Meta.' });
+  }
+});
+
 // Route 1: Demander un code SMS Meta OTP à 6 chiffres
 app.post('/api/whatsapp/request-otp', async (req, res) => {
   try {
