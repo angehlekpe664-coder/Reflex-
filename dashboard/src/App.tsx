@@ -831,7 +831,7 @@ export default function App() {
           {/* Top Navigation Bar with Relay Clean Dark Style */}
           <header className="main-header" style={{ background: 'rgba(10, 17, 29, 0.95)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', backdropFilter: 'blur(16px)', position: 'fixed', top: 0, left: 0, right: 0, width: '100%', boxSizing: 'border-box', zIndex: 1000 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-              <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
+              <img src="/logo.png" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
             </div>
 
             <div className="nav-desktop-links" style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
@@ -1721,7 +1721,7 @@ export default function App() {
               <div className="grid-responsive-footer" style={{ maxWidth: '1140px', margin: '0 auto 40px' }}>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
-                    <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '38px', borderRadius: '10px' }} />
+                    <img src="/logo.png" alt="Reflex Logo" style={{ height: '38px', borderRadius: '10px' }} />
                   </div>
                   <p style={{ fontSize: '13.5px', color: '#94a3b8', lineHeight: 1.6, maxWidth: '300px', marginBottom: '16px' }}>
                     {t.footerDesc}
@@ -1774,7 +1774,7 @@ export default function App() {
             <div className="mobile-footer-only">
               <div style={{ textAlign: 'center', marginBottom: '20px' }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                  <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '34px', borderRadius: '8px' }} />
+                  <img src="/logo.png" alt="Reflex Logo" style={{ height: '34px', borderRadius: '8px' }} />
                 </div>
                 <p style={{ fontSize: '13px', color: '#94a3b8', margin: '0 auto 12px', maxWidth: '280px', lineHeight: 1.4 }}>
                   {t.footerDesc}
@@ -1833,7 +1833,7 @@ export default function App() {
             {/* Top Brand Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-                <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '32px', width: 'auto', borderRadius: '6px' }} />
+                <img src="/logo.png" alt="Reflex Logo" style={{ height: '32px', width: 'auto', borderRadius: '6px' }} />
               </div>
             </div>
 
@@ -2160,7 +2160,7 @@ export default function App() {
         <div className="onboarding-flow" style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 60px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '540px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-              <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
+              <img src="/logo.png" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
             </div>
           </div>
 
@@ -2266,7 +2266,7 @@ export default function App() {
         <div className="onboarding-flow" style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 60px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '580px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-              <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
+              <img src="/logo.png" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
             </div>
           </div>
 
@@ -2382,7 +2382,7 @@ export default function App() {
         <div className="onboarding-flow" style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 60px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '540px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-              <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
+              <img src="/logo.png" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
             </div>
           </div>
 
@@ -2486,7 +2486,7 @@ export default function App() {
         <div className="onboarding-flow" style={{ minHeight: '100vh', backgroundColor: '#f8f9ff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 60px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '520px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-              <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
+              <img src="/logo.png" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
             </div>
           </div>
 
@@ -2605,7 +2605,7 @@ export default function App() {
       {activeView === 'payment-checkout' && (
         <div style={{ minHeight: '100vh', backgroundColor: '#0B1727', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-            <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '38px', width: 'auto', borderRadius: '10px' }} />
+            <img src="/logo.png" alt="Reflex Logo" style={{ height: '38px', width: 'auto', borderRadius: '10px' }} />
             <span className="font-outfit" style={{ fontWeight: 800, fontSize: '22px', color: '#FF5500' }}>Pay</span>
           </div>
 
@@ -2789,7 +2789,7 @@ export default function App() {
           {/* Dashboard Mobile Header with Hamburger Menu */}
           <div className="dashboard-mobile-header">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-              <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '34px', borderRadius: '8px' }} />
+              <img src="/logo.png" alt="Reflex Logo" style={{ height: '34px', borderRadius: '8px' }} />
               <span style={{ fontSize: '11px', color: '#94a3b8', display: 'block' }}>{companyData.name}</span>
             </div>
 
@@ -2830,7 +2830,7 @@ export default function App() {
           <div className="dashboard-layout-container">
             <aside className="dashboard-sidebar-container desktop-sidebar-only">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingLeft: '4px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-              <img src="/logo.jpg" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
+              <img src="/logo.png" alt="Reflex Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
               <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 500 }}>{companyData.name}</div>
             </div>
 
