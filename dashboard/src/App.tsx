@@ -1814,7 +1814,7 @@ export default function App() {
             {/* Top Brand Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-                <img src="/logo.png" alt="Reflex Logo" style={{ height: '48px', width: 'auto', borderRadius: '6px' }} />
+                <img src="/logo-light-bg.png" alt="Reflex Logo" style={{ height: '48px', width: 'auto', borderRadius: '6px' }} />
               </div>
             </div>
 
