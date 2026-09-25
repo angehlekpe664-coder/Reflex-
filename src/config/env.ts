@@ -1,31 +1,34 @@
 import dotenv from 'dotenv';
+
 dotenv.config();
 
+const env = (name: string): string => process.env[name]?.trim() || '';
+
 export const config = {
-  port: process.env.PORT || 3000,
-  nodeEnv: process.env.NODE_ENV || 'development',
-  openaiApiKey: process.env.OPENAI_API_KEY || '',
-  supabaseUrl: process.env.SUPABASE_URL || '',
-  supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+  port: Number(process.env.PORT || 3000),
+  nodeEnv: env('NODE_ENV') || 'development',
+  openaiApiKey: env('OPENAI_API_KEY'),
+  supabaseUrl: env('SUPABASE_URL'),
+  supabaseServiceKey: env('SUPABASE_SERVICE_ROLE_KEY'),
   meta: {
-    appId: process.env.META_APP_ID || '1875740770498760',
-    appSecret: process.env.META_APP_SECRET || 'a4f8e7b3b607c0f3d79025cfaad7b4c6',
-    configId: process.env.META_CONFIG_ID || '',
+    appId: env('META_APP_ID'),
+    appSecret: env('META_APP_SECRET'),
+    configId: env('META_CONFIG_ID'),
   },
   whatsapp: {
-    token: process.env.WHATSAPP_TOKEN || 'EAAapZBe5QZBMgBSuXZA1NcoV4k3CnvSzAB9K1ZCycXr3X2ZBDmjUXmELb9WGgo4j9MAqOzMuY70uZAI3woL5DRd8YNScMZBjYXXHNXRmWCJGLwqFOVk3MZCddYZCeyylfCpup3T2jfs58ZA20zcLL1BY5p6rMhshRNFHdxBrVeLrJoUBEStBVyOQZCO4jMtIXZAf7nrVZCqXzM4flAGzzcy7DC3xdvrMhdfSvMMy2s2y8znTxxePZAd2bduCcYVv8QWfippqjtsjPSZCWMukz6wL9KhJOrDaJiUowZDZD',
-    phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || '1297674883427187',
-    verifyToken: process.env.WHATSAPP_VERIFY_TOKEN || 'mon_token_verification',
+    token: env('WHATSAPP_TOKEN'),
+    phoneNumberId: env('WHATSAPP_PHONE_NUMBER_ID'),
+    verifyToken: env('WHATSAPP_VERIFY_TOKEN'),
   },
   fedapay: {
-    publicKey: process.env.FEDAPAY_PUBLIC_KEY || 'pk_live_JVbKBkCuJMTpnwgwiKi09Hom',
-    secretKey: process.env.FEDAPAY_SECRET_KEY || 'sk_live_jQV5A57A9GMJ_mzbK1YtoR3E',
-    environment: process.env.FEDAPAY_ENVIRONMENT || 'live',
+    publicKey: env('FEDAPAY_PUBLIC_KEY'),
+    secretKey: env('FEDAPAY_SECRET_KEY'),
+    environment: env('FEDAPAY_ENVIRONMENT') || 'sandbox',
   },
   kkiapay: {
-    publicKey: process.env.KKIAPAY_PUBLIC_KEY || 'e5a70a2c8cee07413917bdd6d116b763ef620c7c',
-    privateKey: process.env.KKIAPAY_PRIVATE_KEY || 'pk_8f6502aaf47f224c424cc2990cca69e2c553dd3c65b7e21a2c0c7f5dcbf697e',
-    secretKey: process.env.KKIAPAY_SECRET_KEY || 'sk_ab1d4164735f4858ad2b29582bb0c723e67972d2bb3e18261c5f2dc95520afc3',
-    environment: process.env.KKIAPAY_ENVIRONMENT || 'live',
+    publicKey: env('KKIAPAY_PUBLIC_KEY'),
+    privateKey: env('KKIAPAY_PRIVATE_KEY'),
+    secretKey: env('KKIAPAY_SECRET_KEY'),
+    environment: env('KKIAPAY_ENVIRONMENT') || 'sandbox',
   },
 };
