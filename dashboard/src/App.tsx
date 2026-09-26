@@ -185,7 +185,7 @@ export default function App() {
     setWaConnectionStatus('CONNECTING');
     // Redirection directe pleine page dans le même onglet (pas de fenêtre pop-up intempestive)
     const redirectUri = encodeURIComponent(window.location.origin);
-    const metaAuthUrl = `https://www.facebook.com/v20.0/dialog/oauth?client_id=${metaAppId}&redirect_uri=${redirectUri}&scope=whatsapp_business_management,whatsapp_business_messaging&response_type=code&extras=%7B%22feature%22%3A%22whatsapp_embedded_signup%22%7D`;
+    const metaAuthUrl = `https://www.facebook.com/v20.0/dialog/oauth?client_id=${metaAppId}&redirect_uri=${redirectUri}&scope=whatsapp_business_management,whatsapp_business_messaging,public_profile&response_type=code`;
     window.location.href = metaAuthUrl;
   };
 
