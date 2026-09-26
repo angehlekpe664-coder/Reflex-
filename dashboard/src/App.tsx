@@ -33,7 +33,6 @@ import {
   ChevronDown,
   ChevronUp,
   MessageSquare,
-  Key,
   Check,
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
@@ -180,9 +179,6 @@ export default function App() {
   // WhatsApp Official Meta Connection State
   const [waConnectionStatus, setWaConnectionStatus] = useState<'DISCONNECTED' | 'CONNECTING' | 'CONNECTED'>('DISCONNECTED');
   const [connectedWabaId, setConnectedWabaId] = useState<string | null>(null);
-  const [manualToken, setManualToken] = useState('');
-  const [showManualTokenInput, setShowManualTokenInput] = useState(false);
-  const [manualTokenLoading, setManualTokenLoading] = useState(false);
 
   const handleLaunchMetaEmbeddedSignup = () => {
     const metaAppId = (import.meta.env.VITE_META_APP_ID as string | undefined) || '1875740770498760';
@@ -191,36 +187,6 @@ export default function App() {
     const redirectUri = encodeURIComponent(window.location.origin);
     const metaAuthUrl = `https://www.facebook.com/v20.0/dialog/oauth?client_id=${metaAppId}&redirect_uri=${redirectUri}&scope=whatsapp_business_management,whatsapp_business_messaging&response_type=code&extras=%7B%22feature%22%3A%22whatsapp_embedded_signup%22%7D`;
     window.location.href = metaAuthUrl;
-  };
-
-  const handleConnectWithDirectToken = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!manualToken.trim()) {
-      showToast('Veuillez saisir votre Token Système Meta.', 'error');
-      return;
-    }
-    setManualTokenLoading(true);
-    try {
-      const res = await apiFetch('/api/auth/meta/direct-token', {
-        method: 'POST',
-        body: JSON.stringify({
-          token: manualToken,
-          pmePhone: companyData.phone
-        })
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok && data.success) {
-        setWaConnectionStatus('CONNECTED');
-        setConnectedWabaId(data.wabaId || 'waba_direct');
-        showToast('WhatsApp Business connecté avec succès via votre Token Meta !', 'success');
-      } else {
-        showToast(data.error || 'Erreur lors de la validation du Token Meta.', 'error');
-      }
-    } catch (err) {
-      showToast('Impossible de joindre le serveur Reflex.', 'error');
-    } finally {
-      setManualTokenLoading(false);
-    }
   };
 
   // Mobile Navigation Drawer State
@@ -2596,44 +2562,6 @@ export default function App() {
                     <MessageSquare size={22} />
                     {waConnectionStatus === 'CONNECTING' ? 'Connexion Meta en cours...' : 'Connecter mon WhatsApp Business (Meta OAuth Direct)'}
                   </button>
-
-                  <div style={{ fontSize: '12.5px', color: '#cbd5e1', fontWeight: 500, backgroundColor: 'rgba(255, 255, 255, 0.04)', padding: '10px 16px', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.1)', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                    <Shield size={16} color="#FF5500" /> La connexion WhatsApp est obligatoire avant d'accéder au Dashboard.
-                  </div>
-
-                  {/* Manual Meta Token Fallback Collapsible */}
-                  <div style={{ width: '100%', marginTop: '8px' }}>
-                    <button
-                      type="button"
-                      onClick={() => setShowManualTokenInput(!showManualTokenInput)}
-                      style={{ background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', margin: '0 auto' }}
-                    >
-                      <Key size={15} color="#FF5500" />
-                      {showManualTokenInput ? 'Masquer la saisie de Token' : 'Saisir un Token Système Meta directement'}
-                      {showManualTokenInput ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                    </button>
-
-                    {showManualTokenInput && (
-                      <form onSubmit={handleConnectWithDirectToken} style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '14px', backgroundColor: 'rgba(11, 23, 39, 0.8)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                        <input
-                          type="text"
-                          placeholder="Collez votre Access Token Meta (EAAapZBe...)"
-                          value={manualToken}
-                          onChange={(e) => setManualToken(e.target.value)}
-                          style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', fontSize: '13px' }}
-                        />
-                        <button
-                          type="submit"
-                          disabled={manualTokenLoading}
-                          className="btn-secondary-dark"
-                          style={{ width: '100%', padding: '10px', fontSize: '13px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                        >
-                          <Key size={14} color="#FF5500" />
-                          {manualTokenLoading ? 'Vérification...' : 'Valider & Lier WhatsApp'}
-                        </button>
-                      </form>
-                    )}
-                  </div>
                 </div>
               ) : (
                 <div style={{ color: '#10b981', fontWeight: 800, fontSize: '15.5px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '16px', borderRadius: '12px' }}>
