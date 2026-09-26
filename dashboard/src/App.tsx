@@ -32,7 +32,6 @@ import {
   EyeOff,
   ChevronDown,
   ChevronUp,
-  MessageSquare,
   Check,
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
@@ -179,6 +178,7 @@ export default function App() {
   // WhatsApp Official Meta Connection State
   const [waConnectionStatus, setWaConnectionStatus] = useState<'DISCONNECTED' | 'CONNECTING' | 'CONNECTED'>('DISCONNECTED');
   const [connectedWabaId, setConnectedWabaId] = useState<string | null>(null);
+  const [metaPrepStep, setMetaPrepStep] = useState<1 | 2>(1);
 
   const handleLaunchMetaEmbeddedSignup = () => {
     const metaAppId = (import.meta.env.VITE_META_APP_ID as string | undefined) || '1875740770498760';
@@ -2558,83 +2558,202 @@ export default function App() {
               </div>
             </div>
 
-            <div style={{ marginBottom: '32px' }}>
-              <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.4)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-                <CheckCircle size={36} />
-              </div>
-              <h2 style={{ color: '#ffffff', fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>
-                Votre Assistant Reflex est Prêt !
-              </h2>
-              <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: 1.6 }}>
-                Les informations de <strong style={{ color: '#ffffff' }}>{companyData.name || 'votre PME'}</strong> et votre catalogue ({productsList.length} articles) sont prêtes à être enregistrées.
-              </p>
-            </div>
+            {/* Step 4 Content */}
+            {waConnectionStatus !== 'CONNECTED' ? (
+              <>
+                {metaPrepStep === 1 ? (
+                  <>
+                    <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+                      <h2 style={{ color: '#ffffff', fontSize: '26px', fontWeight: 800, marginBottom: '10px' }}>
+                        Petit détour chez Meta. On vous attend ici.
+                      </h2>
+                      <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: 1.6, maxWidth: '580px', margin: '0 auto' }}>
+                        L'étape suivante se passe chez Meta, pas chez nous. Quatre choses à avoir sous la main — comptez cinq minutes.
+                      </p>
+                    </div>
 
-            <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 85, 0, 0.25)', borderRadius: '20px', padding: '28px', marginBottom: '28px', textAlign: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontWeight: 800, color: '#FF5500', fontSize: '16px', marginBottom: '10px' }}>
-                <Zap size={22} color="#FF5500" /> Meta WhatsApp Business Platform
-              </div>
-              <p style={{ fontSize: '13.5px', color: '#94a3b8', margin: '0 0 24px 0', lineHeight: 1.6 }}>
-                Connectez votre numéro <strong style={{ color: '#ffffff' }}>WhatsApp ({companyData.phone})</strong> pour activer l'IA Reflex sur votre boutique.
-              </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'left', marginBottom: '32px' }}>
+                      {/* Item 1 */}
+                      <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '18px 20px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: 'rgba(255, 85, 0, 0.15)', color: '#FF5500', fontWeight: 800, fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
+                          1
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: 800, color: '#ffffff', fontSize: '15px', marginBottom: '4px' }}>Un compte Facebook</div>
+                          <div style={{ fontSize: '13px', color: '#94a3b8', lineHeight: 1.5 }}>
+                            Meta vous demandera de vous connecter. N'importe quel compte personnel convient ; il devient l'administrateur de votre compte WhatsApp Business.
+                          </div>
+                        </div>
+                      </div>
 
-              {waConnectionStatus !== 'CONNECTED' ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
-                  <button
-                    type="button"
-                    onClick={handleLaunchMetaEmbeddedSignup}
-                    disabled={waConnectionStatus === 'CONNECTING'}
-                    style={{
-                      width: '100%',
-                      padding: '16px 24px',
-                      fontSize: '15.5px',
-                      fontWeight: 800,
-                      borderRadius: '14px',
-                      background: 'linear-gradient(135deg, #FF5500 0%, #E63900 100%)',
-                      color: '#ffffff',
-                      border: 'none',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '12px',
-                      boxShadow: '0 8px 24px rgba(255, 85, 0, 0.35)',
-                      transition: 'all 0.2s ease'
-                    }}
-                  >
-                    <MessageSquare size={22} />
-                    {waConnectionStatus === 'CONNECTING' ? 'Connexion Meta en cours...' : 'Connecter mon WhatsApp Business (Meta OAuth Direct)'}
-                  </button>
+                      {/* Item 2 */}
+                      <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '18px 20px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: 'rgba(255, 85, 0, 0.15)', color: '#FF5500', fontWeight: 800, fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
+                          2
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: 800, color: '#ffffff', fontSize: '15px', marginBottom: '4px' }}>Le nom et les infos de votre entreprise</div>
+                          <div style={{ fontSize: '13px', color: '#94a3b8', lineHeight: 1.5 }}>
+                            Si vous n'avez pas encore de portfolio Business Meta, Meta le crée avec vous en chemin — ayez sous la main le nom, l'adresse et le site de votre entreprise.
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Item 3 */}
+                      <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '18px 20px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: 'rgba(255, 85, 0, 0.15)', color: '#FF5500', fontWeight: 800, fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
+                          3
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: 800, color: '#ffffff', fontSize: '15px', marginBottom: '4px' }}>Votre numéro — déjà sur WhatsApp Business, c'est bon</div>
+                          <div style={{ fontSize: '13px', color: '#94a3b8', lineHeight: 1.5 }}>
+                            Gardez-le. Meta détecte un numéro qui tourne sur l'application WhatsApp Business et bascule en coexistence : l'application continue de fonctionner et vos conversations restent synchronisées. Mettez d'abord l'application à jour (2.24.17 ou plus). Seul un numéro sur WhatsApp classique doit être libéré — supprimez ce compte, ou utilisez un autre numéro.
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Item 4 */}
+                      <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '18px 20px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: 'rgba(255, 85, 0, 0.15)', color: '#FF5500', fontWeight: 800, fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
+                          4
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: 800, color: '#ffffff', fontSize: '15px', marginBottom: '4px' }}>Ce téléphone, avec vous maintenant</div>
+                          <div style={{ fontSize: '13px', color: '#94a3b8', lineHeight: 1.5 }}>
+                            Meta y envoie un code et la fenêtre attend que vous le saisissiez. Depuis l'application WhatsApp Business, vous recevez en plus une notification à toucher et un choix de partage de données à confirmer — le tout sur le téléphone.
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setMetaPrepStep(2)}
+                      style={{
+                        width: '100%',
+                        padding: '16px',
+                        fontSize: '16px',
+                        fontWeight: 800,
+                        borderRadius: '14px',
+                        background: 'linear-gradient(135deg, #FF5500 0%, #E63900 100%)',
+                        color: '#ffffff',
+                        border: 'none',
+                        cursor: 'pointer',
+                        boxShadow: '0 8px 24px rgba(255, 85, 0, 0.35)',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      Je suis prêt — ouvrir Meta
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+                      <h2 style={{ color: '#ffffff', fontSize: '26px', fontWeight: 800, marginBottom: '10px' }}>
+                        Petit détour chez Meta. On vous attend ici.
+                      </h2>
+                    </div>
+
+                    <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 85, 0, 0.3)', borderRadius: '20px', padding: '32px 28px', marginBottom: '28px', textAlign: 'left' }}>
+                      <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#ffffff', marginBottom: '20px', textAlign: 'center' }}>
+                        Votre compte Facebook, votre numéro. Et c'est parti.
+                      </h3>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '28px' }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', fontSize: '14px', color: '#cbd5e1', lineHeight: 1.5 }}>
+                          <CheckCircle size={20} color="#10b981" style={{ flexShrink: 0, marginTop: '2px' }} />
+                          <span>Connectez-vous avec le compte qui administre votre portefeuille Meta.</span>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', fontSize: '14px', color: '#cbd5e1', lineHeight: 1.5 }}>
+                          <CheckCircle size={20} color="#10b981" style={{ flexShrink: 0, marginTop: '2px' }} />
+                          <span>Gardez votre téléphone à portée de main pour la vérification. Un numéro WhatsApp Business existant peut conserver l'app si la coexistence est proposée.</span>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', fontSize: '14px', color: '#cbd5e1', lineHeight: 1.5 }}>
+                          <CheckCircle size={20} color="#10b981" style={{ flexShrink: 0, marginTop: '2px' }} />
+                          <span>Autorisez Reflex à gérer les messages du numéro choisi.</span>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleLaunchMetaEmbeddedSignup}
+                        disabled={waConnectionStatus === 'CONNECTING'}
+                        style={{
+                          width: '100%',
+                          padding: '16px 24px',
+                          fontSize: '16px',
+                          fontWeight: 800,
+                          borderRadius: '14px',
+                          background: 'linear-gradient(135deg, #FF5500 0%, #E63900 100%)',
+                          color: '#ffffff',
+                          border: 'none',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '12px',
+                          boxShadow: '0 8px 24px rgba(255, 85, 0, 0.35)',
+                          transition: 'all 0.2s ease',
+                          marginBottom: '14px'
+                        }}
+                      >
+                        {waConnectionStatus === 'CONNECTING' ? 'Connexion Meta en cours...' : 'Continuer avec Facebook ↗'}
+                      </button>
+
+                      <div style={{ textAlign: 'center', fontSize: '12.5px', color: '#94a3b8' }}>
+                        Une fenêtre Meta s'ouvre. Votre progression reste ici, bien au chaud.
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setMetaPrepStep(1)}
+                      style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '13.5px', cursor: 'pointer', textDecoration: 'underline' }}
+                    >
+                      ← Revoir les 4 prérequis
+                    </button>
+                  </>
+                )}
+              </>
+            ) : (
+              <>
+                <div style={{ marginBottom: '32px' }}>
+                  <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.4)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                    <CheckCircle size={36} />
+                  </div>
+                  <h2 style={{ color: '#ffffff', fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>
+                    Connexion WhatsApp Réussie !
+                  </h2>
+                  <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: 1.6 }}>
+                    Votre compte WhatsApp Business est désormais raccordé à Reflex. L'IA autonome est prête à gérer votre boutique.
+                  </p>
                 </div>
-              ) : (
-                <div style={{ color: '#10b981', fontWeight: 800, fontSize: '15.5px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '16px', borderRadius: '12px' }}>
-                  <CheckCircle size={24} color="#10b981" /> WhatsApp Connecté & IA Active 24/7 !
-                </div>
-              )}
-            </div>
 
-            <button
-              type="button"
-              className="btn-primary-orange"
-              style={{
-                width: '100%',
-                padding: '16px',
-                fontSize: '16px',
-                fontWeight: 700,
-                color: '#ffffff',
-                backgroundColor: waConnectionStatus === 'CONNECTED' ? '#FF5500' : '#475569',
-                cursor: waConnectionStatus === 'CONNECTED' ? 'pointer' : 'not-allowed',
-                opacity: waConnectionStatus === 'CONNECTED' ? 1 : 0.6,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '10px'
-              }}
-              onClick={handleFinalizeOnboarding}
-              disabled={waConnectionStatus !== 'CONNECTED' || saveLoading}
-            >
-              {saveLoading ? 'Enregistrement...' : 'Valider & Accéder à mon Dashboard'} <ArrowRight size={20} />
-            </button>
+                <button
+                  type="button"
+                  className="btn-primary-orange"
+                  style={{
+                    width: '100%',
+                    padding: '16px',
+                    fontSize: '16px',
+                    fontWeight: 700,
+                    color: '#ffffff',
+                    backgroundColor: '#FF5500',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '10px'
+                  }}
+                  onClick={handleFinalizeOnboarding}
+                  disabled={saveLoading}
+                >
+                  {saveLoading ? 'Enregistrement...' : 'Valider & Accéder à mon Dashboard'} <ArrowRight size={20} />
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
