@@ -1457,7 +1457,7 @@ export default function App() {
                   boxShadow: '0 4px 15px rgba(255, 85, 0, 0.45)',
                   whiteSpace: 'nowrap'
                 }}>
-                  {currentLang === 'FR' ? '★ LE PLUS POPULAIRE' : '★ MOST POPULAR'}
+                  {currentLang === 'FR' ? 'LE PLUS POPULAIRE' : 'MOST POPULAR'}
                 </div>
 
                 <div>
@@ -1881,7 +1881,7 @@ export default function App() {
               {showOtpStep ? (
                 <form onSubmit={handleVerifyOtpSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   <div style={{ backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', borderRadius: '12px', padding: '14px', textAlign: 'center' }}>
-                    <div style={{ fontWeight: 700, color: '#FF5500', fontSize: '14px', marginBottom: '4px' }}>📧 Code OTP Envoyé</div>
+                    <div style={{ fontWeight: 700, color: '#FF5500', fontSize: '14px', marginBottom: '4px' }}>Code OTP Envoyé</div>
                     <p style={{ fontSize: '12.5px', color: '#cbd5e1', margin: 0, lineHeight: 1.4 }}>
                       Un code de confirmation à 6 chiffres a été envoyé à <strong style={{ color: '#ffffff' }}>{email}</strong>.
                     </p>
@@ -2832,7 +2832,7 @@ export default function App() {
             {/* FedaPay Info Badge */}
             <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.08)', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.25)', padding: '14px', marginBottom: '24px', textAlign: 'center' }}>
               <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#ffffff' }}>
-                💳 Encaissement Sécurisé par FedaPay
+                Encaissement Sécurisé par FedaPay
               </div>
               <div style={{ fontSize: '12px', color: '#cbd5e1', marginTop: '4px' }}>
                 MTN Mobile Money, Moov Money, Wave & Cartes bancaires (Bénin & Afrique de l'Ouest)
@@ -2920,7 +2920,7 @@ export default function App() {
                 {/* FedaPay Secure Info Badge */}
                 <div style={{ backgroundColor: 'rgba(255, 85, 0, 0.08)', borderRadius: '12px', border: '1px solid rgba(255, 85, 0, 0.25)', padding: '14px', marginBottom: '24px', textAlign: 'center' }}>
                   <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#ffffff' }}>
-                    💳 Paiement Sécurisé via FedaPay
+                    Paiement Sécurisé via FedaPay
                   </div>
                   <div style={{ fontSize: '12px', color: '#cbd5e1', marginTop: '4px' }}>
                     MTN Mobile Money, Moov Money, Wave & Cartes bancaires acceptés.
@@ -3052,7 +3052,13 @@ export default function App() {
                     {tab}
                   </button>
                 ))}
-                <button className="sidebar-link" onClick={() => { setActiveView('landing'); setDashMobileMenuOpen(false); }} style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '12px', marginTop: '6px' }}>
+                <button className="sidebar-link" onClick={() => { setActiveView('payment-checkout'); setDashMobileMenuOpen(false); }} style={{ color: '#FF5500', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '12px', marginTop: '6px' }}>
+                  <CreditCard size={16} color="#FF5500" /> Page Paiement Client
+                </button>
+                <button className="sidebar-link" onClick={() => { setActiveView('onboarding-plan-payment'); setDashMobileMenuOpen(false); }} style={{ color: '#38bdf8' }}>
+                  <CreditCard size={16} color="#38bdf8" /> Page Paiement Abonnement
+                </button>
+                <button className="sidebar-link" onClick={() => { setActiveView('landing'); setDashMobileMenuOpen(false); }}>
                   <Globe size={16} /> Page d'accueil
                 </button>
                 <button className="sidebar-link" onClick={() => { toggleDarkMode(); setDashMobileMenuOpen(false); }}>
@@ -3107,6 +3113,12 @@ export default function App() {
             </nav>
 
             <div style={{ marginTop: 'auto', borderTop: '1px solid var(--border-subtle)', paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <button className="sidebar-link" onClick={() => setActiveView('payment-checkout')} style={{ color: '#FF5500' }}>
+                <CreditCard size={16} color="#FF5500" /> Page Paiement Client
+              </button>
+              <button className="sidebar-link" onClick={() => setActiveView('onboarding-plan-payment')} style={{ color: '#38bdf8' }}>
+                <CreditCard size={16} color="#38bdf8" /> Page Paiement Abonnement
+              </button>
               <button className="sidebar-link" onClick={() => setActiveView('landing')}>
                 <Globe size={16} /> Page d'accueil
               </button>

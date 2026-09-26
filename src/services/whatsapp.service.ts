@@ -129,7 +129,7 @@ export class WhatsAppService {
       this.activeOtpStore.set(cleanPhone, { code: realCode, expiresAt });
 
       // Envoi du message avec le code
-      const otpText = `🔑 Code de vérification Reflex : ${realCode}. Entrez ce code sur votre Dashboard pour activer l'IA sur votre numéro.`;
+      const otpText = `Code de vérification Reflex : ${realCode}. Entrez ce code sur votre Dashboard pour activer l'IA sur votre numéro.`;
       
       try {
         await this.sendTextMessage(toPhone, otpText, creds);

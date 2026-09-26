@@ -403,9 +403,9 @@ app.post('/api/payments/fedapay/webhook', verifyPaymentWebhookSignature, async (
       const customerPhone = existingOrder?.phone || transaction?.customer?.phone_number?.number;
       if (customerPhone) {
         const receiptUrl = `https://reflex-zjf7.onrender.com/api/reports/pdf/${orderId}`;
-        const confirmMsg = `✅ *PAIEMENT CONFIRMÉ - REFLEX*\n\n` +
+        const confirmMsg = `*PAIEMENT CONFIRMÉ - REFLEX*\n\n` +
           `Merci ! Votre paiement de *${amount.toLocaleString()} FCFA* a été validé avec succès.\n\n` +
-          `📄 Téléchargez votre reçu officiel ici :\n${receiptUrl}`;
+          `Téléchargez votre reçu officiel ici :\n${receiptUrl}`;
 
         await whatsappService.sendTextMessage(customerPhone, confirmMsg);
       }
@@ -632,7 +632,7 @@ setInterval(async () => {
 
       for (const order of unpaidOrders) {
         if (order.customer_phone) {
-          const reminderMsg = `Bonjour ${order.customer_name || ''} ! 👋\n\n` +
+          const reminderMsg = `Bonjour ${order.customer_name || ''} !\n\n` +
             `Votre commande *${order.items_description || 'Reflex PME'}* de *${(order.total_amount || 0).toLocaleString()} FCFA* est toujours en attente de règlement.\n\n` +
             `Finalisez votre achat en 1 clic via Mobile Money. Besoin d'aide ? Répondez simplement à ce message !`;
 

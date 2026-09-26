@@ -28,7 +28,7 @@ export function WhatsAppSimulator({ currentLang, onCheckout }: { currentLang: La
     {
       id: '2',
       sender: 'bot',
-      text: isEn ? 'Hello 👋! Yes, the 18" Brazilian Wig is available (4 left in stock). Price: 45,000 FCFA.' : 'Bonjour 👋 ! Oui, la Perruque Brésilienne 18" est disponible (Reste 4 en stock). Prix: 45.000 FCFA.',
+      text: isEn ? 'Hello! Yes, the 18" Brazilian Wig is available (4 left in stock). Price: 45,000 FCFA.' : 'Bonjour ! Oui, la Perruque Brésilienne 18" est disponible (Reste 4 en stock). Prix: 45.000 FCFA.',
       time: '14:32'
     },
     {
@@ -97,8 +97,8 @@ export function WhatsAppSimulator({ currentLang, onCheckout }: { currentLang: La
         payLink = { amount: 25000, item: isEn ? 'Premium Evening Dress' : 'Robe de Soirée Premium' };
       } else if (lower.includes('bonjour') || lower.includes('hi') || lower.includes('hello')) {
         replyText = isEn
-          ? 'Hello and welcome to Elegance Boutique! What would you like to order today? 🛍️'
-          : 'Bonjour et bienvenue chez Boutique Élégance ! Que souhaitez-vous commander aujourd’hui ? 🛍️';
+          ? 'Hello and welcome to Elegance Boutique! What would you like to order today?'
+          : 'Bonjour et bienvenue chez Boutique Élégance ! Que souhaitez-vous commander aujourd’hui ?';
       }
 
       setMessages(prev => [
