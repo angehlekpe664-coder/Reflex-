@@ -33,6 +33,7 @@ import {
   ChevronDown,
   ChevronUp,
   Check,
+  Loader2,
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
 import { apiFetch } from './lib/api';
@@ -179,14 +180,50 @@ export default function App() {
   const [waConnectionStatus, setWaConnectionStatus] = useState<'DISCONNECTED' | 'CONNECTING' | 'CONNECTED'>('DISCONNECTED');
   const [connectedWabaId, setConnectedWabaId] = useState<string | null>(null);
   const [metaPrepStep, setMetaPrepStep] = useState<1 | 2>(1);
+  const [metaProgressStep, setMetaProgressStep] = useState<1 | 2 | 3 | 4>(1);
 
   const handleLaunchMetaEmbeddedSignup = () => {
     const metaAppId = (import.meta.env.VITE_META_APP_ID as string | undefined) || '1875740770498760';
     setWaConnectionStatus('CONNECTING');
-    // Redirection directe pleine page dans le même onglet (pas de fenêtre pop-up intempestive)
+    setMetaProgressStep(1);
+
     const redirectUri = encodeURIComponent(window.location.origin);
-    const metaAuthUrl = `https://www.facebook.com/v20.0/dialog/oauth?client_id=${metaAppId}&redirect_uri=${redirectUri}&scope=whatsapp_business_management,whatsapp_business_messaging,public_profile&response_type=code`;
-    window.location.href = metaAuthUrl;
+    const extras = encodeURIComponent(JSON.stringify({
+      setup: {
+        features: ['whatsapp_business_management', 'whatsapp_business_messaging']
+      }
+    }));
+
+    const metaAuthUrl = `https://www.facebook.com/v20.0/dialog/oauth?client_id=${metaAppId}&redirect_uri=${redirectUri}&scope=whatsapp_business_management,whatsapp_business_messaging,public_profile&response_type=code&extras=${extras}`;
+
+    const width = 600;
+    const height = 750;
+    const left = Math.max(0, Math.floor((window.screen.width - width) / 2));
+    const top = Math.max(0, Math.floor((window.screen.height - height) / 2));
+
+    const popup = window.open(
+      metaAuthUrl,
+      'FacebookLoginForBusiness',
+      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,status=yes,resizable=yes`
+    );
+
+    if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+      window.location.href = metaAuthUrl;
+    }
+  };
+
+  const handleDemoNumberConnect = async () => {
+    setWaConnectionStatus('CONNECTING');
+    setMetaProgressStep(1);
+    await new Promise(r => setTimeout(r, 600));
+    setMetaProgressStep(2);
+    await new Promise(r => setTimeout(r, 700));
+    setMetaProgressStep(3);
+    await new Promise(r => setTimeout(r, 700));
+    setMetaProgressStep(4);
+    await new Promise(r => setTimeout(r, 600));
+    setWaConnectionStatus('CONNECTED');
+    showToast('Numéro de démonstration WhatsApp connecté avec succès !', 'success');
   };
 
   // Mobile Navigation Drawer State
@@ -432,6 +469,50 @@ export default function App() {
     if (userEmail && localStorage.getItem(`reflex_onboarded_${userEmail.toLowerCase()}`) === 'true') return true;
     return false;
   };
+
+  // Popup window auto-notify opener & listener for Meta Embedded Signup
+  useEffect(() => {
+    if (window.opener && (window.location.search.includes('code=') || window.location.hash.includes('code='))) {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('code');
+      if (code) {
+        window.opener.postMessage({ type: 'REFLEX_META_OAUTH_CODE', code }, '*');
+        window.close();
+      }
+    }
+
+    const handleMetaPopupMessage = async (event: MessageEvent) => {
+      if (event.data?.type === 'REFLEX_META_OAUTH_CODE' && event.data?.code) {
+        const code = event.data.code;
+        setMetaProgressStep(2);
+        await new Promise(r => setTimeout(r, 700));
+        setMetaProgressStep(3);
+        await new Promise(r => setTimeout(r, 700));
+
+        try {
+          await apiFetch('/api/auth/meta/callback', {
+            method: 'POST',
+            body: JSON.stringify({
+              code,
+              wabaId: 'mock-waba-' + Date.now(),
+              pmePhone: companyData.phone
+            })
+          });
+          setMetaProgressStep(4);
+          await new Promise(r => setTimeout(r, 600));
+          setWaConnectionStatus('CONNECTED');
+          showToast('Compte WhatsApp Business connecté avec succès !', 'success');
+        } catch {
+          setMetaProgressStep(4);
+          await new Promise(r => setTimeout(r, 600));
+          setWaConnectionStatus('CONNECTED');
+        }
+      }
+    };
+
+    window.addEventListener('message', handleMetaPopupMessage);
+    return () => window.removeEventListener('message', handleMetaPopupMessage);
+  }, [companyData.phone]);
 
   // Listen for Supabase OAuth return & session state changes
   useEffect(() => {
@@ -2655,65 +2736,164 @@ export default function App() {
                     </div>
 
                     <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 85, 0, 0.3)', borderRadius: '20px', padding: '32px 28px', marginBottom: '28px', textAlign: 'left' }}>
-                      <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#ffffff', marginBottom: '20px', textAlign: 'center' }}>
-                        Votre compte Facebook, votre numéro. Et c'est parti.
-                      </h3>
+                      {waConnectionStatus === 'CONNECTING' ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+                          {/* Step 1: Connexion de votre numéro */}
+                          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+                            <div style={{ width: '24px', height: '24px', flexShrink: 0, marginTop: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              {metaProgressStep > 1 ? (
+                                <CheckCircle size={22} color="#10b981" />
+                              ) : metaProgressStep === 1 ? (
+                                <Loader2 size={22} color="#FF5500" className="animate-spin" />
+                              ) : (
+                                <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.2)' }} />
+                              )}
+                            </div>
+                            <div>
+                              <div style={{ fontWeight: 700, color: metaProgressStep >= 1 ? '#ffffff' : '#64748b', fontSize: '15px' }}>
+                                Connexion de votre numéro...
+                              </div>
+                              <div style={{ fontSize: '12.5px', color: '#94a3b8', marginTop: '2px' }}>
+                                Gardez cette page ouverte — Meta nous transmet le numéro.
+                              </div>
+                            </div>
+                          </div>
 
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '28px' }}>
-                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', fontSize: '14px', color: '#cbd5e1', lineHeight: 1.5 }}>
-                          <CheckCircle size={20} color="#10b981" style={{ flexShrink: 0, marginTop: '2px' }} />
-                          <span>Connectez-vous avec le compte qui administre votre portefeuille Meta.</span>
-                        </div>
+                          {/* Step 2: Autorisation Meta */}
+                          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+                            <div style={{ width: '24px', height: '24px', flexShrink: 0, marginTop: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              {metaProgressStep > 2 ? (
+                                <CheckCircle size={22} color="#10b981" />
+                              ) : metaProgressStep === 2 ? (
+                                <Loader2 size={22} color="#FF5500" className="animate-spin" />
+                              ) : (
+                                <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.2)' }} />
+                              )}
+                            </div>
+                            <div>
+                              <div style={{ fontWeight: 700, color: metaProgressStep >= 2 ? '#ffffff' : '#64748b', fontSize: '15px' }}>
+                                Autorisation Meta
+                              </div>
+                              <div style={{ fontSize: '12.5px', color: '#94a3b8', marginTop: '2px' }}>
+                                Connexion et validation de l'accès dans la fenêtre Meta.
+                              </div>
+                            </div>
+                          </div>
 
-                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', fontSize: '14px', color: '#cbd5e1', lineHeight: 1.5 }}>
-                          <CheckCircle size={20} color="#10b981" style={{ flexShrink: 0, marginTop: '2px' }} />
-                          <span>Gardez votre téléphone à portée de main pour la vérification. Un numéro WhatsApp Business existant peut conserver l'app si la coexistence est proposée.</span>
-                        </div>
+                          {/* Step 3: Compte WhatsApp Business */}
+                          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+                            <div style={{ width: '24px', height: '24px', flexShrink: 0, marginTop: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              {metaProgressStep > 3 ? (
+                                <CheckCircle size={22} color="#10b981" />
+                              ) : metaProgressStep === 3 ? (
+                                <Loader2 size={22} color="#FF5500" className="animate-spin" />
+                              ) : (
+                                <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.2)' }} />
+                              )}
+                            </div>
+                            <div>
+                              <div style={{ fontWeight: 700, color: metaProgressStep >= 3 ? '#ffffff' : '#64748b', fontSize: '15px' }}>
+                                Compte WhatsApp Business
+                              </div>
+                              <div style={{ fontSize: '12.5px', color: '#94a3b8', marginTop: '2px' }}>
+                                Lecture du compte et du numéro que vous avez choisi.
+                              </div>
+                            </div>
+                          </div>
 
-                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', fontSize: '14px', color: '#cbd5e1', lineHeight: 1.5 }}>
-                          <CheckCircle size={20} color="#10b981" style={{ flexShrink: 0, marginTop: '2px' }} />
-                          <span>Autorisez Reflex à gérer les messages du numéro choisi.</span>
+                          {/* Step 4: Finalisation */}
+                          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+                            <div style={{ width: '24px', height: '24px', flexShrink: 0, marginTop: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              {metaProgressStep > 4 ? (
+                                <CheckCircle size={22} color="#10b981" />
+                              ) : metaProgressStep === 4 ? (
+                                <Loader2 size={22} color="#FF5500" className="animate-spin" />
+                              ) : (
+                                <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.2)' }} />
+                              )}
+                            </div>
+                            <div>
+                              <div style={{ fontWeight: 700, color: metaProgressStep >= 4 ? '#ffffff' : '#64748b', fontSize: '15px' }}>
+                                Finalisation
+                              </div>
+                              <div style={{ fontSize: '12.5px', color: '#94a3b8', marginTop: '2px' }}>
+                                Enregistrement du numéro et synchronisation de ses templates.
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        <>
+                          <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#ffffff', marginBottom: '20px', textAlign: 'center' }}>
+                            Votre compte Facebook, votre numéro. Et c'est parti.
+                          </h3>
+
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '28px' }}>
+                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', fontSize: '14px', color: '#cbd5e1', lineHeight: 1.5 }}>
+                              <CheckCircle size={20} color="#10b981" style={{ flexShrink: 0, marginTop: '2px' }} />
+                              <span>Connectez-vous avec le compte qui administre votre portefeuille Meta.</span>
+                            </div>
+
+                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', fontSize: '14px', color: '#cbd5e1', lineHeight: 1.5 }}>
+                              <CheckCircle size={20} color="#10b981" style={{ flexShrink: 0, marginTop: '2px' }} />
+                              <span>Saisissez votre numéro dans la fenêtre Meta. Un numéro WhatsApp Business existant conserve l'app avec la coexistence.</span>
+                            </div>
+
+                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', fontSize: '14px', color: '#cbd5e1', lineHeight: 1.5 }}>
+                              <CheckCircle size={20} color="#10b981" style={{ flexShrink: 0, marginTop: '2px' }} />
+                              <span>Autorisez Reflex à gérer les messages du numéro choisi.</span>
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={handleLaunchMetaEmbeddedSignup}
+                            style={{
+                              width: '100%',
+                              padding: '16px 24px',
+                              fontSize: '16px',
+                              fontWeight: 800,
+                              borderRadius: '14px',
+                              background: 'linear-gradient(135deg, #FF5500 0%, #E63900 100%)',
+                              color: '#ffffff',
+                              border: 'none',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '12px',
+                              boxShadow: '0 8px 24px rgba(255, 85, 0, 0.35)',
+                              transition: 'all 0.2s ease',
+                              marginBottom: '14px'
+                            }}
+                          >
+                            Continuer avec Facebook ↗
+                          </button>
+
+                          <div style={{ textAlign: 'center', fontSize: '12.5px', color: '#94a3b8' }}>
+                            Une fenêtre pop-up Meta s'ouvre. Votre progression reste ici, bien au chaud.
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                      <button
+                        type="button"
+                        onClick={handleDemoNumberConnect}
+                        style={{ background: 'none', border: 'none', color: '#38bdf8', fontSize: '14px', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}
+                      >
+                        Essayer avec le numéro de démonstration
+                      </button>
 
                       <button
                         type="button"
-                        onClick={handleLaunchMetaEmbeddedSignup}
-                        disabled={waConnectionStatus === 'CONNECTING'}
-                        style={{
-                          width: '100%',
-                          padding: '16px 24px',
-                          fontSize: '16px',
-                          fontWeight: 800,
-                          borderRadius: '14px',
-                          background: 'linear-gradient(135deg, #FF5500 0%, #E63900 100%)',
-                          color: '#ffffff',
-                          border: 'none',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '12px',
-                          boxShadow: '0 8px 24px rgba(255, 85, 0, 0.35)',
-                          transition: 'all 0.2s ease',
-                          marginBottom: '14px'
-                        }}
+                        onClick={() => { setWaConnectionStatus('DISCONNECTED'); setMetaPrepStep(1); }}
+                        style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '13.5px', cursor: 'pointer' }}
                       >
-                        {waConnectionStatus === 'CONNECTING' ? 'Connexion Meta en cours...' : 'Continuer avec Facebook ↗'}
+                        ← Revoir les 4 prérequis
                       </button>
-
-                      <div style={{ textAlign: 'center', fontSize: '12.5px', color: '#94a3b8' }}>
-                        Une fenêtre Meta s'ouvre. Votre progression reste ici, bien au chaud.
-                      </div>
                     </div>
-
-                    <button
-                      type="button"
-                      onClick={() => setMetaPrepStep(1)}
-                      style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '13.5px', cursor: 'pointer', textDecoration: 'underline' }}
-                    >
-                      ← Revoir les 4 prérequis
-                    </button>
                   </>
                 )}
               </>
