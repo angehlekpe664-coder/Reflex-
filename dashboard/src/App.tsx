@@ -1810,20 +1810,20 @@ export default function App() {
         <div className="auth-split-wrapper">
           
           {/* LEFT COLUMN: FORM SIDE (EXACT 50% Desktop, 100% Mobile) */}
-          <div className="auth-split-left">
+          <div className="auth-split-left" style={{ backgroundColor: '#0B1727', color: '#ffffff' }}>
             {/* Top Brand Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-                <img src="/logo-light-bg.png" alt="Reflex Logo" style={{ height: '48px', width: 'auto', borderRadius: '6px' }} />
+                <img src="/logo.png" alt="Reflex Logo" style={{ height: '48px', width: 'auto' }} />
               </div>
             </div>
 
             {/* Main Form Center Content */}
             <div style={{ width: '100%', maxWidth: '420px', margin: 'auto 0' }}>
-              <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#0b1c30', marginBottom: '4px', letterSpacing: '-0.5px' }}>
+              <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#ffffff', marginBottom: '6px', letterSpacing: '-0.5px' }}>
                 {authMode === 'signup' ? t.authWelcomeSignup : t.authWelcomeLogin}
               </h1>
-              <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px', lineHeight: '1.4' }}>
+              <p style={{ fontSize: '13.5px', color: '#94a3b8', marginBottom: '20px', lineHeight: '1.5' }}>
                 {authMode === 'signup' 
                   ? t.authSubSignup
                   : t.authSubLogin}
@@ -1835,21 +1835,21 @@ export default function App() {
                 onClick={handleGoogleAuth}
                 style={{
                   width: '100%',
-                  padding: '9px 14px',
-                  borderRadius: '8px',
-                  border: '1px solid #CBD5E1',
-                  backgroundColor: '#ffffff',
-                  color: '#0f172a',
-                  fontSize: '13.5px',
+                  padding: '11px 16px',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                  color: '#ffffff',
+                  fontSize: '14px',
                   fontWeight: 600,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '10px',
                   cursor: 'pointer',
-                  boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
                   transition: 'all 0.2s ease',
-                  marginBottom: '12px'
+                  marginBottom: '16px'
                 }}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24">
@@ -1862,24 +1862,24 @@ export default function App() {
               </button>
 
               {/* Divider */}
-              <div style={{ display: 'flex', alignItems: 'center', margin: '12px 0', color: '#94a3b8' }}>
-                <div style={{ flex: 1, borderBottom: '1px solid #E2E8F0' }}></div>
-                <span style={{ padding: '0 10px', fontSize: '11.5px', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.authOrSeparator}</span>
-                <div style={{ flex: 1, borderBottom: '1px solid #E2E8F0' }}></div>
+              <div style={{ display: 'flex', alignItems: 'center', margin: '16px 0', color: '#64748b' }}>
+                <div style={{ flex: 1, borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}></div>
+                <span style={{ padding: '0 12px', fontSize: '11.5px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.authOrSeparator}</span>
+                <div style={{ flex: 1, borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}></div>
               </div>
 
               {/* Form Content: OTP Verification vs Standard Auth Form */}
               {showOtpStep ? (
                 <form onSubmit={handleVerifyOtpSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  <div style={{ backgroundColor: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
-                    <div style={{ fontWeight: 700, color: '#2563eb', fontSize: '14px', marginBottom: '2px' }}>📧 OTP Code Sent</div>
-                    <p style={{ fontSize: '12.5px', color: '#475569', margin: 0, lineHeight: 1.4 }}>
-                      A 6-digit confirmation code was sent to <strong>{email}</strong>.
+                  <div style={{ backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', borderRadius: '12px', padding: '14px', textAlign: 'center' }}>
+                    <div style={{ fontWeight: 700, color: '#FF5500', fontSize: '14px', marginBottom: '4px' }}>📧 Code OTP Envoyé</div>
+                    <p style={{ fontSize: '12.5px', color: '#cbd5e1', margin: 0, lineHeight: 1.4 }}>
+                      Un code de confirmation à 6 chiffres a été envoyé à <strong style={{ color: '#ffffff' }}>{email}</strong>.
                     </p>
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '12px', fontWeight: 600, color: '#0f172a', marginBottom: '6px', display: 'block', textAlign: 'center' }}>Enter code</label>
+                    <label style={{ fontSize: '12px', fontWeight: 600, color: '#e2e8f0', marginBottom: '6px', display: 'block', textAlign: 'center' }}>Entrez le code</label>
                     <input
                       type="text"
                       required
@@ -1889,11 +1889,13 @@ export default function App() {
                       onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 8))}
                       style={{
                         width: '100%',
-                        padding: '10px',
-                        borderRadius: '8px',
-                        border: '2px solid #3b82f6',
+                        padding: '12px',
+                        borderRadius: '12px',
+                        border: '2px solid #FF5500',
+                        backgroundColor: 'rgba(11, 23, 39, 0.9)',
+                        color: '#ffffff',
                         outline: 'none',
-                        fontSize: '20px',
+                        fontSize: '22px',
                         fontWeight: 800,
                         letterSpacing: '0.2em',
                         textAlign: 'center'
@@ -1901,68 +1903,68 @@ export default function App() {
                     />
                   </div>
 
-                  <button type="submit" style={{ width: '100%', padding: '11px', fontSize: '14.5px', borderRadius: '8px', backgroundColor: '#2563eb', color: '#ffffff', border: 'none', fontWeight: 700, cursor: 'pointer' }} disabled={authLoading}>
-                    {authLoading ? 'Validating...' : 'Validate Code →'}
+                  <button type="submit" className="btn-primary-orange" style={{ width: '100%', padding: '14px', fontSize: '15px', borderRadius: '12px' }} disabled={authLoading}>
+                    {authLoading ? 'Validation...' : 'Valider le Code →'}
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setShowOtpStep(false)}
-                    style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '12px', cursor: 'pointer', textAlign: 'center' }}
+                    style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '12.5px', cursor: 'pointer', textAlign: 'center' }}
                   >
                     ← Modifier l'adresse e-mail ({email})
                   </button>
                 </form>
               ) : (
-                <form onSubmit={handleSupabaseSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <form onSubmit={handleSupabaseSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   {authMode === 'signup' && (
                     <div>
-                      <label style={{ fontSize: '12px', fontWeight: 600, color: '#1e293b', marginBottom: '4px', display: 'block' }}>{t.fullNameLabel}</label>
+                      <label style={{ fontSize: '12.5px', fontWeight: 600, color: '#e2e8f0', marginBottom: '6px', display: 'block' }}>{t.fullNameLabel}</label>
                       <div style={{ position: 'relative' }}>
-                        <User size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '10px' }} />
+                        <User size={16} color="#64748b" style={{ position: 'absolute', left: '14px', top: '12px' }} />
                         <input
                           type="text"
                           required
                           placeholder="Alex Mensah"
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
-                          style={{ width: '100%', padding: '9px 12px 9px 38px', borderRadius: '8px', border: '1px solid #CBD5E1', outline: 'none', fontSize: '13.5px' }}
+                          style={{ width: '100%', padding: '11px 14px 11px 40px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.15)', outline: 'none', fontSize: '14px' }}
                         />
                       </div>
                     </div>
                   )}
 
                   <div>
-                    <label style={{ fontSize: '12px', fontWeight: 600, color: '#1e293b', marginBottom: '4px', display: 'block' }}>{t.emailLabel}</label>
+                    <label style={{ fontSize: '12.5px', fontWeight: 600, color: '#e2e8f0', marginBottom: '6px', display: 'block' }}>{t.emailLabel}</label>
                     <div style={{ position: 'relative' }}>
-                      <Mail size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '10px' }} />
+                      <Mail size={16} color="#64748b" style={{ position: 'absolute', left: '14px', top: '12px' }} />
                       <input
                         type="email"
                         required
                         placeholder="alex@boutique.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        style={{ width: '100%', padding: '9px 12px 9px 38px', borderRadius: '8px', border: '1px solid #CBD5E1', outline: 'none', fontSize: '13.5px' }}
+                        style={{ width: '100%', padding: '11px 14px 11px 40px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.15)', outline: 'none', fontSize: '14px' }}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '12px', fontWeight: 600, color: '#1e293b', marginBottom: '4px', display: 'block' }}>{t.passwordLabel}</label>
+                    <label style={{ fontSize: '12.5px', fontWeight: 600, color: '#e2e8f0', marginBottom: '6px', display: 'block' }}>{t.passwordLabel}</label>
                     <div style={{ position: 'relative' }}>
-                      <Lock size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '10px' }} />
+                      <Lock size={16} color="#64748b" style={{ position: 'absolute', left: '14px', top: '12px' }} />
                       <input
                         type={showPassword ? 'text' : 'password'}
                         required
                         placeholder="••••••••"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        style={{ width: '100%', padding: '9px 38px 9px 38px', borderRadius: '8px', border: '1px solid #CBD5E1', outline: 'none', fontSize: '13.5px' }}
+                        style={{ width: '100%', padding: '11px 40px 11px 40px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.15)', outline: 'none', fontSize: '14px' }}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        style={{ position: 'absolute', right: '12px', top: '9px', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: 0 }}
+                        style={{ position: 'absolute', right: '14px', top: '12px', background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', padding: 0 }}
                         aria-label="Afficher ou masquer le mot de passe"
                       >
                         {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -1973,23 +1975,18 @@ export default function App() {
                   {/* Cloudflare Turnstile Captcha Widget */}
                   <TurnstileContainer onVerify={setCaptchaToken} onError={() => setCaptchaToken('')} />
 
-                  {/* Primary Action Button (Cloudflare Blue Style CTA) */}
+                  {/* Primary Action Button (Vivid Cloudflare Orange Style CTA) */}
                   <button
                     type="submit"
+                    className="btn-primary-orange"
                     disabled={authLoading}
                     style={{
                       width: '100%',
-                      padding: '11px',
-                      borderRadius: '8px',
-                      border: 'none',
-                      backgroundColor: '#3b82f6',
-                      color: '#ffffff',
-                      fontSize: '14.5px',
+                      padding: '14px',
+                      borderRadius: '12px',
+                      fontSize: '15px',
                       fontWeight: 700,
-                      cursor: authLoading ? 'wait' : 'pointer',
-                      boxShadow: '0 4px 12px rgba(59, 130, 246, 0.25)',
-                      transition: 'all 0.15s ease',
-                      marginTop: '2px'
+                      marginTop: '4px'
                     }}
                   >
                     {authLoading 
@@ -2000,18 +1997,18 @@ export default function App() {
               )}
 
               {/* Switch Auth Mode Footer */}
-              <div style={{ textAlign: 'center', marginTop: '12px', fontSize: '13px', color: '#64748b' }}>
+              <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '13.5px', color: '#94a3b8' }}>
                 {authMode === 'signup' ? (
-                  <span style={{ color: '#2563eb', fontWeight: 700, cursor: 'pointer' }} onClick={() => setAuthMode('login')}>{t.toggleToLogin}</span>
+                  <span style={{ color: '#FF5500', fontWeight: 700, cursor: 'pointer' }} onClick={() => setAuthMode('login')}>{t.toggleToLogin}</span>
                 ) : (
-                  <span style={{ color: '#2563eb', fontWeight: 700, cursor: 'pointer' }} onClick={() => setAuthMode('signup')}>{t.toggleToSignup}</span>
+                  <span style={{ color: '#FF5500', fontWeight: 700, cursor: 'pointer' }} onClick={() => setAuthMode('signup')}>{t.toggleToSignup}</span>
                 )}
               </div>
             </div>
 
             {/* Terms and Privacy Footer */}
-            <div style={{ textAlign: 'center', marginTop: '14px', fontSize: '11.5px', color: '#94a3b8', lineHeight: 1.4 }}>
-              En continuant, vous acceptez nos <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Conditions</span> et <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Politique de confidentialité</span>.
+            <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '12px', color: '#64748b', lineHeight: 1.5 }}>
+              En continuant, vous acceptez nos <span style={{ textDecoration: 'underline', cursor: 'pointer', color: '#cbd5e1' }}>Conditions</span> et <span style={{ textDecoration: 'underline', cursor: 'pointer', color: '#cbd5e1' }}>Politique de confidentialité</span>.
             </div>
           </div>
 

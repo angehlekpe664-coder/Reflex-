@@ -11,4 +11,22 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('lucide-react')) {
+            return 'vendor-icons';
+          }
+          if (id.includes('@supabase')) {
+            return 'vendor-supabase';
+          }
+          if (id.includes('@marsidev/react-turnstile')) {
+            return 'vendor-turnstile';
+          }
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
+  }
 })

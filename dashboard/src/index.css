@@ -1375,9 +1375,10 @@ body {
   height: 100vh;
   max-height: 100vh;
   width: 100vw;
-  background-color: #ffffff;
+  background-color: #0B1727;
   font-family: 'Plus Jakarta Sans', sans-serif;
   overflow: hidden;
+  color: #ffffff;
 }
 
 .auth-split-left {
@@ -1387,11 +1388,25 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 24px 48px;
+  padding: 32px 48px;
   height: 100%;
   box-sizing: border-box;
   overflow-y: auto;
-  background-color: #ffffff;
+  background-color: #0B1727;
+  color: #ffffff;
+}
+
+.auth-split-left input {
+  color: #ffffff !important;
+  background-color: rgba(11, 23, 39, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 10px !important;
+}
+
+.auth-split-left input:focus {
+  border-color: #FF5500 !important;
+  box-shadow: 0 0 16px rgba(255, 85, 0, 0.35) !important;
+  outline: none !important;
 }
 
 .auth-split-right {
