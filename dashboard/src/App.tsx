@@ -184,17 +184,14 @@ export default function App() {
 
   const handleLaunchMetaEmbeddedSignup = () => {
     const metaAppId = (import.meta.env.VITE_META_APP_ID as string | undefined) || '1875740770498760';
+    const metaConfigId = (import.meta.env.VITE_META_CONFIG_ID as string | undefined);
     setWaConnectionStatus('CONNECTING');
     setMetaProgressStep(1);
 
     const redirectUri = encodeURIComponent(window.location.origin);
-    const extras = encodeURIComponent(JSON.stringify({
-      setup: {
-        features: ['whatsapp_business_management', 'whatsapp_business_messaging']
-      }
-    }));
-
-    const metaAuthUrl = `https://www.facebook.com/v20.0/dialog/oauth?client_id=${metaAppId}&redirect_uri=${redirectUri}&scope=whatsapp_business_management,whatsapp_business_messaging,public_profile&response_type=code&extras=${extras}`;
+    const metaAuthUrl = metaConfigId
+      ? `https://www.facebook.com/v20.0/dialog/oauth?client_id=${metaAppId}&redirect_uri=${redirectUri}&config_id=${metaConfigId}&response_type=code`
+      : `https://www.facebook.com/v20.0/dialog/oauth?client_id=${metaAppId}&redirect_uri=${redirectUri}&scope=whatsapp_business_management,whatsapp_business_messaging,public_profile&response_type=code`;
 
     const width = 600;
     const height = 750;
