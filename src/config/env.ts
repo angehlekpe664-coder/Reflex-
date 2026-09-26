@@ -20,6 +20,7 @@ export const config = {
   fedapay: {
     publicKey: process.env.FEDAPAY_PUBLIC_KEY || 'pk_live_JVbKBkCuJMTpnwgwiKi09Hom',
     secretKey: process.env.FEDAPAY_SECRET_KEY || 'sk_live_jQV5A57A9GMJ_mzbK1YtoR3E',
+    webhookSecret: process.env.FEDAPAY_WEBHOOK_SECRET || 'wh_live_XOJZhJITC3keZDdxEJ1J3xEh',
     environment: process.env.FEDAPAY_ENVIRONMENT || 'live',
   },
 };
