@@ -97,8 +97,9 @@ export default function App() {
 
   // Navigation Flow State
   const [activeView, setActiveView] = useState<
-    'landing' | 'auth' | 'onboarding-entreprise' | 'onboarding-catalogue' | 'onboarding-assistant' | 'onboarding-whatsapp' | 'dashboard' | 'mobile-dash' | 'payment-checkout' | 'loading'
+    'landing' | 'auth' | 'onboarding-entreprise' | 'onboarding-catalogue' | 'onboarding-assistant' | 'onboarding-whatsapp' | 'onboarding-plan-payment' | 'dashboard' | 'mobile-dash' | 'payment-checkout' | 'loading'
   >(checkInitialView);
+  const [selectedPlan, setSelectedPlan] = useState<{ name: string; price: number }>({ name: 'Pro', price: 50000 });
 
   // Selected Order for Checkout Payment
   const [currentCheckoutOrder, setCurrentCheckoutOrder] = useState({
@@ -537,10 +538,13 @@ export default function App() {
       console.log('Supabase user metadata sync error:', e);
     }
 
-    localStorage.setItem('reflex_onboarded_completed', 'true');
-    if (email) localStorage.setItem(`reflex_onboarded_${email.toLowerCase()}`, 'true');
     localStorage.setItem('reflex_user_session', 'true');
-    if (activeView !== 'dashboard') {
+
+    if (selectedPlan && selectedPlan.price > 0 && selectedPlan.name !== 'Free') {
+      setActiveView('onboarding-plan-payment');
+    } else {
+      localStorage.setItem('reflex_onboarded_completed', 'true');
+      if (email) localStorage.setItem(`reflex_onboarded_${email.toLowerCase()}`, 'true');
       setActiveView('dashboard');
     }
   };
@@ -1402,8 +1406,11 @@ export default function App() {
 
                 <button
                   type="button"
-                  onClick={() => handleSubscribePlan('Starter', 15000)}
-                  disabled={subscribingPlan === 'Starter'}
+                  onClick={() => {
+                    setSelectedPlan({ name: 'Starter', price: 15000 });
+                    setAuthMode('signup');
+                    setActiveView('auth');
+                  }}
                   style={{
                     width: '100%',
                     padding: '14px',
@@ -1417,7 +1424,7 @@ export default function App() {
                     transition: 'all 0.2s'
                   }}
                 >
-                  {subscribingPlan === 'Starter' ? 'Redirection FedaPay...' : (currentLang === 'FR' ? 'Payer 15 000 FCFA via FedaPay →' : 'Pay 15,000 XOF via FedaPay →')}
+                  {currentLang === 'FR' ? 'Choisir le plan Starter' : 'Choose Starter'}
                 </button>
               </div>
 
@@ -1506,8 +1513,11 @@ export default function App() {
 
                 <button
                   type="button"
-                  onClick={() => handleSubscribePlan('Pro', 50000)}
-                  disabled={subscribingPlan === 'Pro'}
+                  onClick={() => {
+                    setSelectedPlan({ name: 'Pro', price: 50000 });
+                    setAuthMode('signup');
+                    setActiveView('auth');
+                  }}
                   style={{
                     width: '100%',
                     padding: '16px',
@@ -1522,7 +1532,7 @@ export default function App() {
                     transition: 'transform 0.2s'
                   }}
                 >
-                  {subscribingPlan === 'Pro' ? 'Redirection FedaPay...' : (currentLang === 'FR' ? 'Payer 50 000 FCFA via FedaPay →' : 'Pay 50,000 XOF via FedaPay →')}
+                  {currentLang === 'FR' ? 'Commencer le Plan Pro →' : 'Start Pro Plan →'}
                 </button>
               </div>
 
@@ -1591,8 +1601,11 @@ export default function App() {
 
                 <button
                   type="button"
-                  onClick={() => handleSubscribePlan('Enterprise', 100000)}
-                  disabled={subscribingPlan === 'Enterprise'}
+                  onClick={() => {
+                    setSelectedPlan({ name: 'Enterprise', price: 100000 });
+                    setAuthMode('signup');
+                    setActiveView('auth');
+                  }}
                   style={{
                     width: '100%',
                     padding: '14px',
@@ -1606,7 +1619,7 @@ export default function App() {
                     transition: 'all 0.2s'
                   }}
                 >
-                  {subscribingPlan === 'Enterprise' ? 'Redirection FedaPay...' : (currentLang === 'FR' ? 'Payer 100 000 FCFA via FedaPay →' : 'Pay 100,000 XOF via FedaPay →')}
+                  {currentLang === 'FR' ? 'Choisir le plan Enterprise' : 'Choose Enterprise'}
                 </button>
               </div>
 
@@ -2622,6 +2635,132 @@ export default function App() {
             >
               {saveLoading ? 'Enregistrement...' : 'Valider & Accéder à mon Dashboard'} <ArrowRight size={20} />
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 6.5. ONBOARDING STEP 5: PAIEMENT DE L'ABONNEMENT FEDAPAY (BEFORE DASHBOARD) */}
+      {/* ========================================================================= */}
+      {activeView === 'onboarding-plan-payment' && (
+        <div className="onboarding-flow" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 20px 80px 20px', boxSizing: 'border-box', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '720px', marginBottom: '32px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
+              <img src="/logo.png" alt="Reflex Logo" style={{ height: '52px', width: 'auto', borderRadius: '10px' }} />
+            </div>
+          </div>
+
+          <div className="onboarding-card-dark" style={{ width: '100%', maxWidth: '720px', padding: '38px 34px' }}>
+            {/* Onboarding Stepper Header 5 Steps */}
+            <div style={{ width: '100%', marginBottom: '32px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
+                <div style={{ position: 'absolute', top: '18px', left: '10%', right: '10%', height: '2px', backgroundColor: 'rgba(255, 255, 255, 0.1)', zIndex: 1 }}>
+                  <div style={{ height: '100%', backgroundColor: '#FF5500', width: '100%', transition: 'width 0.3s ease', boxShadow: '0 0 10px rgba(255, 85, 0, 0.8)' }} />
+                </div>
+                {[
+                  { step: 1, label: 'Entreprise' },
+                  { step: 2, label: 'Catalogue' },
+                  { step: 3, label: 'Assistant IA' },
+                  { step: 4, label: 'WhatsApp' },
+                  { step: 5, label: 'Paiement' }
+                ].map((s) => (
+                  <div key={s.step} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', zIndex: 2, position: 'relative' }}>
+                    <div style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%',
+                      backgroundColor: '#0B1727',
+                      border: s.step === 5 ? '2px solid #FF5500' : '2px solid #10B981',
+                      color: '#FFFFFF',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 700,
+                      fontSize: '13px',
+                      boxShadow: s.step === 5 ? '0 0 15px rgba(255, 85, 0, 0.5)' : 'none'
+                    }}>
+                      {s.step < 5 ? <Check size={18} color="#10B981" /> : '5'}
+                    </div>
+                    <span style={{ fontSize: '12px', fontWeight: 700, color: s.step === 5 ? '#FF5500' : '#10B981' }}>{s.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+              <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: 'rgba(255, 85, 0, 0.15)', border: '1px solid rgba(255, 85, 0, 0.4)', color: '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                <Shield size={36} />
+              </div>
+              <h2 style={{ color: '#ffffff', fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>
+                Activation de votre Abonnement Reflex
+              </h2>
+              <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: 1.6 }}>
+                Dernière étape ! Effectuez le règlement du Plan <strong style={{ color: '#FF5500' }}>{selectedPlan.name}</strong> via FedaPay pour débloquer votre Tableau de bord et lancer l'IA.
+              </p>
+            </div>
+
+            {/* Plan Recap Card */}
+            <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.04)', borderRadius: '16px', border: '1px solid rgba(255, 85, 0, 0.3)', padding: '20px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <div style={{ fontSize: '16px', fontWeight: 800, color: '#ffffff' }}>Plan {selectedPlan.name}</div>
+                <div style={{ fontSize: '13px', color: '#94a3b8', marginTop: '2px' }}>Abonnement Mensuel SaaS Reflex PME</div>
+              </div>
+              <div style={{ fontSize: '26px', fontWeight: 800, color: '#FF5500', fontFamily: 'var(--font-mono)' }}>
+                {selectedPlan.price.toLocaleString()} FCFA
+              </div>
+            </div>
+
+            {/* FedaPay Info Badge */}
+            <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.08)', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.25)', padding: '14px', marginBottom: '24px', textAlign: 'center' }}>
+              <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#ffffff' }}>
+                💳 Encaissement Sécurisé par FedaPay
+              </div>
+              <div style={{ fontSize: '12px', color: '#cbd5e1', marginTop: '4px' }}>
+                MTN Mobile Money, Moov Money, Wave & Cartes bancaires (Bénin & Afrique de l'Ouest)
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '24px' }}>
+              <div>
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#ffffff', marginBottom: '6px', display: 'block' }}>Numéro Mobile Money du Payer (+229)</label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <span style={{ padding: '12px 14px', backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', fontSize: '14px', fontWeight: 700, color: '#FF5500' }}>+229</span>
+                  <input
+                    type="text"
+                    placeholder="97 00 00 00"
+                    value={payerPhone}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/\D/g, '').slice(0, 8);
+                      const formatted = raw.replace(/(\d{2})(?=\d)/g, '$1 ').trim();
+                      setPayerPhone(formatted);
+                    }}
+                    style={{ flex: 1, padding: '12px 14px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.15)', backgroundColor: '#1e293b', color: '#ffffff', outline: 'none', fontSize: '14px', fontWeight: 700, letterSpacing: '0.05em' }}
+                  />
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="btn-primary-orange"
+                onClick={() => handleSubscribePlan(selectedPlan.name, selectedPlan.price)}
+                disabled={subscribingPlan === selectedPlan.name}
+                style={{
+                  width: '100%',
+                  padding: '16px',
+                  fontSize: '16.5px',
+                  fontWeight: 800,
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '10px'
+                }}
+              >
+                {subscribingPlan === selectedPlan.name
+                  ? 'Redirection vers FedaPay...'
+                  : `Payer ${selectedPlan.price.toLocaleString()} FCFA via FedaPay et Activer mon Compte →`}
+              </button>
+            </div>
           </div>
         </div>
       )}
