@@ -415,45 +415,6 @@ app.post('/api/payments/fedapay/webhook', verifyPaymentWebhookSignature, async (
   }
 });
 
-// Webhook Kkiapay Real-time Notification
-app.post('/api/payments/kkiapay/webhook', verifyPaymentWebhookSignature, async (req, res) => {
-  res.status(200).json({ received: true });
-
-  try {
-    const event = req.body;
-    console.log(`💳 [Webhook Kkiapay] Événement reçu:`, event?.isSuccess ? 'SUCCESS' : 'FAILED');
-
-    if (event?.isSuccess || event?.status === 'SUCCESS') {
-      const orderId = event?.transactionId || event?.customState || `ORD-${Date.now()}`;
-      const amount = Number(event?.amount || 0);
-
-      console.log(`🎉 Paiement Kkiapay confirmé pour la commande ${orderId} (${amount} FCFA)`);
-
-      await databaseService.updateOrderStatus(orderId, 'PAID', event?.transactionId || 'KKIAPAY-TXN');
-
-      const existingOrder = liveOrders.find(o => o.id === orderId);
-      if (existingOrder) {
-        existingOrder.status = 'PAID';
-      }
-
-      liveStats.totalRevenue += amount;
-      await inventoryService.decrementStock('mock-pme-123', existingOrder?.item || 'Produit', 1);
-
-      const customerPhone = existingOrder?.phone || event?.phone;
-      if (customerPhone) {
-        const receiptUrl = `https://reflex-zjf7.onrender.com/api/reports/pdf/${orderId}`;
-        const confirmMsg = `✅ *PAIEMENT CONFIRMÉ - REFLEX*\n\n` +
-          `Votre paiement Kkiapay de *${amount.toLocaleString()} FCFA* a été validé avec succès !\n\n` +
-          `📄 Votre reçu de paiement :\n${receiptUrl}`;
-
-        await whatsappService.sendTextMessage(customerPhone, confirmMsg);
-      }
-    }
-  } catch (err) {
-    console.error('Erreur traitement Webhook Kkiapay:', err);
-  }
-});
-
 // Route 3 : Integration Webhook pour n8n
 app.post('/api/webhook/n8n', (req, res) => {
   try {
@@ -545,36 +506,6 @@ app.post('/api/payments/fedapay/create', async (req, res) => {
   } catch (error: any) {
     console.error('Erreur API FedaPay Route:', error);
     res.status(500).json({ success: false, error: 'Erreur lors de la génération du lien de paiement.' });
-  }
-});
-
-// Route Kkiapay Payment Link Creation
-app.post('/api/payments/kkiapay/create', async (req, res) => {
-  try {
-    const { amount, description, customerName, customerPhone, orderId } = req.body;
-    const finalOrderId = orderId || `ORD-${Date.now()}`;
-
-    const paymentUrl = await paymentService.createKkiapayLink({
-      amount: Number(amount) || 1000,
-      description: description || 'Commande Reflex PME',
-      customerName: customerName || 'Client WhatsApp',
-      customerPhone: customerPhone || '97000000',
-      orderId: finalOrderId
-    });
-
-    await databaseService.saveOrder({
-      id: finalOrderId,
-      customerPhone: customerPhone || '97000000',
-      customerName: customerName || 'Client WhatsApp',
-      amount: Number(amount) || 1000,
-      item: description || 'Commande Reflex PME',
-      status: 'PENDING'
-    });
-
-    res.json({ success: true, paymentUrl, orderId: finalOrderId });
-  } catch (error: any) {
-    console.error('Erreur API Kkiapay Route:', error);
-    res.status(500).json({ success: false, error: 'Erreur lors de la génération du lien Kkiapay.' });
   }
 });
 

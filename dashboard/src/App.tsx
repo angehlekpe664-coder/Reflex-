@@ -111,7 +111,6 @@ export default function App() {
     deliveryAddress: 'Cotonou, Quartier Cadjehoun'
   });
   const [paymentSuccess, setPaymentSuccess] = useState(false);
-  const [selectedMomoProvider, setSelectedMomoProvider] = useState<'mtn' | 'moov' | 'wave'>('mtn');
   const [payerPhone, setPayerPhone] = useState('97451289');
 
   // Supabase Auth Form State
@@ -716,6 +715,34 @@ export default function App() {
     setProductsList(productsList.filter((_, i) => i !== index));
   };
 
+  const [subscribingPlan, setSubscribingPlan] = useState<string | null>(null);
+
+  const handleSubscribePlan = async (planName: string, amount: number) => {
+    setSubscribingPlan(planName);
+    try {
+      const res = await apiFetch('/api/payments/fedapay/create', {
+        method: 'POST',
+        body: JSON.stringify({
+          amount,
+          description: `Abonnement Reflex SaaS - Plan ${planName}`,
+          customerName: companyData?.name || email || 'PME Reflex',
+          customerPhone: '97000000',
+          orderId: `PLAN-${planName.toUpperCase()}-${Date.now()}`
+        })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.paymentUrl) {
+        showToast(data.error || 'Impossible d\'initialiser le paiement FedaPay.', 'error');
+        return;
+      }
+      window.location.href = data.paymentUrl;
+    } catch {
+      showToast('Erreur réseau lors du lancement du paiement FedaPay.', 'error');
+    } finally {
+      setSubscribingPlan(null);
+    }
+  };
+
   const handleProcessPayment = async () => {
     const phone = payerPhone.replace(/\D/g, '');
     if (phone.length < 8) {
@@ -724,7 +751,7 @@ export default function App() {
     }
     setPaymentLoading(true);
     try {
-      const res = await apiFetch('/api/payments/kkiapay/create', {
+      const res = await apiFetch('/api/payments/fedapay/create', {
         method: 'POST',
         body: JSON.stringify({
           amount: currentCheckoutOrder.amount,
@@ -1375,7 +1402,8 @@ export default function App() {
 
                 <button
                   type="button"
-                  onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
+                  onClick={() => handleSubscribePlan('Starter', 15000)}
+                  disabled={subscribingPlan === 'Starter'}
                   style={{
                     width: '100%',
                     padding: '14px',
@@ -1389,7 +1417,7 @@ export default function App() {
                     transition: 'all 0.2s'
                   }}
                 >
-                  {currentLang === 'FR' ? 'Choisir le plan Starter' : 'Choose Starter'}
+                  {subscribingPlan === 'Starter' ? 'Redirection FedaPay...' : (currentLang === 'FR' ? 'Payer 15 000 FCFA via FedaPay →' : 'Pay 15,000 XOF via FedaPay →')}
                 </button>
               </div>
 
@@ -1478,7 +1506,8 @@ export default function App() {
 
                 <button
                   type="button"
-                  onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
+                  onClick={() => handleSubscribePlan('Pro', 50000)}
+                  disabled={subscribingPlan === 'Pro'}
                   style={{
                     width: '100%',
                     padding: '16px',
@@ -1493,7 +1522,7 @@ export default function App() {
                     transition: 'transform 0.2s'
                   }}
                 >
-                  {currentLang === 'FR' ? 'Commencer le Plan Pro →' : 'Start Pro Plan →'}
+                  {subscribingPlan === 'Pro' ? 'Redirection FedaPay...' : (currentLang === 'FR' ? 'Payer 50 000 FCFA via FedaPay →' : 'Pay 50,000 XOF via FedaPay →')}
                 </button>
               </div>
 
@@ -1562,7 +1591,8 @@ export default function App() {
 
                 <button
                   type="button"
-                  onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
+                  onClick={() => handleSubscribePlan('Enterprise', 100000)}
+                  disabled={subscribingPlan === 'Enterprise'}
                   style={{
                     width: '100%',
                     padding: '14px',
@@ -1576,7 +1606,7 @@ export default function App() {
                     transition: 'all 0.2s'
                   }}
                 >
-                  {currentLang === 'FR' ? 'Contacter l\'équipe Enterprise' : 'Contact Enterprise'}
+                  {subscribingPlan === 'Enterprise' ? 'Redirection FedaPay...' : (currentLang === 'FR' ? 'Payer 100 000 FCFA via FedaPay →' : 'Pay 100,000 XOF via FedaPay →')}
                 </button>
               </div>
 
@@ -2629,59 +2659,13 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Mobile Money Provider Choice */}
-                <div style={{ marginBottom: '24px' }}>
-                  <label style={{ fontSize: '13.5px', fontWeight: 600, color: '#ffffff', marginBottom: '10px', display: 'block' }}>
-                    Mode d'encaissement Mobile Money
-                  </label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
-                    <div
-                      onClick={() => setSelectedMomoProvider('mtn')}
-                      style={{
-                        padding: '12px 8px',
-                        border: `2px solid ${selectedMomoProvider === 'mtn' ? '#FF5500' : 'rgba(255,255,255,0.12)'}`,
-                        borderRadius: '12px',
-                        cursor: 'pointer',
-                        textAlign: 'center',
-                        backgroundColor: selectedMomoProvider === 'mtn' ? 'rgba(255,85,0,0.15)' : 'rgba(255,255,255,0.03)',
-                        transition: 'all 0.2s ease'
-                      }}
-                    >
-                      <div style={{ fontWeight: 800, color: '#FFCC00', fontSize: '13px' }}>MTN MoMo</div>
-                      <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>*139#</div>
-                    </div>
-
-                    <div
-                      onClick={() => setSelectedMomoProvider('moov')}
-                      style={{
-                        padding: '12px 8px',
-                        border: `2px solid ${selectedMomoProvider === 'moov' ? '#FF5500' : 'rgba(255,255,255,0.12)'}`,
-                        borderRadius: '12px',
-                        cursor: 'pointer',
-                        textAlign: 'center',
-                        backgroundColor: selectedMomoProvider === 'moov' ? 'rgba(255,85,0,0.15)' : 'rgba(255,255,255,0.03)',
-                        transition: 'all 0.2s ease'
-                      }}
-                    >
-                      <div style={{ fontWeight: 800, color: '#38BDF8', fontSize: '13px' }}>Moov Money</div>
-                      <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>*155#</div>
-                    </div>
-
-                    <div
-                      onClick={() => setSelectedMomoProvider('wave')}
-                      style={{
-                        padding: '12px 8px',
-                        border: `2px solid ${selectedMomoProvider === 'wave' ? '#FF5500' : 'rgba(255,255,255,0.12)'}`,
-                        borderRadius: '12px',
-                        cursor: 'pointer',
-                        textAlign: 'center',
-                        backgroundColor: selectedMomoProvider === 'wave' ? 'rgba(255,85,0,0.15)' : 'rgba(255,255,255,0.03)',
-                        transition: 'all 0.2s ease'
-                      }}
-                    >
-                      <div style={{ fontWeight: 800, color: '#1DC3F4', fontSize: '13px' }}>Wave App</div>
-                      <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>Scannez & Payez</div>
-                    </div>
+                {/* FedaPay Secure Info Badge */}
+                <div style={{ backgroundColor: 'rgba(255, 85, 0, 0.08)', borderRadius: '12px', border: '1px solid rgba(255, 85, 0, 0.25)', padding: '14px', marginBottom: '24px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#ffffff' }}>
+                    💳 Paiement Sécurisé via FedaPay
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#cbd5e1', marginTop: '4px' }}>
+                    MTN Mobile Money, Moov Money, Wave & Cartes bancaires acceptés.
                   </div>
                 </div>
 
@@ -2722,7 +2706,7 @@ export default function App() {
                   onClick={handleProcessPayment}
                   disabled={paymentLoading}
                 >
-                  {paymentLoading ? 'Ouverture du paiement...' : `Payer ${currentCheckoutOrder.amount.toLocaleString()} FCFA via Mobile Money (${selectedMomoProvider.toUpperCase()}) →`}
+                  {paymentLoading ? 'Ouverture du paiement FedaPay...' : `Payer ${currentCheckoutOrder.amount.toLocaleString()} FCFA via FedaPay →`}
                 </button>
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '12px', color: '#cbd5e1', marginTop: '18px' }}>

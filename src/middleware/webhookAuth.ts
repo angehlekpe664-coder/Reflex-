@@ -35,18 +35,17 @@ export function verifyMetaWebhookSignature(req: Request, res: Response, next: Ne
 }
 
 /**
- * Middleware pour valider la signature des Webhooks de Paiement (FedaPay & Kkiapay)
+ * Middleware pour valider la signature des Webhooks de Paiement (FedaPay)
  */
 export function verifyPaymentWebhookSignature(req: Request, res: Response, next: NextFunction) {
   const fedapaySig = req.headers['x-fedapay-signature'] as string;
-  const kkiapaySig = req.headers['x-kkiapay-signature'] as string;
 
   // En environnement de test / sandbox, autoriser si pas de signature stricte
   if (config.nodeEnv !== 'production') {
     return next();
   }
 
-  if (fedapaySig || kkiapaySig) {
+  if (fedapaySig) {
     return next();
   }
 
