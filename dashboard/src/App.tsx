@@ -3229,13 +3229,7 @@ export default function App() {
                     {tab}
                   </button>
                 ))}
-                <button className="sidebar-link" onClick={() => { setActiveView('payment-checkout'); setDashMobileMenuOpen(false); }} style={{ color: '#FF5500', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '12px', marginTop: '6px' }}>
-                  <CreditCard size={16} color="#FF5500" /> Page Paiement Client
-                </button>
-                <button className="sidebar-link" onClick={() => { setActiveView('onboarding-plan-payment'); setDashMobileMenuOpen(false); }} style={{ color: '#38bdf8' }}>
-                  <CreditCard size={16} color="#38bdf8" /> Page Paiement Abonnement
-                </button>
-                <button className="sidebar-link" onClick={() => { setActiveView('landing'); setDashMobileMenuOpen(false); }}>
+                <button className="sidebar-link" onClick={() => { setActiveView('landing'); setDashMobileMenuOpen(false); }} style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '12px', marginTop: '6px' }}>
                   <Globe size={16} /> Page d'accueil
                 </button>
                 <button className="sidebar-link" onClick={() => { toggleDarkMode(); setDashMobileMenuOpen(false); }}>
@@ -3290,12 +3284,6 @@ export default function App() {
             </nav>
 
             <div style={{ marginTop: 'auto', borderTop: '1px solid var(--border-subtle)', paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <button className="sidebar-link" onClick={() => setActiveView('payment-checkout')} style={{ color: '#FF5500' }}>
-                <CreditCard size={16} color="#FF5500" /> Page Paiement Client
-              </button>
-              <button className="sidebar-link" onClick={() => setActiveView('onboarding-plan-payment')} style={{ color: '#38bdf8' }}>
-                <CreditCard size={16} color="#38bdf8" /> Page Paiement Abonnement
-              </button>
               <button className="sidebar-link" onClick={() => setActiveView('landing')}>
                 <Globe size={16} /> Page d'accueil
               </button>
