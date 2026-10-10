@@ -481,7 +481,7 @@ app.get('/api/dashboard/inbox', requireAuth, async (req: any, res) => {
 // Route FedaPay Payment Link Creation
 app.post('/api/payments/fedapay/create', async (req, res) => {
   try {
-    const { amount, description, customerName, customerPhone, orderId } = req.body;
+    const { amount, description, customerName, customerPhone, orderId, returnUrl } = req.body;
     const finalOrderId = orderId || `ORD-${Date.now()}`;
 
     const paymentUrl = await paymentService.createFedaPayLink({
@@ -489,7 +489,8 @@ app.post('/api/payments/fedapay/create', async (req, res) => {
       description: description || 'Commande Reflex PME',
       customerName: customerName || 'Client WhatsApp',
       customerPhone: customerPhone || '97000000',
-      orderId: finalOrderId
+      orderId: finalOrderId,
+      returnUrl: returnUrl
     });
 
     // Enregistrer la commande en attente

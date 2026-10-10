@@ -9,6 +9,7 @@ export interface PaymentRequest {
   orderId: string;
   customSecretKey?: string;
   customPublicKey?: string;
+  returnUrl?: string;
 }
 
 export class PaymentService {
@@ -32,7 +33,7 @@ export class PaymentService {
           amount: Math.round(data.amount),
           currency: { iso: 'XOF' },
           description: data.description || `Commande Reflex ${data.orderId}`,
-          callback_url: `https://reflex-dashboard-lfp6.onrender.com/#pay-${data.orderId}`,
+          callback_url: data.returnUrl || `https://reflex-dashboard-lfp6.onrender.com/#pay-${data.orderId}`,
           customer: {
             firstname: data.customerName || 'Client',
             phone_number: {
