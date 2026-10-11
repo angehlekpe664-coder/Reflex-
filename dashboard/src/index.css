@@ -60,18 +60,31 @@
   --dash-icon-bg: rgba(255, 85, 0, 0.15);
 }
 
-/* Masquage complet de la barre de défilement grise à droite */
+/* Masquage discret de la barre de défilement sans bloquer le scroll */
 html, body {
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 85, 0, 0.4) transparent;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
 }
 
 html::-webkit-scrollbar,
-body::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 6px;
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb {
+  background: rgba(255, 85, 0, 0.4);
+  border-radius: 4px;
+}
 *::-webkit-scrollbar {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
+  width: 6px;
+  height: 6px;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 85, 0, 0.3);
+  border-radius: 4px;
 }
 
 .font-fraunces-italic {
@@ -738,10 +751,12 @@ body {
   }
 
   .dashboard-main-content {
-    padding: 16px 14px !important;
+    padding: 20px 16px 120px 16px !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
     overflow-x: hidden !important;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch !important;
   }
 
   input, select, textarea, button {
@@ -1595,26 +1610,44 @@ body {
 
   /* Comprehensive Mobile Onboarding & Payment Responsiveness (< 768px) */
   .onboarding-card-dark {
-    padding: 24px 16px !important;
-    border-radius: 18px !important;
+    padding: 24px 18px 36px 18px !important;
+    border-radius: 20px !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
+    margin-bottom: 40px !important;
   }
 
   .onboarding-flow {
-    padding: 20px 12px 60px 12px !important;
+    padding: 20px 14px 140px 14px !important;
+    min-height: 100vh !important;
+    height: auto !important;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch !important;
   }
 
   .glass-card-dark {
-    padding: 24px 16px !important;
+    padding: 22px 16px !important;
     border-radius: 18px !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
   }
 
+  .onboarding-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 12px !important;
+    margin-top: 24px !important;
+    padding-bottom: 12px !important;
+    position: relative !important;
+    z-index: 20 !important;
+  }
+
   .onboarding-actions button {
-    font-size: 14px !important;
-    padding: 12px 14px !important;
+    font-size: 14.5px !important;
+    padding: 14px 16px !important;
+    min-height: 50px !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
   }
 }
 
@@ -1669,13 +1702,52 @@ body {
   transform: translateY(-1px);
 }
 
-.step-card-hover {
-  transition: transform 0.3s ease, border-color 0.3s ease;
-}
-
 .step-card-hover:hover {
   transform: translateY(-5px);
   border-color: rgba(255, 85, 0, 0.4) !important;
+}
+
+/* ========================================================================= */
+/* RESPONSIVE CHECKOUT & MOBILE BOTTOM SCROLL CLEARANCE                      */
+/* ========================================================================= */
+
+.checkout-two-columns {
+  display: flex;
+  flex-direction: row;
+}
+
+@media (max-width: 992px) {
+  .checkout-two-columns {
+    flex-direction: column !important;
+  }
+
+  .checkout-left-col {
+    padding: 24px 16px 20px 16px !important;
+  }
+
+  .checkout-right-col {
+    border-left: none !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+    padding: 24px 16px 120px 16px !important;
+  }
+
+  .payment-checkout-container {
+    padding: 24px 12px 120px 12px !important;
+  }
+
+  .payment-card-responsive {
+    padding: 24px 16px 36px 16px !important;
+  }
+}
+
+/* Assurer qu'aucun bouton en bas de page n'est coupé par les barres de navigation mobile */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .dashboard-main-content,
+  .onboarding-flow,
+  .checkout-right-col,
+  .payment-checkout-container {
+    padding-bottom: calc(120px + env(safe-area-inset-bottom)) !important;
+  }
 }
 
 

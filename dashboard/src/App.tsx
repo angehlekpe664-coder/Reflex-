@@ -1205,7 +1205,7 @@ export default function App() {
       {/* 3. ONBOARDING STEP 1: ENTREPRISE */}
       {/* ========================================================================= */}
       {activeView === 'onboarding-entreprise' && (
-        <div className="onboarding-flow" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 20px 80px 20px', boxSizing: 'border-box', overflowY: 'auto' }}>
+        <div className="onboarding-flow" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 16px 140px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '720px', marginBottom: '32px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.png" alt="Reflex Logo" style={{ height: '52px', width: 'auto', borderRadius: '10px' }} />
@@ -1322,7 +1322,7 @@ export default function App() {
       {/* 4. ONBOARDING STEP 2: CATALOGUE */}
       {/* ========================================================================= */}
       {activeView === 'onboarding-catalogue' && (
-        <div className="onboarding-flow" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 20px 80px 20px', boxSizing: 'border-box', overflowY: 'auto' }}>
+        <div className="onboarding-flow" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 16px 140px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '720px', marginBottom: '32px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.png" alt="Reflex Logo" style={{ height: '52px', width: 'auto', borderRadius: '10px' }} />
@@ -1460,7 +1460,7 @@ export default function App() {
       {/* 5. ONBOARDING STEP 3: ASSISTANT IA */}
       {/* ========================================================================= */}
       {activeView === 'onboarding-assistant' && (
-        <div className="onboarding-flow" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 20px 80px 20px', boxSizing: 'border-box', overflowY: 'auto' }}>
+        <div className="onboarding-flow" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 16px 140px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '720px', marginBottom: '32px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.png" alt="Reflex Logo" style={{ height: '52px', width: 'auto', borderRadius: '10px' }} />
@@ -1576,7 +1576,7 @@ export default function App() {
       {/* 6. ONBOARDING STEP 4: CONNEXION WHATSAPP */}
       {/* ========================================================================= */}
       {activeView === 'onboarding-whatsapp' && (
-        <div className="onboarding-flow" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 20px 80px 20px', boxSizing: 'border-box', overflowY: 'auto' }}>
+        <div className="onboarding-flow" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 16px 140px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '720px', marginBottom: '32px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
               <img src="/logo.png" alt="Reflex Logo" style={{ height: '52px', width: 'auto', borderRadius: '10px' }} />
@@ -1922,22 +1922,22 @@ export default function App() {
       {/* 6.5. ONBOARDING STEP 5: PAIEMENT DE L'ABONNEMENT FEDAPAY (BEFORE DASHBOARD) */}
       {/* ========================================================================= */}
       {activeView === 'onboarding-plan-payment' && (
-        <div style={{ minHeight: '100vh', backgroundColor: '#0B1727', display: 'flex', flexDirection: 'column' }}>
+        <div className="onboarding-plan-payment-container" style={{ minHeight: '100vh', backgroundColor: '#0B1727', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
           {/* Header */}
-          <div style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '20px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#0B1727' }}>
+          <div style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#0B1727' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-              <img src="/logo.png" alt="Reflex Logo" style={{ height: '40px', width: 'auto', borderRadius: '8px' }} />
-              <span className="font-outfit" style={{ fontWeight: 800, fontSize: '20px', color: '#ffffff' }}>Checkout</span>
+              <img src="/logo.png" alt="Reflex Logo" style={{ height: '38px', width: 'auto', borderRadius: '8px' }} />
+              <span className="font-outfit" style={{ fontWeight: 800, fontSize: '19px', color: '#ffffff' }}>Checkout</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#10B981', fontSize: '13px', fontWeight: 600 }}>
               <Shield size={16} /> Paiement 100% Sécurisé
             </div>
           </div>
 
-          <div style={{ flex: 1, display: 'flex', flexDirection: window.innerWidth > 992 ? 'row' : 'column', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
+          <div className="checkout-two-columns" style={{ flex: 1, display: 'flex', maxWidth: '1200px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
             
             {/* Colonne Gauche: Informations et Formulaire */}
-            <div style={{ flex: '1.5', padding: '40px', boxSizing: 'border-box' }}>
+            <div className="checkout-left-col" style={{ flex: '1.5', padding: '32px 24px 60px 24px', boxSizing: 'border-box' }}>
               
               <div style={{ marginBottom: '32px' }}>
                 <h2 className="font-outfit" style={{ fontSize: '28px', fontWeight: 800, color: '#ffffff', marginBottom: '8px' }}>Détails de Facturation</h2>
@@ -1990,7 +1990,7 @@ export default function App() {
             </div>
 
             {/* Colonne Droite: Résumé et Paiement */}
-            <div style={{ flex: '1', backgroundColor: '#101B2A', padding: '40px', borderLeft: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column' }}>
+            <div className="checkout-right-col" style={{ flex: '1', backgroundColor: '#101B2A', padding: '36px 24px 80px 24px', borderLeft: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
               <h2 className="font-outfit" style={{ fontSize: '22px', fontWeight: 700, color: '#ffffff', marginBottom: '24px' }}>Résumé de la commande</h2>
               
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
@@ -2091,13 +2091,13 @@ export default function App() {
       {/* 7. DEDICATED HOSTED CHECKOUT PAYMENT PAGE FOR WHATSAPP CLIENTS */}
       {/* ========================================================================= */}
       {activeView === 'payment-checkout' && (
-        <div style={{ minHeight: '100vh', backgroundColor: '#0B1727', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
+        <div className="payment-checkout-container" style={{ minHeight: '100vh', backgroundColor: '#0B1727', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', padding: '40px 16px 120px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
             <img src="/logo.png" alt="Reflex Logo" style={{ height: '54px', width: 'auto', borderRadius: '10px' }} />
             <span className="font-outfit" style={{ fontWeight: 800, fontSize: '24px', color: '#FF5500' }}>Pay</span>
           </div>
 
-          <div className="glass-card-dark" style={{ width: '100%', maxWidth: '520px', padding: '36px', borderRadius: '24px', border: '1px solid rgba(255, 85, 0, 0.35)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
+          <div className="glass-card-dark payment-card-responsive" style={{ width: '100%', maxWidth: '520px', padding: '36px', borderRadius: '24px', border: '1px solid rgba(255, 85, 0, 0.35)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)', boxSizing: 'border-box' }}>
             {!paymentSuccess ? (
               <>
                 <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '20px', marginBottom: '24px', textAlign: 'center' }}>
