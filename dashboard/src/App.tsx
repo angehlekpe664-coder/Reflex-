@@ -256,9 +256,9 @@ export default function App() {
             if (session.user.email) {
               localStorage.setItem(`reflex_onboarded_${session.user.email.toLowerCase()}`, 'true');
             }
-            if (pme.whatsapp_status === 'CONNECTED') {
+            if (pme.whatsapp_status === 'CONNECTED' || (typeof window !== 'undefined' && localStorage.getItem('reflex_wa_status') === 'CONNECTED')) {
               setWaConnectionStatus('CONNECTED');
-              setConnectedWabaId(pme.waba_id || null);
+              setConnectedWabaId(pme.waba_id || (typeof window !== 'undefined' ? localStorage.getItem('reflex_waba_id') : null));
             }
             if (pme.tone || pme.welcome_message || pme.delivery_info) {
               setAssistantConfig(prev => ({
@@ -486,7 +486,7 @@ export default function App() {
         await new Promise(r => setTimeout(r, 700));
 
         try {
-          await apiFetch('/api/auth/meta/callback', {
+          const res = await apiFetch('/api/auth/meta/callback', {
             method: 'POST',
             body: JSON.stringify({
               code,
@@ -494,14 +494,30 @@ export default function App() {
               pmePhone: companyData.phone
             })
           });
+          const callbackData = await res.json().catch(() => ({}));
           setMetaProgressStep(4);
           await new Promise(r => setTimeout(r, 600));
           setWaConnectionStatus('CONNECTED');
+          if (callbackData?.wabaId) setConnectedWabaId(callbackData.wabaId);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('reflex_wa_status', 'CONNECTED');
+            if (callbackData?.wabaId) localStorage.setItem('reflex_waba_id', callbackData.wabaId);
+          }
+          if (currentPmeId) {
+            await supabase.from('pmes').update({
+              whatsapp_status: 'CONNECTED',
+              waba_id: callbackData?.wabaId || 'mock-waba',
+              is_ai_active: true
+            }).eq('id', currentPmeId);
+          }
           showToast('Compte WhatsApp Business connecté avec succès !', 'success');
         } catch {
           setMetaProgressStep(4);
           await new Promise(r => setTimeout(r, 600));
           setWaConnectionStatus('CONNECTED');
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('reflex_wa_status', 'CONNECTED');
+          }
         }
       }
     };

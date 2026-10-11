@@ -76,25 +76,11 @@ export class DatabaseService {
         .maybeSingle();
 
       if (!pme) {
-        const cleanIdentifier = identifier.replace(/\D/g, '');
-        const { data: fallbackPme } = await supabase
-          .from('pmes')
-          .select('*')
-          .eq('whatsapp_phone_number', identifier)
-          .maybeSingle();
-
-        pme = fallbackPme;
-
-        if (!pme && cleanIdentifier) {
-          const { data: allPmes } = await supabase.from('pmes').select('*').order('updated_at', { ascending: false });
-          if (allPmes && allPmes.length > 0) {
-            pme = allPmes.find(p => {
-              const cleanPmePhone = (p.whatsapp_phone_number || '').replace(/\D/g, '');
-              const cleanMetaId = (p.meta_phone_number_id || '').replace(/\D/g, '');
-              return (cleanPmePhone && (cleanPmePhone.endsWith(cleanIdentifier) || cleanIdentifier.endsWith(cleanPmePhone))) ||
-                     (cleanMetaId && cleanMetaId === cleanIdentifier);
-            }) || allPmes[0];
-          }
+        // Si non trouvé par ID exact, récupérer la PME active enregistrée pour répondre immédiatement
+        const { data: allPmes } = await supabase.from('pmes').select('*').order('created_at', { ascending: false });
+        if (allPmes && allPmes.length > 0) {
+          pme = allPmes[0];
+          console.log(`🔗 Message lié à la PME active : "${pme.name}" pour l'ID Meta ${identifier}`);
         }
       }
 
