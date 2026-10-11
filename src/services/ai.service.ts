@@ -50,9 +50,9 @@ Consignes de vente cruciales :
 6. N'utilise aucun emoji ni sticker dans les messages.
 7. Garde des réponses synthétiques, très naturelles, adaptées à une messagerie comme WhatsApp.`;
 
-      // Use Gemini 1.5 Flash
+      // Use modern Gemini 2.5 Flash
       const model = genAI.getGenerativeModel({
-        model: 'gemini-1.5-flash',
+        model: 'gemini-2.5-flash',
         systemInstruction: systemPrompt
       });
 
@@ -71,17 +71,10 @@ Consignes de vente cruciales :
       const response = await result.response;
       const text = response.text();
 
-      return text || `Bonjour ! Merci d'avoir contacté ${pmeContext.name}. Comment puis-je vous aider ?`;
+      return text || `Bonjour ! Merci de nous avoir contactés. Que puis-je faire pour vous ?`;
     } catch (error: any) {
       console.error('Erreur Gemini LLM:', error.message);
-      const firstProd = pmeContext.catalogue[0]?.name || 'nos articles';
-      const firstPrice = pmeContext.catalogue[0]?.price?.toLocaleString() || '35 000';
-      const orderId = `ORD-229-${Math.floor(100 + Math.random() * 900)}`;
-      const appUrl = process.env.FRONTEND_URL || 'https://reflex-dashboard-lfp6.onrender.com';
-      return `Bonjour et bienvenue chez *${pmeContext.name}* !\n\n` +
-        `Nous proposons *${firstProd}* à ${firstPrice} FCFA.\n\n` +
-        `*Lien de règlement Mobile Money (MTN / Moov / Wave / Carte)* :\n` +
-        `${appUrl}/#payment-checkout?orderId=${orderId}`;
+      return `Bonjour ! Merci pour votre message. Comment puis-je vous aider aujourd'hui concernant nos produits ?`;
     }
   }
 }
