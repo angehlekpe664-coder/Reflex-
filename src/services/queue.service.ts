@@ -15,6 +15,8 @@ export interface WhatsAppTask {
 class WhatsAppQueueService {
   private queue: WhatsAppTask[] = [];
   private isProcessing = false;
+  // Mémoire vive pour préserver l'historique récent de chaque client même si Supabase est temporairement indisponible
+  private sessionHistory = new Map<string, Array<{ role: 'user' | 'assistant'; content: string }>>();
 
   /**
    * Enfile une tâche de traitement de message WhatsApp
@@ -77,10 +79,14 @@ class WhatsAppQueueService {
         return;
       }
 
-      // 3. Récupération de l'historique
-      const chatHistory = customer?.id
-        ? await databaseService.getChatHistory(pmeId, customer.id, 8)
-        : [];
+      // 3. Récupération de l'historique (Supabase ou Mémoire Vive)
+      let chatHistory: Array<{ role: 'user' | 'assistant'; content: string }> = [];
+      if (customer?.id) {
+        chatHistory = await databaseService.getChatHistory(pmeId, customer.id, 8);
+      }
+      if ((!chatHistory || chatHistory.length === 0) && this.sessionHistory.has(fromPhone)) {
+        chatHistory = this.sessionHistory.get(fromPhone) || [];
+      }
 
       // 4. Enregistrement du message utilisateur
       if (customer?.id) {
@@ -94,7 +100,16 @@ class WhatsAppQueueService {
         pmeContext
       );
 
-      // 6. Enregistrement de la réponse assistant
+      // 6. Mise à jour de l'historique en mémoire vive et Supabase
+      const updatedMemHistory = [...(this.sessionHistory.get(fromPhone) || chatHistory)];
+      updatedMemHistory.push({ role: 'user', content: userText });
+      updatedMemHistory.push({ role: 'assistant', content: aiResponse });
+      // On garde les 10 derniers échanges
+      if (updatedMemHistory.length > 10) {
+        updatedMemHistory.splice(0, updatedMemHistory.length - 10);
+      }
+      this.sessionHistory.set(fromPhone, updatedMemHistory);
+
       if (customer?.id) {
         await databaseService.saveChatMessage(pmeId, customer.id, 'assistant', aiResponse);
       }
