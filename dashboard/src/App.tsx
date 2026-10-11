@@ -2227,7 +2227,7 @@ export default function App() {
       {/* 8. DASHBOARD DESKTOP & MOBILE WITH HAMBURGER DRAWER */}
       {/* ========================================================================= */}
       {activeView === 'dashboard' && (
-        <div className={darkMode ? 'dark-theme' : 'light-theme'} style={{ display: 'block', width: '100%', backgroundColor: 'var(--dash-bg)', minHeight: '100vh', color: 'var(--dash-text-primary)' }}>
+        <div className={`dashboard-view-root ${darkMode ? 'dark-theme' : 'light-theme'}`}>
           {/* Dashboard Mobile Header with Hamburger Menu */}
           <div className="dashboard-mobile-header">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
@@ -2306,6 +2306,10 @@ export default function App() {
             <div style={{ marginTop: 'auto', borderTop: '1px solid var(--border-subtle)', paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <button className="sidebar-link" onClick={() => setActiveView('landing')}>
                 <Globe size={16} /> Page d'accueil
+              </button>
+              <button className="sidebar-link" onClick={toggleDarkMode}>
+                {darkMode ? <Sun size={16} color="#F59E0B" /> : <Moon size={16} color="#6366F1" />}
+                <span>{darkMode ? 'Mode Clair' : 'Mode Sombre'}</span>
               </button>
               <button className="sidebar-link" onClick={handleSignOut} style={{ color: '#ef4444' }}>
                 <LogOut size={16} color="#ef4444" /> {t.logout}
@@ -2408,42 +2412,44 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className="reflex-card-base" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px', backgroundColor: 'var(--dash-card-bg)', border: '1px solid var(--dash-card-border)' }}>
-                    <h3 className="title-md" style={{ color: 'var(--dash-text-primary)', fontSize: '18px' }}>Paramètres IA Actifs</h3>
-                    <div style={{ borderBottom: '1px solid var(--dash-card-border)', paddingBottom: '16px' }}>
-                      <div className="label-xs" style={{ color: 'var(--dash-text-secondary)', marginBottom: '6px' }}>TON IA</div>
-                      <div style={{ fontWeight: 600, color: '#FF5500' }}>{assistantConfig.tone}</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    <div className="reflex-card-base" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px', backgroundColor: 'var(--dash-card-bg)', border: '1px solid var(--dash-card-border)' }}>
+                      <h3 className="title-md" style={{ color: 'var(--dash-text-primary)', fontSize: '18px' }}>Paramètres IA Actifs</h3>
+                      <div style={{ borderBottom: '1px solid var(--dash-card-border)', paddingBottom: '16px' }}>
+                        <div className="label-xs" style={{ color: 'var(--dash-text-secondary)', marginBottom: '6px' }}>TON IA</div>
+                        <div style={{ fontWeight: 600, color: '#FF5500' }}>{assistantConfig.tone}</div>
+                      </div>
+                      <div style={{ borderBottom: '1px solid var(--dash-card-border)', paddingBottom: '16px' }}>
+                        <div className="label-xs" style={{ color: 'var(--dash-text-secondary)', marginBottom: '6px' }}>DELAIS LIVRAISON</div>
+                        <div style={{ fontSize: '13px', color: 'var(--dash-text-primary)' }}>{assistantConfig.deliveryInfo}</div>
+                      </div>
+                      <div>
+                        <div className="label-xs" style={{ color: 'var(--dash-text-secondary)', marginBottom: '6px' }}>WELCOME MESSAGE</div>
+                        <div style={{ fontSize: '12px', color: 'var(--dash-text-secondary)', fontStyle: 'italic' }}>"{assistantConfig.welcomeMessage}"</div>
+                      </div>
                     </div>
-                    <div style={{ borderBottom: '1px solid var(--dash-card-border)', paddingBottom: '16px' }}>
-                      <div className="label-xs" style={{ color: 'var(--dash-text-secondary)', marginBottom: '6px' }}>DELAIS LIVRAISON</div>
-                      <div style={{ fontSize: '13px', color: 'var(--dash-text-primary)' }}>{assistantConfig.deliveryInfo}</div>
-                    </div>
-                    <div>
-                      <div className="label-xs" style={{ color: 'var(--dash-text-secondary)', marginBottom: '6px' }}>WELCOME MESSAGE</div>
-                      <div style={{ fontSize: '12px', color: 'var(--dash-text-secondary)', fontStyle: 'italic' }}>"{assistantConfig.welcomeMessage}"</div>
-                    </div>
-                  </div>
 
-                  <div className="reflex-card-base" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', backgroundColor: 'var(--dash-card-bg)', border: '1px solid var(--dash-card-border)' }}>
-                    <h3 className="title-md" style={{ color: 'var(--dash-text-primary)', fontSize: '18px' }}>Liens Rapides</h3>
-                    <button
-                      style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--dash-chip-bg)', color: '#FF5500', borderRadius: '12px', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '14px', textAlign: 'left' }}
-                      onClick={() => switchTab('Catalogue')}
-                    >
-                      <Grid size={18} /> Gérer mon catalogue produit
-                    </button>
-                    <button
-                      style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--dash-input-bg)', color: 'var(--dash-text-primary)', borderRadius: '12px', border: '1px solid var(--dash-card-border)', cursor: 'pointer', fontWeight: 600, fontSize: '14px', textAlign: 'left' }}
-                      onClick={() => switchTab('Paramètres')}
-                    >
-                      <Settings size={18} /> Personnaliser l'assistant IA
-                    </button>
-                    <button
-                      style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--dash-input-bg)', color: 'var(--dash-text-primary)', borderRadius: '12px', border: '1px solid var(--dash-card-border)', cursor: 'pointer', fontWeight: 600, fontSize: '14px', textAlign: 'left' }}
-                      onClick={() => switchTab('Commandes')}
-                    >
-                      <ShoppingBag size={18} /> Voir toutes les commandes
-                    </button>
+                    <div className="reflex-card-base" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', backgroundColor: 'var(--dash-card-bg)', border: '1px solid var(--dash-card-border)' }}>
+                      <h3 className="title-md" style={{ color: 'var(--dash-text-primary)', fontSize: '18px' }}>Liens Rapides</h3>
+                      <button
+                        style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--dash-chip-bg)', color: '#FF5500', borderRadius: '12px', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '14px', textAlign: 'left' }}
+                        onClick={() => switchTab('Catalogue')}
+                      >
+                        <Grid size={18} /> Gérer mon catalogue produit
+                      </button>
+                      <button
+                        style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--dash-input-bg)', color: 'var(--dash-text-primary)', borderRadius: '12px', border: '1px solid var(--dash-card-border)', cursor: 'pointer', fontWeight: 600, fontSize: '14px', textAlign: 'left' }}
+                        onClick={() => switchTab('Paramètres')}
+                      >
+                        <Settings size={18} /> Personnaliser l'assistant IA
+                      </button>
+                      <button
+                        style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--dash-input-bg)', color: 'var(--dash-text-primary)', borderRadius: '12px', border: '1px solid var(--dash-card-border)', cursor: 'pointer', fontWeight: 600, fontSize: '14px', textAlign: 'left' }}
+                        onClick={() => switchTab('Commandes')}
+                      >
+                        <ShoppingBag size={18} /> Voir toutes les commandes
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
