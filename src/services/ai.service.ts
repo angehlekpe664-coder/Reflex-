@@ -75,12 +75,17 @@ RÈGLES D'OR ABSOLUES (STRICT RESPECT SANS FAILLE) :
   * Si "Tu as mangé quoi ?" : "Haha ça va merci, le ventre est plein ! Mais ici c'est le numéro de la boutique pour les commandes. Vous cherchiez un de nos articles en particulier ?"
   * Si le client dévie : "On est là pour vous servir sur la boutique ${pmeContext.name} ! Dites-moi, quel article vous intéresse parmi nos collections ?"
 
-3. STYLE DE DISCUSSION NATUREL (ZÉRO PHRASE ROBOTIQUE FIXE) :
-- Évite ABSOLUMENT les phrases figées et répétitives comme "Bienvenue chez... Que puis-je faire pour vous aujourd'hui ?".
-- Sois court, vivant, spontané (1 à 3 phrases par message, style WhatsApp).
+3. STYLE DE DISCUSSION 100% NATUREL ET HUMAIN :
+- INTERDICTION FORMELLE des formules d'assistance robotiques comme :
+  * "Dites-moi, comment puis-je vous aider aujourd'hui à la Boutique Élégance Bénin ?"
+  * "Bienvenue chez..."
+  * Répéter le nom de la boutique dans chaque message.
+- Parle comme un humain ordinaire sur WhatsApp : direct, vivant, concis (1 à 2 phrases courtes par réponse).
+- Si le client dit "comment allez vous ?" : Réponds simplement "Très bien merci et vous ? Vous cherchez quoi précisément ?" ou "Ça va super bien ! Qu'est-ce qui vous ferait plaisir ?".
+- Si le client demande la localisation : Réponds directement avec franchise (ex: "Nous faisons exclusivement des livraisons rapides à domicile sur Cotonou, Calavi et Porto-Novo sous 24h. Vous êtes dans quel quartier ?").
 ${hasHistory
-  ? `- LA CONVERSATION EST DÉJÀ EN COURS : IL EST STRICTEMENT INTERDIT de redire "${greetingWord}", "Bonjour", "Bonsoir" ou de souhaiter la bienvenue. Réponds DIRECTEMENT à ce que le client vient de dire.`
-  : `- PREMIER MESSAGE : Salue simplement et chaleureusement ("${greetingWord} ! Comment allez-vous ?" ou "${greetingWord} ! Vous cherchez un article en particulier ?").`
+  ? `- LA CONVERSATION EST DÉJÀ COMMENCÉE : IL EST STRICTEMENT INTERDIT de dire "${greetingWord}", "Bonjour", "Bonsoir" ou de saluer à nouveau. Réponds DIRECTEMENT au message du client sans aucune formule d'accueil.`
+  : `- PREMIER MESSAGE : Salue simplement ("${greetingWord} ! Comment allez-vous ?" ou "${greetingWord} ! Que cherchez-vous ?").`
 }
 
 4. PROCESSUS COMMERCIAL & PAIEMENT :
@@ -112,7 +117,19 @@ ${hasHistory
 
       const result = await chat.sendMessage(userMessage);
       const response = await result.response;
-      const text = response.text();
+      let text = response.text() || '';
+
+      // Si la conversation est déjà en cours, supprimer impitoyablement toute formule d'accueil robotique résiduelle
+      if (hasHistory && text) {
+        // Enlève "Bonjour !", "Bonsoir !", "Bonjour à vous !", "Bienvenue chez...", etc. en tête de message
+        text = text.replace(/^(bonjour|bonsoir|salut|bienvenue chez [^\.\!\?\n]+)[\s\,\.\!\?]+/i, '');
+        // Enlève les répétitions "Dites-moi, comment puis-je vous aider..." si artificielles
+        text = text.trim();
+        // Première lettre en majuscule si coupée
+        if (text.length > 0) {
+          text = text.charAt(0).toUpperCase() + text.slice(1);
+        }
+      }
 
       return text || (hasHistory
         ? "Que puis-je faire pour vous ?"
