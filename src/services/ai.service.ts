@@ -1,9 +1,11 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { config } from '../config/env.js';
 
-const genAI = new GoogleGenerativeAI(config.geminiApiKey || 'mock-key-for-now');
-
 export class AIService {
+  private getGenAI() {
+    const key = process.env.GEMINI_API_KEY || config.geminiApiKey || '';
+    return new GoogleGenerativeAI(key);
+  }
   /**
    * Génère une réponse intelligente de l'assistant pour le client WhatsApp
    */
@@ -92,7 +94,7 @@ ${hasHistory
 - N'utilise AUCUN emoji ni sticker.`;
 
       // Use modern Gemini 2.5 Flash
-      const model = genAI.getGenerativeModel({
+      const model = this.getGenAI().getGenerativeModel({
         model: 'gemini-2.5-flash',
         systemInstruction: systemPrompt
       });
