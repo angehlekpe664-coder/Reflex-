@@ -957,8 +957,8 @@ export default function App() {
               {/* Form Content: OTP Verification vs Standard Auth Form */}
               {showOtpStep ? (
                 <form onSubmit={handleVerifyOtpSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  <div style={{ backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', borderRadius: '12px', padding: '14px', textAlign: 'center' }}>
-                    <div style={{ fontWeight: 700, color: '#FF5500', fontSize: '14px', marginBottom: '4px' }}>Code OTP Envoyé</div>
+                  <div style={{ backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.3)', borderRadius: '12px', padding: '14px', textAlign: 'center' }}>
+                    <div style={{ fontWeight: 700, color: '#2563EB', fontSize: '14px', marginBottom: '4px' }}>Code OTP Envoyé</div>
                     <p style={{ fontSize: '12.5px', color: '#cbd5e1', margin: 0, lineHeight: 1.4 }}>
                       Un code de confirmation à 6 chiffres a été envoyé à <strong style={{ color: '#ffffff' }}>{email}</strong>.
                     </p>
@@ -977,7 +977,7 @@ export default function App() {
                         width: '100%',
                         padding: '12px',
                         borderRadius: '12px',
-                        border: '2px solid #FF5500',
+                        border: '2px solid #2563EB',
                         backgroundColor: 'rgba(11, 23, 39, 0.9)',
                         color: '#ffffff',
                         outline: 'none',
@@ -989,7 +989,7 @@ export default function App() {
                     />
                   </div>
 
-                  <button type="submit" className="btn-primary-orange" style={{ width: '100%', padding: '14px', fontSize: '15px', borderRadius: '12px' }} disabled={authLoading}>
+                  <button type="submit" className="btn-primary-blue" style={{ width: '100%', padding: '14px', fontSize: '15px', borderRadius: '12px' }} disabled={authLoading}>
                     {authLoading ? 'Validation...' : 'Valider le Code →'}
                   </button>
 
@@ -1064,7 +1064,7 @@ export default function App() {
                   {/* Primary Action Button (Vivid Cloudflare Orange Style CTA) */}
                   <button
                     type="submit"
-                    className="btn-primary-orange"
+                    className="btn-primary-blue"
                     disabled={authLoading}
                     style={{
                       width: '100%',
@@ -1085,9 +1085,9 @@ export default function App() {
               {/* Switch Auth Mode Footer */}
               <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '13.5px', color: '#94a3b8' }}>
                 {authMode === 'signup' ? (
-                  <span style={{ color: '#FF5500', fontWeight: 700, cursor: 'pointer' }} onClick={() => setAuthMode('login')}>{t.toggleToLogin}</span>
+                  <span style={{ color: '#2563EB', fontWeight: 700, cursor: 'pointer' }} onClick={() => setAuthMode('login')}>{t.toggleToLogin}</span>
                 ) : (
-                  <span style={{ color: '#FF5500', fontWeight: 700, cursor: 'pointer' }} onClick={() => setAuthMode('signup')}>{t.toggleToSignup}</span>
+                  <span style={{ color: '#2563EB', fontWeight: 700, cursor: 'pointer' }} onClick={() => setAuthMode('signup')}>{t.toggleToSignup}</span>
                 )}
               </div>
             </div>
@@ -1132,7 +1132,7 @@ export default function App() {
                       <div
                         key={l.code}
                         onClick={() => handleSelectLanguage(l.code as any)}
-                        style={{ padding: '8px 12px', borderRadius: '8px', fontSize: '13px', color: currentLang === l.code ? '#FF5500' : '#ffffff', fontWeight: currentLang === l.code ? 700 : 500, backgroundColor: currentLang === l.code ? 'rgba(255,85,0,0.15)' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                        style={{ padding: '8px 12px', borderRadius: '8px', fontSize: '13px', color: currentLang === l.code ? '#2563EB' : '#ffffff', fontWeight: currentLang === l.code ? 700 : 500, backgroundColor: currentLang === l.code ? 'rgba(37,99,235,0.15)' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                       >
                         <span>{l.flag}</span>
                         <span>{l.label}</span>
@@ -1194,7 +1194,7 @@ export default function App() {
                 onClick={() => setActiveView('landing')}
                 style={{
                   backgroundColor: '#ffffff',
-                  color: '#FF5500',
+                  color: '#2563EB',
                   border: 'none',
                   padding: '11px 22px',
                   borderRadius: '8px',
@@ -1233,7 +1233,7 @@ export default function App() {
             <div style={{ width: '100%', marginBottom: '32px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
                 <div style={{ position: 'absolute', top: '18px', left: '10%', right: '10%', height: '2px', backgroundColor: 'rgba(255, 255, 255, 0.1)', zIndex: 1 }}>
-                  <div style={{ height: '100%', backgroundColor: '#FF5500', width: '0%', transition: 'width 0.3s ease', boxShadow: '0 0 10px rgba(255, 85, 0, 0.8)' }} />
+                  <div style={{ height: '100%', backgroundColor: '#2563EB', width: '0%', transition: 'width 0.3s ease', boxShadow: '0 0 10px rgba(37, 99, 235, 0.8)' }} />
                 </div>
                 {[
                   { step: 1, label: 'Entreprise' },
@@ -1247,26 +1247,26 @@ export default function App() {
                       height: '36px',
                       borderRadius: '50%',
                       backgroundColor: 1 >= s.step ? '#0B1727' : 'rgba(15, 23, 42, 0.9)',
-                      border: 1 === s.step ? '2px solid #FF5500' : '2px solid rgba(255, 255, 255, 0.15)',
+                      border: 1 === s.step ? '2px solid #2563EB' : '2px solid rgba(255, 255, 255, 0.15)',
                       color: 1 === s.step ? '#FFFFFF' : '#64748B',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontWeight: 700,
                       fontSize: '13px',
-                      boxShadow: 1 === s.step ? '0 0 15px rgba(255, 85, 0, 0.5)' : 'none'
+                      boxShadow: 1 === s.step ? '0 0 15px rgba(37, 99, 235, 0.5)' : 'none'
                     }}>
                       {s.step}
                     </div>
-                    <span style={{ fontSize: '12px', fontWeight: 1 === s.step ? 700 : 500, color: 1 === s.step ? '#FF5500' : '#64748B' }}>{s.label}</span>
+                    <span style={{ fontSize: '12px', fontWeight: 1 === s.step ? 700 : 500, color: 1 === s.step ? '#2563EB' : '#64748B' }}>{s.label}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-              <div style={{ width: '60px', height: '60px', borderRadius: '16px', backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-                <Building size={28} color="#FF5500" />
+              <div style={{ width: '60px', height: '60px', borderRadius: '16px', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                <Building size={28} color="#2563EB" />
               </div>
               <h2 style={{ color: '#ffffff', fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>
                 Présentez votre entreprise
@@ -1326,7 +1326,7 @@ export default function App() {
                 />
               </div>
 
-              <button type="submit" className="btn-primary-orange" style={{ width: '100%', padding: '16px', fontSize: '15px', marginTop: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+              <button type="submit" className="btn-primary-blue" style={{ width: '100%', padding: '16px', fontSize: '15px', marginTop: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
                 Suivant : Ajouter votre catalogue <ArrowRight size={18} />
               </button>
             </form>
@@ -1350,7 +1350,7 @@ export default function App() {
             <div style={{ width: '100%', marginBottom: '32px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
                 <div style={{ position: 'absolute', top: '18px', left: '10%', right: '10%', height: '2px', backgroundColor: 'rgba(255, 255, 255, 0.1)', zIndex: 1 }}>
-                  <div style={{ height: '100%', backgroundColor: '#FF5500', width: '33.3%', transition: 'width 0.3s ease', boxShadow: '0 0 10px rgba(255, 85, 0, 0.8)' }} />
+                  <div style={{ height: '100%', backgroundColor: '#2563EB', width: '33.3%', transition: 'width 0.3s ease', boxShadow: '0 0 10px rgba(37, 99, 235, 0.8)' }} />
                 </div>
                 {[
                   { step: 1, label: 'Entreprise' },
@@ -1364,26 +1364,26 @@ export default function App() {
                       height: '36px',
                       borderRadius: '50%',
                       backgroundColor: 2 >= s.step ? '#0B1727' : 'rgba(15, 23, 42, 0.9)',
-                      border: 2 >= s.step ? '2px solid #FF5500' : '2px solid rgba(255, 255, 255, 0.15)',
+                      border: 2 >= s.step ? '2px solid #2563EB' : '2px solid rgba(255, 255, 255, 0.15)',
                       color: 2 >= s.step ? '#FFFFFF' : '#64748B',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontWeight: 700,
                       fontSize: '13px',
-                      boxShadow: 2 === s.step ? '0 0 15px rgba(255, 85, 0, 0.5)' : 'none'
+                      boxShadow: 2 === s.step ? '0 0 15px rgba(37, 99, 235, 0.5)' : 'none'
                     }}>
-                      {1 > s.step ? s.step : 2 > s.step ? <Check size={18} color="#FF5500" /> : s.step}
+                      {1 > s.step ? s.step : 2 > s.step ? <Check size={18} color="#2563EB" /> : s.step}
                     </div>
-                    <span style={{ fontSize: '12px', fontWeight: 2 === s.step ? 700 : 500, color: 2 === s.step ? '#FF5500' : 2 > s.step ? '#FFFFFF' : '#64748B' }}>{s.label}</span>
+                    <span style={{ fontSize: '12px', fontWeight: 2 === s.step ? 700 : 500, color: 2 === s.step ? '#2563EB' : 2 > s.step ? '#FFFFFF' : '#64748B' }}>{s.label}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-              <div style={{ width: '60px', height: '60px', borderRadius: '16px', backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-                <Store size={28} color="#FF5500" />
+              <div style={{ width: '60px', height: '60px', borderRadius: '16px', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                <Store size={28} color="#2563EB" />
               </div>
               <h2 style={{ color: '#ffffff', fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>
                 Ajoutez vos premiers produits
@@ -1407,7 +1407,7 @@ export default function App() {
                       <span style={{ fontSize: '12px', color: '#94a3b8' }}>{prod.category}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                      <div style={{ fontWeight: 800, fontSize: '15px', color: '#FF5500' }}>
+                      <div style={{ fontWeight: 800, fontSize: '15px', color: '#2563EB' }}>
                         {prod.price.toLocaleString()} FCFA
                       </div>
                       <button onClick={() => handleDeleteProduct(i)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#EF4444', padding: '4px' }}>
@@ -1420,9 +1420,9 @@ export default function App() {
             </div>
 
             {/* Add New Product Box */}
-            <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px dashed rgba(255, 85, 0, 0.4)', padding: '20px', borderRadius: '16px', marginBottom: '32px' }}>
+            <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px dashed rgba(37, 99, 235, 0.4)', padding: '20px', borderRadius: '16px', marginBottom: '32px' }}>
               <div style={{ fontSize: '14px', fontWeight: 700, color: '#ffffff', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Plus size={18} color="#FF5500" /> Ajouter un produit au catalogue
+                <Plus size={18} color="#2563EB" /> Ajouter un produit au catalogue
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
                 <input
@@ -1462,7 +1462,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setActiveView('onboarding-assistant')}
-                className="btn-primary-orange"
+                className="btn-primary-blue"
                 style={{ flex: 2, padding: '14px', fontSize: '14.5px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
               >
                 Suivant : Assistant IA <ArrowRight size={18} />
@@ -1488,7 +1488,7 @@ export default function App() {
             <div style={{ width: '100%', marginBottom: '32px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
                 <div style={{ position: 'absolute', top: '18px', left: '10%', right: '10%', height: '2px', backgroundColor: 'rgba(255, 255, 255, 0.1)', zIndex: 1 }}>
-                  <div style={{ height: '100%', backgroundColor: '#FF5500', width: '66.6%', transition: 'width 0.3s ease', boxShadow: '0 0 10px rgba(255, 85, 0, 0.8)' }} />
+                  <div style={{ height: '100%', backgroundColor: '#2563EB', width: '66.6%', transition: 'width 0.3s ease', boxShadow: '0 0 10px rgba(37, 99, 235, 0.8)' }} />
                 </div>
                 {[
                   { step: 1, label: 'Entreprise' },
@@ -1502,26 +1502,26 @@ export default function App() {
                       height: '36px',
                       borderRadius: '50%',
                       backgroundColor: 3 >= s.step ? '#0B1727' : 'rgba(15, 23, 42, 0.9)',
-                      border: 3 >= s.step ? '2px solid #FF5500' : '2px solid rgba(255, 255, 255, 0.15)',
+                      border: 3 >= s.step ? '2px solid #2563EB' : '2px solid rgba(255, 255, 255, 0.15)',
                       color: 3 >= s.step ? '#FFFFFF' : '#64748B',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontWeight: 700,
                       fontSize: '13px',
-                      boxShadow: 3 === s.step ? '0 0 15px rgba(255, 85, 0, 0.5)' : 'none'
+                      boxShadow: 3 === s.step ? '0 0 15px rgba(37, 99, 235, 0.5)' : 'none'
                     }}>
-                      {2 >= s.step ? <Check size={18} color="#FF5500" /> : s.step}
+                      {2 >= s.step ? <Check size={18} color="#2563EB" /> : s.step}
                     </div>
-                    <span style={{ fontSize: '12px', fontWeight: 3 === s.step ? 700 : 500, color: 3 === s.step ? '#FF5500' : 3 > s.step ? '#FFFFFF' : '#64748B' }}>{s.label}</span>
+                    <span style={{ fontSize: '12px', fontWeight: 3 === s.step ? 700 : 500, color: 3 === s.step ? '#2563EB' : 3 > s.step ? '#FFFFFF' : '#64748B' }}>{s.label}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-              <div style={{ width: '60px', height: '60px', borderRadius: '16px', backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-                <Sparkles size={28} color="#FF5500" />
+              <div style={{ width: '60px', height: '60px', borderRadius: '16px', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                <Sparkles size={28} color="#2563EB" />
               </div>
               <h2 style={{ color: '#ffffff', fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>
                 Personnalisez votre Assistant IA
@@ -1578,7 +1578,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setActiveView('onboarding-whatsapp')}
-                className="btn-primary-orange"
+                className="btn-primary-blue"
                 style={{ flex: 2, padding: '14px', fontSize: '14.5px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
               >
                 Suivant : Connexion WhatsApp <ArrowRight size={18} />
@@ -1604,7 +1604,7 @@ export default function App() {
             <div style={{ width: '100%', marginBottom: '32px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
                 <div style={{ position: 'absolute', top: '18px', left: '10%', right: '10%', height: '2px', backgroundColor: 'rgba(255, 255, 255, 0.1)', zIndex: 1 }}>
-                  <div style={{ height: '100%', backgroundColor: '#FF5500', width: '100%', transition: 'width 0.3s ease', boxShadow: '0 0 10px rgba(255, 85, 0, 0.8)' }} />
+                  <div style={{ height: '100%', backgroundColor: '#2563EB', width: '100%', transition: 'width 0.3s ease', boxShadow: '0 0 10px rgba(37, 99, 235, 0.8)' }} />
                 </div>
                 {[
                   { step: 1, label: 'Entreprise' },
@@ -1618,18 +1618,18 @@ export default function App() {
                       height: '36px',
                       borderRadius: '50%',
                       backgroundColor: '#0B1727',
-                      border: '2px solid #FF5500',
+                      border: '2px solid #2563EB',
                       color: '#FFFFFF',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontWeight: 700,
                       fontSize: '13px',
-                      boxShadow: 4 === s.step ? '0 0 15px rgba(255, 85, 0, 0.5)' : 'none'
+                      boxShadow: 4 === s.step ? '0 0 15px rgba(37, 99, 235, 0.5)' : 'none'
                     }}>
-                      <Check size={18} color="#FF5500" />
+                      <Check size={18} color="#2563EB" />
                     </div>
-                    <span style={{ fontSize: '12px', fontWeight: 700, color: '#FF5500' }}>{s.label}</span>
+                    <span style={{ fontSize: '12px', fontWeight: 700, color: '#2563EB' }}>{s.label}</span>
                   </div>
                 ))}
               </div>
@@ -1652,7 +1652,7 @@ export default function App() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'left', marginBottom: '32px' }}>
                       {/* Item 1 */}
                       <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '18px 20px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: 'rgba(255, 85, 0, 0.15)', color: '#FF5500', fontWeight: 800, fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
+                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.15)', color: '#2563EB', fontWeight: 800, fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
                           1
                         </div>
                         <div>
@@ -1665,7 +1665,7 @@ export default function App() {
 
                       {/* Item 2 */}
                       <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '18px 20px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: 'rgba(255, 85, 0, 0.15)', color: '#FF5500', fontWeight: 800, fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
+                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.15)', color: '#2563EB', fontWeight: 800, fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
                           2
                         </div>
                         <div>
@@ -1678,7 +1678,7 @@ export default function App() {
 
                       {/* Item 3 */}
                       <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '18px 20px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: 'rgba(255, 85, 0, 0.15)', color: '#FF5500', fontWeight: 800, fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
+                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.15)', color: '#2563EB', fontWeight: 800, fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
                           3
                         </div>
                         <div>
@@ -1691,7 +1691,7 @@ export default function App() {
 
                       {/* Item 4 */}
                       <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '18px 20px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: 'rgba(255, 85, 0, 0.15)', color: '#FF5500', fontWeight: 800, fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
+                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.15)', color: '#2563EB', fontWeight: 800, fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
                           4
                         </div>
                         <div>
@@ -1712,11 +1712,11 @@ export default function App() {
                         fontSize: '16px',
                         fontWeight: 800,
                         borderRadius: '14px',
-                        background: 'linear-gradient(135deg, #FF5500 0%, #E63900 100%)',
+                        background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
                         color: '#ffffff',
                         border: 'none',
                         cursor: 'pointer',
-                        boxShadow: '0 8px 24px rgba(255, 85, 0, 0.35)',
+                        boxShadow: '0 8px 24px rgba(37, 99, 235, 0.35)',
                         transition: 'all 0.2s ease'
                       }}
                     >
@@ -1731,7 +1731,7 @@ export default function App() {
                       </h2>
                     </div>
 
-                    <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 85, 0, 0.3)', borderRadius: '20px', padding: '32px 28px', marginBottom: '28px', textAlign: 'left' }}>
+                    <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(37, 99, 235, 0.3)', borderRadius: '20px', padding: '32px 28px', marginBottom: '28px', textAlign: 'left' }}>
                       {waConnectionStatus === 'CONNECTING' ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
                           {/* Step 1: Connexion de votre numéro */}
@@ -1740,7 +1740,7 @@ export default function App() {
                               {metaProgressStep > 1 ? (
                                 <CheckCircle size={22} color="#10b981" />
                               ) : metaProgressStep === 1 ? (
-                                <Loader2 size={22} color="#FF5500" className="animate-spin" />
+                                <Loader2 size={22} color="#2563EB" className="animate-spin" />
                               ) : (
                                 <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.2)' }} />
                               )}
@@ -1761,7 +1761,7 @@ export default function App() {
                               {metaProgressStep > 2 ? (
                                 <CheckCircle size={22} color="#10b981" />
                               ) : metaProgressStep === 2 ? (
-                                <Loader2 size={22} color="#FF5500" className="animate-spin" />
+                                <Loader2 size={22} color="#2563EB" className="animate-spin" />
                               ) : (
                                 <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.2)' }} />
                               )}
@@ -1782,7 +1782,7 @@ export default function App() {
                               {metaProgressStep > 3 ? (
                                 <CheckCircle size={22} color="#10b981" />
                               ) : metaProgressStep === 3 ? (
-                                <Loader2 size={22} color="#FF5500" className="animate-spin" />
+                                <Loader2 size={22} color="#2563EB" className="animate-spin" />
                               ) : (
                                 <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.2)' }} />
                               )}
@@ -1803,7 +1803,7 @@ export default function App() {
                               {metaProgressStep > 4 ? (
                                 <CheckCircle size={22} color="#10b981" />
                               ) : metaProgressStep === 4 ? (
-                                <Loader2 size={22} color="#FF5500" className="animate-spin" />
+                                <Loader2 size={22} color="#2563EB" className="animate-spin" />
                               ) : (
                                 <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.2)' }} />
                               )}
@@ -1850,7 +1850,7 @@ export default function App() {
                               fontSize: '16px',
                               fontWeight: 800,
                               borderRadius: '14px',
-                              background: 'linear-gradient(135deg, #FF5500 0%, #E63900 100%)',
+                              background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
                               color: '#ffffff',
                               border: 'none',
                               cursor: 'pointer',
@@ -1858,7 +1858,7 @@ export default function App() {
                               alignItems: 'center',
                               justifyContent: 'center',
                               gap: '12px',
-                              boxShadow: '0 8px 24px rgba(255, 85, 0, 0.35)',
+                              boxShadow: '0 8px 24px rgba(37, 99, 235, 0.35)',
                               transition: 'all 0.2s ease',
                               marginBottom: '14px'
                             }}
@@ -1909,14 +1909,14 @@ export default function App() {
 
                 <button
                   type="button"
-                  className="btn-primary-orange"
+                  className="btn-primary-blue"
                   style={{
                     width: '100%',
                     padding: '16px',
                     fontSize: '16px',
                     fontWeight: 700,
                     color: '#ffffff',
-                    backgroundColor: '#FF5500',
+                    backgroundColor: '#2563EB',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
@@ -1977,9 +1977,9 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="glass-card-dark" style={{ padding: '30px', borderRadius: '20px', border: '1px solid rgba(255,85,0,0.3)', backgroundColor: 'rgba(255,85,0,0.03)' }}>
+              <div className="glass-card-dark" style={{ padding: '30px', borderRadius: '20px', border: '1px solid rgba(37,99,235,0.3)', backgroundColor: 'rgba(37,99,235,0.03)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(255,85,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FF5500' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(37,99,235,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563EB' }}>
                     <Smartphone size={20} />
                   </div>
                   <div>
@@ -1989,7 +1989,7 @@ export default function App() {
                 </div>
 
                 <div style={{ display: 'flex', gap: '12px' }}>
-                  <div style={{ padding: '16px 20px', backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px', fontSize: '16px', fontWeight: 700, color: '#FF5500', display: 'flex', alignItems: 'center' }}>+229</div>
+                  <div style={{ padding: '16px 20px', backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px', fontSize: '16px', fontWeight: 700, color: '#2563EB', display: 'flex', alignItems: 'center' }}>+229</div>
                   <input
                     type="text"
                     placeholder="Ex: 97 00 00 00"
@@ -2014,7 +2014,7 @@ export default function App() {
                   <div style={{ fontSize: '18px', fontWeight: 700, color: '#ffffff', marginBottom: '4px' }}>Abonnement {selectedPlan.name}</div>
                   <div style={{ fontSize: '13px', color: '#94a3b8' }}>Facturation mensuelle</div>
                 </div>
-                <div style={{ fontSize: '20px', fontWeight: 800, color: '#FF5500', fontFamily: 'var(--font-mono)' }}>
+                <div style={{ fontSize: '20px', fontWeight: 800, color: '#2563EB', fontFamily: 'var(--font-mono)' }}>
                   {selectedPlan.price.toLocaleString()} FCFA
                 </div>
               </div>
@@ -2032,7 +2032,7 @@ export default function App() {
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                 <div style={{ color: '#ffffff', fontSize: '18px', fontWeight: 700 }}>Total à payer</div>
-                <div style={{ color: '#FF5500', fontSize: '28px', fontWeight: 800, fontFamily: 'var(--font-mono)' }}>{selectedPlan.price.toLocaleString()} FCFA</div>
+                <div style={{ color: '#2563EB', fontSize: '28px', fontWeight: 800, fontFamily: 'var(--font-mono)' }}>{selectedPlan.price.toLocaleString()} FCFA</div>
               </div>
 
               <button
@@ -2110,18 +2110,18 @@ export default function App() {
         <div className="payment-checkout-container" style={{ minHeight: '100vh', backgroundColor: '#0B1727', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', padding: '40px 16px 120px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
             <img src="/logo.png" alt="Reflex Logo" style={{ height: '54px', width: 'auto', borderRadius: '10px' }} />
-            <span className="font-outfit" style={{ fontWeight: 800, fontSize: '24px', color: '#FF5500' }}>Pay</span>
+            <span className="font-outfit" style={{ fontWeight: 800, fontSize: '24px', color: '#2563EB' }}>Pay</span>
           </div>
 
-          <div className="glass-card-dark payment-card-responsive" style={{ width: '100%', maxWidth: '520px', padding: '36px', borderRadius: '24px', border: '1px solid rgba(255, 85, 0, 0.35)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)', boxSizing: 'border-box' }}>
+          <div className="glass-card-dark payment-card-responsive" style={{ width: '100%', maxWidth: '520px', padding: '36px', borderRadius: '24px', border: '1px solid rgba(37, 99, 235, 0.35)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)', boxSizing: 'border-box' }}>
             {!paymentSuccess ? (
               <>
                 <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '20px', marginBottom: '24px', textAlign: 'center' }}>
-                  <span className="font-outfit" style={{ backgroundColor: 'rgba(255, 85, 0, 0.15)', color: '#FF5500', padding: '5px 14px', borderRadius: '9999px', fontSize: '12px', fontWeight: 700, border: '1px solid rgba(255, 85, 0, 0.3)' }}>
+                  <span className="font-outfit" style={{ backgroundColor: 'rgba(37, 99, 235, 0.15)', color: '#2563EB', padding: '5px 14px', borderRadius: '9999px', fontSize: '12px', fontWeight: 700, border: '1px solid rgba(37, 99, 235, 0.3)' }}>
                     PROPULSÉ PAR REFLEX MOBILE MONEY
                   </span>
                   <h2 className="font-outfit" style={{ fontSize: '24px', fontWeight: 800, color: '#ffffff', marginTop: '12px', marginBottom: '4px' }}>{currentCheckoutOrder.pmeName}</h2>
-                  <div style={{ fontSize: '13.5px', color: '#cbd5e1' }}>Règlement de la Commande : <strong style={{ color: '#FF5500' }}>{currentCheckoutOrder.id}</strong></div>
+                  <div style={{ fontSize: '13.5px', color: '#cbd5e1' }}>Règlement de la Commande : <strong style={{ color: '#2563EB' }}>{currentCheckoutOrder.id}</strong></div>
                 </div>
 
                 {/* Article & Amount Card */}
@@ -2131,13 +2131,13 @@ export default function App() {
                     <div style={{ fontSize: '12.5px', color: '#94a3b8', marginTop: '2px' }}>Client: {currentCheckoutOrder.customerName}</div>
                     <div style={{ fontSize: '12px', color: '#94a3b8' }}>Livraison: {currentCheckoutOrder.deliveryAddress}</div>
                   </div>
-                  <div style={{ fontSize: '24px', fontWeight: 800, color: '#FF5500', fontFamily: 'var(--font-mono)' }}>
+                  <div style={{ fontSize: '24px', fontWeight: 800, color: '#2563EB', fontFamily: 'var(--font-mono)' }}>
                     {currentCheckoutOrder.amount.toLocaleString()} FCFA
                   </div>
                 </div>
 
                 {/* FedaPay Secure Info Badge */}
-                <div style={{ backgroundColor: 'rgba(255, 85, 0, 0.08)', borderRadius: '12px', border: '1px solid rgba(255, 85, 0, 0.25)', padding: '14px', marginBottom: '24px', textAlign: 'center' }}>
+                <div style={{ backgroundColor: 'rgba(37, 99, 235, 0.08)', borderRadius: '12px', border: '1px solid rgba(37, 99, 235, 0.25)', padding: '14px', marginBottom: '24px', textAlign: 'center' }}>
                   <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#ffffff' }}>
                     Paiement Sécurisé via FedaPay
                   </div>
@@ -2161,7 +2161,7 @@ export default function App() {
                   <div>
                     <label style={{ fontSize: '13px', fontWeight: 600, color: '#ffffff', marginBottom: '6px', display: 'block' }}>Numéro Mobile Money du Payer (+229)</label>
                     <div style={{ display: 'flex', gap: '8px' }}>
-                      <span style={{ padding: '12px 14px', backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', fontSize: '14px', fontWeight: 700, color: '#FF5500' }}>+229</span>
+                      <span style={{ padding: '12px 14px', backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', fontSize: '14px', fontWeight: 700, color: '#2563EB' }}>+229</span>
                       <input
                         type="text"
                         placeholder="97 00 00 00"
@@ -2178,7 +2178,7 @@ export default function App() {
                 </div>
 
                 <button
-                  className="btn-orange-primary"
+                  className="btn-blue-primary"
                   style={{ width: '100%', padding: '16px', fontSize: '16.5px', fontWeight: 800, borderRadius: '12px' }}
                   onClick={handleProcessPayment}
                   disabled={paymentLoading}
@@ -2201,8 +2201,8 @@ export default function App() {
                   Votre règlement de <strong style={{ color: '#10B981' }}>{currentCheckoutOrder.amount.toLocaleString()} FCFA</strong> a été encaissé avec succès via Mobile Money. Le reçu officiel a été envoyé sur votre WhatsApp.
                 </p>
 
-                <div style={{ backgroundColor: 'rgba(255,255,255,0.04)', border: '1px dashed rgba(255,85,0,0.4)', borderRadius: '14px', padding: '18px', textAlign: 'left', marginBottom: '24px', fontSize: '12.5px' }}>
-                  <div style={{ fontWeight: 800, color: '#FF5500', fontSize: '13.5px', marginBottom: '6px' }}>Reçu Officiel Reflex Mobile Money #{currentCheckoutOrder.id}</div>
+                <div style={{ backgroundColor: 'rgba(255,255,255,0.04)', border: '1px dashed rgba(37,99,235,0.4)', borderRadius: '14px', padding: '18px', textAlign: 'left', marginBottom: '24px', fontSize: '12.5px' }}>
+                  <div style={{ fontWeight: 800, color: '#2563EB', fontSize: '13.5px', marginBottom: '6px' }}>Reçu Officiel Reflex Mobile Money #{currentCheckoutOrder.id}</div>
                   <div style={{ color: '#ffffff', marginBottom: '3px' }}>Client : {currentCheckoutOrder.customerName} (+229 {payerPhone})</div>
                   <div style={{ color: '#cbd5e1', marginBottom: '3px' }}>Boutique : {currentCheckoutOrder.pmeName}</div>
                   <div style={{ color: '#cbd5e1', marginBottom: '4px' }}>Date : {new Date().toLocaleDateString('fr-FR')} à {new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>
@@ -2210,7 +2210,7 @@ export default function App() {
                 </div>
 
                 <button
-                  className="btn-orange-primary"
+                  className="btn-blue-primary"
                   style={{ width: '100%', padding: '14px', fontSize: '15px', marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                   onClick={() => {
                     setSelectedReceiptOrder(currentCheckoutOrder);
@@ -2343,12 +2343,12 @@ export default function App() {
                   {activeSidebarTab === 'Paramètres' && t.settingsTitle}
                 </h1>
                 <p style={{ color: 'var(--dash-text-secondary)', fontSize: '13.5px', lineHeight: 1.4 }}>
-                  {t.dashPmeActive} : <strong style={{ color: '#FF5500' }}>{companyData.name}</strong> ({companyData.phone})
+                  {t.dashPmeActive} : <strong style={{ color: '#2563EB' }}>{companyData.name}</strong> ({companyData.phone})
                 </p>
               </div>
 
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(255,85,0,0.12)', border: '1px solid rgba(255,85,0,0.35)', padding: '6px 14px', borderRadius: '9999px', whiteSpace: 'nowrap' }}>
-                <Radio size={14} color="#FF5500" />
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(37,99,235,0.12)', border: '1px solid rgba(37,99,235,0.35)', padding: '6px 14px', borderRadius: '9999px', whiteSpace: 'nowrap' }}>
+                <Radio size={14} color="#2563EB" />
                 <span style={{ color: 'var(--dash-text-primary)', fontWeight: 600, fontSize: '12px' }}>
                   {t.dashAiActive}
                 </span>
@@ -2376,7 +2376,7 @@ export default function App() {
                   </div>
                   <div className="reflex-card-base" style={{ padding: '20px' }}>
                     <div className="label-sm" style={{ color: 'var(--dash-text-secondary)', marginBottom: '8px', textTransform: 'uppercase' }}>AUTO (IA)</div>
-                    <div style={{ fontSize: '28px', fontWeight: 700, color: '#FF5500', fontFamily: 'var(--font-inter)' }}>{liveStats.autoAiPercent}%</div>
+                    <div style={{ fontSize: '28px', fontWeight: 700, color: '#2563EB', fontFamily: 'var(--font-inter)' }}>{liveStats.autoAiPercent}%</div>
                   </div>
                   <div className="reflex-card-base" style={{ padding: '20px' }}>
                     <div className="label-sm" style={{ color: 'var(--dash-text-secondary)', marginBottom: '8px', textTransform: 'uppercase' }}>COMMANDES</div>
@@ -2394,9 +2394,9 @@ export default function App() {
 
                 <div className="grid-responsive-main animate-fade-in">
                   <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                    <div className="reflex-card-ai" style={{ padding: '24px', backgroundColor: 'var(--dash-card-bg)', border: '1px solid rgba(255, 85, 0, 0.3)' }}>
+                    <div className="reflex-card-ai" style={{ padding: '24px', backgroundColor: 'var(--dash-card-bg)', border: '1px solid rgba(37, 99, 235, 0.3)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-                        <Sparkles size={20} color="#FF5500" />
+                        <Sparkles size={20} color="#2563EB" />
                         <h3 className="title-md" style={{ color: 'var(--dash-text-primary)', fontSize: '18px' }}>Résumé intelligent de l'activité de {companyData.name}</h3>
                       </div>
                       <p className="body-md" style={{ color: 'var(--dash-text-secondary)', lineHeight: 1.6 }}>
@@ -2410,7 +2410,7 @@ export default function App() {
                         {recentOrdersList.map((ord, idx) => (
                           <div key={idx} className="reflex-card-base dashboard-order-card" style={{ padding: '16px 20px', backgroundColor: 'var(--dash-card-bg)', border: '1px solid var(--dash-card-border)' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
-                              <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(255, 85, 0, 0.15)', color: '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, flexShrink: 0 }}>
+                              <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.15)', color: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, flexShrink: 0 }}>
                                 {ord.avatar}
                               </div>
                               <div style={{ minWidth: 0, flex: 1 }}>
@@ -2433,7 +2433,7 @@ export default function App() {
                       <h3 className="title-md" style={{ color: 'var(--dash-text-primary)', fontSize: '18px' }}>Paramètres IA Actifs</h3>
                       <div style={{ borderBottom: '1px solid var(--dash-card-border)', paddingBottom: '16px' }}>
                         <div className="label-xs" style={{ color: 'var(--dash-text-secondary)', marginBottom: '6px' }}>TON IA</div>
-                        <div style={{ fontWeight: 600, color: '#FF5500' }}>{assistantConfig.tone}</div>
+                        <div style={{ fontWeight: 600, color: '#2563EB' }}>{assistantConfig.tone}</div>
                       </div>
                       <div style={{ borderBottom: '1px solid var(--dash-card-border)', paddingBottom: '16px' }}>
                         <div className="label-xs" style={{ color: 'var(--dash-text-secondary)', marginBottom: '6px' }}>DELAIS LIVRAISON</div>
@@ -2448,7 +2448,7 @@ export default function App() {
                     <div className="reflex-card-base" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', backgroundColor: 'var(--dash-card-bg)', border: '1px solid var(--dash-card-border)' }}>
                       <h3 className="title-md" style={{ color: 'var(--dash-text-primary)', fontSize: '18px' }}>Liens Rapides</h3>
                       <button
-                        style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--dash-chip-bg)', color: '#FF5500', borderRadius: '12px', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '14px', textAlign: 'left' }}
+                        style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--dash-chip-bg)', color: '#2563EB', borderRadius: '12px', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '14px', textAlign: 'left' }}
                         onClick={() => switchTab('Catalogue')}
                       >
                         <Grid size={18} /> Gérer mon catalogue produit
@@ -2637,7 +2637,7 @@ export default function App() {
                       style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--dash-input-border)', backgroundColor: 'var(--dash-input-bg)', color: 'var(--dash-text-primary)', outline: 'none', fontSize: '14px' }}
                     />
                   </div>
-                  <button className="btn-orange-primary" style={{ padding: '10px 24px', fontSize: '14px' }} onClick={handleAddProduct}>
+                  <button className="btn-blue-primary" style={{ padding: '10px 24px', fontSize: '14px' }} onClick={handleAddProduct}>
                     Ajouter au Catalogue
                   </button>
                 </div>
@@ -2652,7 +2652,7 @@ export default function App() {
                           <div style={{ fontSize: '12px', color: 'var(--dash-text-secondary)' }}>{prod.category}</div>
                         </div>
                         <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontWeight: 800, fontSize: '18px', color: '#FF5500', fontFamily: 'var(--font-inter)' }}>{prod.price.toLocaleString()} FCFA</div>
+                          <div style={{ fontWeight: 800, fontSize: '18px', color: '#2563EB', fontFamily: 'var(--font-inter)' }}>{prod.price.toLocaleString()} FCFA</div>
                           <button onClick={() => handleDeleteProduct(idx)} style={{ border: 'none', background: 'transparent', color: '#EF4444', cursor: 'pointer', marginTop: '6px' }}>
                             <Trash2 size={16} /> Supprimer
                           </button>
@@ -2669,7 +2669,7 @@ export default function App() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '740px' }}>
                 <div className="reflex-card-base" style={{ padding: '28px', backgroundColor: 'var(--dash-card-bg)', border: '1px solid var(--dash-card-border)' }}>
                   <h3 className="title-md" style={{ color: 'var(--dash-text-primary)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Settings size={20} color="#FF5500" /> Paramètres Général de {companyData.name}
+                    <Settings size={20} color="#2563EB" /> Paramètres Général de {companyData.name}
                   </h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     <div>
@@ -2708,10 +2708,10 @@ export default function App() {
 
 
                 {/* OFFICIAL META EMBEDDED SIGNUP CONNECTION CARD */}
-                <div className="reflex-card-base" style={{ padding: '28px', backgroundColor: 'var(--dash-card-bg)', border: '1px solid rgba(255, 85, 0, 0.35)' }}>
+                <div className="reflex-card-base" style={{ padding: '28px', backgroundColor: 'var(--dash-card-bg)', border: '1px solid rgba(37, 99, 235, 0.35)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px', marginBottom: '20px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={{ width: '42px', height: '42px', borderRadius: '12px', backgroundColor: waConnectionStatus === 'CONNECTED' ? '#10b981' : '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--dash-text-primary)' }}>
+                      <div style={{ width: '42px', height: '42px', borderRadius: '12px', backgroundColor: waConnectionStatus === 'CONNECTED' ? '#10b981' : '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--dash-text-primary)' }}>
                         <Radio size={24} />
                       </div>
                       <div>
@@ -2790,7 +2790,7 @@ export default function App() {
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '10px',
-                        backgroundColor: '#FF5500',
+                        backgroundColor: '#2563EB',
                         color: 'var(--dash-text-primary)',
                         border: 'none',
                         padding: '12px 24px',
@@ -2798,7 +2798,7 @@ export default function App() {
                         fontSize: '14.5px',
                         fontWeight: 700,
                         cursor: saveLoading ? 'wait' : 'pointer',
-                        boxShadow: '0 4px 18px rgba(255, 85, 0, 0.4)',
+                        boxShadow: '0 4px 18px rgba(37, 99, 235, 0.4)',
                         transition: 'all 0.2s ease',
                         opacity: saveLoading ? 0.7 : 1
                       }}
@@ -2821,7 +2821,7 @@ export default function App() {
                   </div>
                   {connectedWabaId && (
                     <div style={{ marginTop: '12px', fontSize: '12px', color: 'var(--dash-text-secondary)' }}>
-                      ID WABA Actif : <code style={{ backgroundColor: '#1E293B', padding: '2px 6px', borderRadius: '4px', color: '#FF5500' }}>{connectedWabaId}</code>
+                      ID WABA Actif : <code style={{ backgroundColor: '#1E293B', padding: '2px 6px', borderRadius: '4px', color: '#2563EB' }}>{connectedWabaId}</code>
                     </div>
                   )}
                 </div>
