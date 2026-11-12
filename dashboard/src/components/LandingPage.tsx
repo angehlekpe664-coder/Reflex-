@@ -1,1011 +1,1491 @@
 import { useState } from 'react';
-import { Menu, CheckCircle, Zap, ChevronDown, ChevronUp, Globe, Mail, Phone, Play, Grid, ShoppingBag, Store, Building, Receipt, Sparkles, CreditCard, LayoutDashboard, MapPin } from 'lucide-react';
+import { 
+  Menu, 
+  X, 
+  CheckCircle2, 
+  ChevronDown, 
+  ChevronUp, 
+  ShoppingBag, 
+  QrCode, 
+  LayoutGrid, 
+  Utensils, 
+  GraduationCap, 
+  Briefcase, 
+  Database, 
+  Heart, 
+  Wrench, 
+  ArrowRight, 
+  Sun,
+  Moon,
+  Zap,
+  Users,
+  ShieldCheck,
+  MessageSquare,
+  Wallet,
+  BarChart3,
+  Workflow
+} from 'lucide-react';
 
 export function LandingPage(props: any) {
-  const { currentLang, handleSelectLanguage, setActiveView, setAuthMode, setSelectedPlan, t, showScrollTop, langMenuOpen, setLangMenuOpen, availableLanguages } = props;
+  const { 
+    setActiveView, 
+    setAuthMode, 
+    setSelectedPlan, 
+    showScrollTop
+  } = props;
+
+  // View state: 'home' | 'about' | 'blog'
+  const [currentSubView, setCurrentSubView] = useState<'home' | 'about' | 'blog'>('home');
+  
+  // Theme state: 'dark' | 'light'
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [blogFilter, setBlogFilter] = useState<'Tous' | 'Produit' | 'Guide' | 'Croissance'>('Tous');
 
-  
+  const isLight = theme === 'light';
+
+  const testimonials = [
+    {
+      quote: "Avant Reflex, je passais 3 heures chaque soir à répondre aux messages clients. L'IA gère maintenant 90% des demandes. J'ai enfin pu passer des soirées sereines.",
+      author: "Amina Sow",
+      role: "AO Fashion Boutique, Cotonou"
+    },
+    {
+      quote: "Les commandes se perdaient pendant le rush du soir en cuisine. Avec Reflex, les commandes et les paiements MoMo sont confirmés instantanément.",
+      author: "Romuald Houngbo",
+      role: "Saveurs & Délices, Porto-Novo"
+    },
+    {
+      quote: "Nos patients peuvent réserver leurs consultations et obtenir des informations 24h/24. C'est comme avoir 3 assistants dédiés en continu.",
+      author: "Dr. Kpogbemabou",
+      role: "Centre Médical Sainte-Marie, Cotonou"
+    }
+  ];
+
+  // Exact 7 FAQ items (Localized strictly for Benin)
+  const faqs = [
+    {
+      q: "Est-ce que cela fonctionne avec mon numéro WhatsApp actuel ?",
+      a: "Oui. Vous pouvez connecter votre numéro WhatsApp existant ou un nouveau numéro professionnel. La liaison s'effectue en quelques clics via l'API officielle Meta Cloud."
+    },
+    {
+      q: "Mes clients doivent-ils télécharger une application ?",
+      a: "Non, aucun téléchargement n'est requis ! Vos clients vous écrivent directement sur leur WhatsApp habituel, exactement comme ils l'ont toujours fait."
+    },
+    {
+      q: "Combien de temps faut-il pour être opérationnel ?",
+      a: "Moins de 15 minutes. Vous liez votre numéro, ajoutez vos produits ou services et leurs prix, et votre assistant IA commence à répondre immédiatement."
+    },
+    {
+      q: "Puis-je l'utiliser pour des prestations de services, pas seulement des produits ?",
+      a: "Absolument. Reflex est optimisé pour les cliniques, salons de coiffure, cabinets, réparateurs, écoles et toute activité nécessitant devis, rendez-vous ou renseignements."
+    },
+    {
+      q: "Quels moyens de paiement sont pris en charge au Bénin ?",
+      a: "Reflex intègre nativement MTN Mobile Money (*139#), Moov Money (*155#), Celtiis Cash, Wave, et les cartes bancaires directement dans la conversation WhatsApp."
+    },
+    {
+      q: "Mes données et celles de mes clients sont-elles protégées ?",
+      a: "Oui. Toutes les communications transitent par les serveurs sécurisés et chiffrés de l'infrastructure officielle Meta. Vos données restent strictement confidentielles."
+    },
+    {
+      q: "Puis-je résilier à tout moment ?",
+      a: "Oui, vous êtes 100% libre. Vous pouvez suspendre ou annuler votre abonnement en un clic depuis votre espace, sans aucun engagement ni frais caché."
+    }
+  ];
+
+  // Blog Posts matching Screenshots 1 & 4 (Localized to Benin & West Africa)
+  const allBlogPosts = [
+    {
+      tag: "Produit",
+      category: "Produit",
+      title: "IA WhatsApp pour les entreprises au Bénin : Comment ça marche et pourquoi les commerçants l'adorent",
+      snippet: "L'intelligence artificielle conversationnelle remplace la saisie manuelle des commandes pour des centaines de commerçants béninois. Découvrez ses fonctionnalités concrètes.",
+      author: "Ange H.",
+      date: "28 Fév 2026",
+      readTime: "6 min de lecture"
+    },
+    {
+      tag: "Produit",
+      category: "Produit",
+      title: "5 astuces Reflex pour ne plus jamais manquer une commande client la nuit",
+      snippet: "Chaque message non répondu est une vente perdue. Voici les 5 fonctions clés qu'utilisent nos commerçants pour encaisser même à 2h du matin.",
+      author: "Mireille T.",
+      date: "12 Fév 2026",
+      readTime: "4 min de lecture"
+    },
+    {
+      tag: "Guide",
+      category: "Guide",
+      title: "Automatisation des ventes WhatsApp au Bénin : Le Guide Complet 2026",
+      snippet: "Tout ce que les PME béninoises doivent savoir pour automatiser leur WhatsApp : de la configuration au paiement Mobile Money sans lever le petit doigt.",
+      author: "Dossou K.",
+      date: "1 Mai 2026",
+      readTime: "9 min de lecture"
+    },
+    {
+      tag: "Guide",
+      category: "Guide",
+      title: "Comment encaisser par Mobile Money sur WhatsApp au Bénin (MTN MoMo, Moov Money, Celtiis)",
+      snippet: "Guide étape par étape pour collecter des paiements Mobile Money directement dans la discussion WhatsApp — reçus automatiques instantanés.",
+      author: "Ange H.",
+      date: "5 Avr 2026",
+      readTime: "6 min de lecture"
+    },
+    {
+      tag: "Guide",
+      category: "Guide",
+      title: "WhatsApp Business API en Afrique : Ce que c'est et comment l'obtenir",
+      snippet: "L'API Cloud officielle de WhatsApp débloque l'automatisation sans risque de blocage. Voici les critères et étapes simples d'approbation.",
+      author: "Équipe Reflex",
+      date: "18 Avr 2026",
+      readTime: "8 min de lecture"
+    },
+    {
+      tag: "Croissance",
+      category: "Croissance",
+      title: "Passer de 10 à 500 commandes WhatsApp par jour sans recruter d'équipe",
+      snippet: "Étude de cas d'une boutique de prêt-à-porter à Cotonou qui a multiplié ses ventes par 4 grâce au traitement instantané des demandes.",
+      author: "Amina S.",
+      date: "22 Jan 2026",
+      readTime: "7 min de lecture"
+    }
+  ];
+
+  const filteredBlogPosts = blogFilter === 'Tous' 
+    ? allBlogPosts 
+    : allBlogPosts.filter(p => p.category === blogFilter);
+
+  const navigateTo = (view: 'home' | 'about' | 'blog', anchor?: string) => {
+    setCurrentSubView(view);
+    setMobileMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (anchor && view === 'home') {
+      setTimeout(() => {
+        const el = document.getElementById(anchor);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  };
 
   return (
-    <>
-      
-        <div className="landing-page-wrapper relay-grid-background" style={{ minHeight: '100vh', overflowX: 'hidden', color: '#ffffff' }}>
+    <div className={`relay-landing-wrapper ${isLight ? 'theme-light' : ''}`}>
+      {/* Background Grid Pattern & Ambient Glow */}
+      <div className="relay-bg-grid" />
+      <div className="relay-bg-glow" />
 
-          {/* Top Navigation Bar with Relay Clean Dark Style */}
-          <header className="main-header" style={{ background: 'rgba(10, 17, 29, 0.95)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', backdropFilter: 'blur(16px)', position: 'fixed', top: 0, left: 0, right: 0, width: '100%', boxSizing: 'border-box', zIndex: 1000 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setActiveView('landing')}>
-              <img src="/logo.png" alt="Reflex Logo" style={{ height: '52px', width: 'auto', borderRadius: '8px' }} />
-            </div>
+      {/* Floating Centered Pill Navbar */}
+      <header className="relay-floating-navbar">
+        {/* Logo Image Only (NO duplicate text! Adapts to Light/Dark mode) */}
+        <div 
+          style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }}
+          onClick={() => navigateTo('home')}
+        >
+          <img 
+            src={isLight ? "/logo-light-bg.png" : "/logo.png"} 
+            alt="Reflex" 
+            style={{ height: '36px', width: 'auto', display: 'block', objectFit: 'contain' }} 
+          />
+        </div>
 
-            <div className="nav-desktop-links" style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
-              <a href="#features" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>{t.featuresNav}</a>
-              <a href="#pricing" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>{t.pricingNav}</a>
-              <a href="#demo-video" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>{t.demoVideoNav}</a>
-              <a href="#faq" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}>{t.faqNav}</a>
+        {/* Desktop Navigation Links */}
+        <nav className="nav-desktop-links" style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
+          <span 
+            style={{ color: isLight ? '#475569' : '#94a3b8', fontSize: '14px', fontWeight: 500, cursor: 'pointer', transition: 'color 0.2s' }} 
+            onClick={() => navigateTo('home', 'features')}
+          >
+            Fonctionnalités
+          </span>
+          <span 
+            style={{ color: isLight ? '#475569' : '#94a3b8', fontSize: '14px', fontWeight: 500, cursor: 'pointer', transition: 'color 0.2s' }} 
+            onClick={() => navigateTo('home', 'pricing')}
+          >
+            Tarification
+          </span>
+          <span 
+            style={{ 
+              color: currentSubView === 'about' ? '#2563EB' : (isLight ? '#475569' : '#94a3b8'), 
+              fontSize: '14px', 
+              fontWeight: currentSubView === 'about' ? 700 : 500, 
+              cursor: 'pointer', 
+              transition: 'color 0.2s' 
+            }} 
+            onClick={() => navigateTo('about')}
+          >
+            À propos
+          </span>
+          <span 
+            style={{ 
+              color: currentSubView === 'blog' ? '#2563EB' : (isLight ? '#475569' : '#94a3b8'), 
+              fontSize: '14px', 
+              fontWeight: currentSubView === 'blog' ? 700 : 500, 
+              cursor: 'pointer', 
+              transition: 'color 0.2s' 
+            }} 
+            onClick={() => navigateTo('blog')}
+          >
+            Blog
+          </span>
+        </nav>
 
-              {/* Interactive Language Selector Dropdown */}
-              <div style={{ position: 'relative' }}>
-                <div
-                  onClick={() => setLangMenuOpen(!langMenuOpen)}
-                  style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600, color: '#ffffff', cursor: 'pointer', backgroundColor: 'rgba(255, 255, 255, 0.06)', padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.12)', userSelect: 'none' }}
-                >
-                  <Globe size={14} color="#FF5500" /> {availableLanguages.find((l: any) => l.code === currentLang)?.flag} {availableLanguages.find((l: any) => l.code === currentLang)?.code} ▾
-                </div>
+        {/* Desktop Controls (Hidden on Mobile) */}
+        <div className="nav-desktop-actions" style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
+          {/* Light / Dark Mode Toggle Button */}
+          <div 
+            onClick={() => setTheme(isLight ? 'dark' : 'light')}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              width: '32px', 
+              height: '32px', 
+              borderRadius: '50%', 
+              color: isLight ? '#475569' : '#94a3b8', 
+              cursor: 'pointer', 
+              transition: 'all 0.2s',
+              backgroundColor: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.06)'
+            }}
+            title={isLight ? "Passer en mode sombre" : "Passer en mode clair"}
+          >
+            {isLight ? <Moon size={16} /> : <Sun size={17} />}
+          </div>
 
-                {langMenuOpen && (
-                  <div style={{ position: 'absolute', top: '120%', right: 0, backgroundColor: '#0F172A', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '10px', padding: '6px', display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 12px 35px rgba(0,0,0,0.6)', zIndex: 100, minWidth: '150px' }}>
-                    {availableLanguages.map((l: any) => (
-                      <div
-                        key={l.code}
-                        onClick={() => handleSelectLanguage(l.code as any)}
-                        style={{ padding: '8px 12px', borderRadius: '6px', fontSize: '13px', color: currentLang === l.code ? '#FF5500' : '#ffffff', fontWeight: currentLang === l.code ? 700 : 500, backgroundColor: currentLang === l.code ? 'rgba(255,85,0,0.15)' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
-                      >
-                        <span>{l.flag}</span>
-                        <span>{l.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+          {/* Log in Link */}
+          <span
+            className="nav-login-btn"
+            style={{ fontSize: '14px', fontWeight: 600, color: isLight ? '#0F172A' : '#ffffff', cursor: 'pointer', transition: 'opacity 0.2s' }}
+            onClick={() => { setAuthMode('login'); setActiveView('auth'); }}
+          >
+            Se connecter
+          </span>
 
-              <span
-                style={{ fontSize: '14px', fontWeight: 600, color: '#ffffff', cursor: 'pointer', transition: 'color 0.2s' }}
-                onClick={() => { setAuthMode('login'); setActiveView('auth'); }}
-              >
-                {t.login}
-              </span>
+          {/* Get Started Button in Brand Blue */}
+          <button
+            className="relay-btn-primary"
+            style={{ padding: '8px 18px', fontSize: '13.5px', borderRadius: '8px' }}
+            onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
+          >
+            Commencer
+          </button>
+        </div>
 
-              <button
-                className="btn-orange-primary"
-                style={{ borderRadius: '8px', padding: '9px 20px', fontSize: '14px', fontWeight: 600 }}
-                onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
-              >
-                {t.startFree}
-              </button>
-            </div>
+        {/* Mobile Actions: Compact Theme Toggle + Hamburger Button (Visible ONLY on Mobile) */}
+        <div className="nav-mobile-actions">
+          <div 
+            onClick={() => setTheme(isLight ? 'dark' : 'light')}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              width: '34px', 
+              height: '34px', 
+              borderRadius: '50%', 
+              color: isLight ? '#0F172A' : '#ffffff', 
+              cursor: 'pointer', 
+              backgroundColor: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)'
+            }}
+          >
+            {isLight ? <Moon size={16} /> : <Sun size={16} />}
+          </div>
 
-            <button className="mobile-hamburger-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Toggle Menu">
-              <Menu size={24} />
+          <button 
+            className="mobile-hamburger-btn" 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
+            aria-label="Toggle Menu"
+            style={{ 
+              background: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)', 
+              color: isLight ? '#0F172A' : '#ffffff'
+            }}
+          >
+            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
+
+        {/* Mobile Menu Dropdown */}
+        {mobileMenuOpen && (
+          <div style={{
+            position: 'absolute',
+            top: 'calc(100% + 8px)',
+            left: 0,
+            right: 0,
+            backgroundColor: isLight ? 'rgba(255, 255, 255, 0.98)' : 'rgba(14, 20, 29, 0.98)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255, 255, 255, 0.12)',
+            borderRadius: '24px',
+            padding: '24px 20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '14px',
+            boxShadow: '0 25px 60px rgba(0,0,0,0.4)',
+            zIndex: 1001
+          }}>
+            <span onClick={() => navigateTo('home', 'features')} style={{ color: isLight ? '#0F172A' : '#ffffff', fontSize: '16px', fontWeight: 600, padding: '8px 12px', cursor: 'pointer', borderRadius: '8px' }}>Fonctionnalités</span>
+            <span onClick={() => navigateTo('home', 'pricing')} style={{ color: isLight ? '#0F172A' : '#ffffff', fontSize: '16px', fontWeight: 600, padding: '8px 12px', cursor: 'pointer', borderRadius: '8px' }}>Tarification</span>
+            <span onClick={() => navigateTo('about')} style={{ color: isLight ? '#0F172A' : '#ffffff', fontSize: '16px', fontWeight: 600, padding: '8px 12px', cursor: 'pointer', borderRadius: '8px' }}>À propos</span>
+            <span onClick={() => navigateTo('blog')} style={{ color: isLight ? '#0F172A' : '#ffffff', fontSize: '16px', fontWeight: 600, padding: '8px 12px', cursor: 'pointer', borderRadius: '8px' }}>Blog</span>
+            <span onClick={() => navigateTo('home', 'faq')} style={{ color: isLight ? '#0F172A' : '#ffffff', fontSize: '16px', fontWeight: 600, padding: '8px 12px', cursor: 'pointer', borderRadius: '8px' }}>FAQ</span>
+            <div style={{ height: '1px', backgroundColor: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.1)', margin: '4px 0' }} />
+            <button 
+              className="relay-btn-outline" 
+              style={{ width: '100%', padding: '12px', fontSize: '15px' }}
+              onClick={() => { setMobileMenuOpen(false); setAuthMode('login'); setActiveView('auth'); }}
+            >
+              Se connecter
             </button>
+            <button 
+              className="relay-btn-primary" 
+              style={{ width: '100%', padding: '12px', fontSize: '15px', backgroundColor: '#2563EB' }}
+              onClick={() => { setMobileMenuOpen(false); setAuthMode('signup'); setActiveView('auth'); }}
+            >
+              Commencer
+            </button>
+          </div>
+        )}
+      </header>
 
-            {mobileMenuOpen && (
-              <div className="mobile-menu-drawer open">
-                <a href="#features" onClick={() => setMobileMenuOpen(false)} style={{ color: '#ffffff', textDecoration: 'none', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>{t.featuresNav}</a>
-                <a href="#pricing" onClick={() => setMobileMenuOpen(false)} style={{ color: '#ffffff', textDecoration: 'none', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>{t.pricingNav}</a>
-                <a href="#demo-video" onClick={() => setMobileMenuOpen(false)} style={{ color: '#ffffff', textDecoration: 'none', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>{t.demoVideoNav}</a>
-                <a href="#faq" onClick={() => setMobileMenuOpen(false)} style={{ color: '#ffffff', textDecoration: 'none', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>{t.faqNav}</a>
-
-                <button
-                  className="btn-outline-white"
-                  style={{ width: '100%', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.1)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.2)' }}
-                  onClick={() => { setMobileMenuOpen(false); setAuthMode('login'); setActiveView('auth'); }}
-                >
-                  {t.login}
-                </button>
-
-                <button
-                  className="btn-orange-primary"
-                  style={{ width: '100%', justifyContent: 'center' }}
-                  onClick={() => { setMobileMenuOpen(false); setAuthMode('signup'); setActiveView('auth'); }}
-                >
-                  {t.startFree}
-                </button>
-              </div>
-            )}
-          </header>
-
-          {/* Hero Section Relay Match */}
-          <div className="hero-section-padding" style={{ padding: '140px 24px 80px', position: 'relative', overflow: 'hidden' }}>
-
-            <div style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 10 }}>
+      {/* ========================================================================= */}
+      {/* SUB-VIEW 1: HOME PAGE (Blog and About are separate views, clicked on demand) */}
+      {/* ========================================================================= */}
+      {currentSubView === 'home' && (
+        <>
+          {/* 1. HERO SECTION */}
+          <section className="hero-section-responsive" style={{ paddingTop: '150px', paddingBottom: '90px', paddingLeft: '24px', paddingRight: '24px', position: 'relative', zIndex: 10, textAlign: 'center' }}>
+            <div style={{ maxWidth: '880px', margin: '0 auto' }}>
               
-              {/* Context Badge matching Relay pill */}
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 18px', borderRadius: '9999px', backgroundColor: 'rgba(255, 85, 0, 0.08)', border: '1px solid rgba(255, 85, 0, 0.25)', marginBottom: '32px' }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#FF5500' }} />
-                <span style={{ fontSize: '13px', fontWeight: 500, color: '#FF5500', letterSpacing: '0.02em' }}>
-                  {currentLang === 'FR' ? "• Nouveau : IA Commerciale & Mobile Money au Bénin" : "• Now live in Benin — Early Access"}
+              {/* Early Access Pill (BENIN) */}
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '6px 18px',
+                borderRadius: '9999px',
+                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                border: '1px solid rgba(37, 99, 235, 0.3)',
+                marginBottom: '32px'
+              }}>
+                <span className="pulse-blue-dot" style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#2563EB', display: 'inline-block' }} />
+                <span style={{ fontSize: '13px', fontWeight: 500, color: '#3B82F6', letterSpacing: '0.02em' }}>
+                  Désormais disponible au Bénin — Accès Anticipé
                 </span>
               </div>
 
-              {/* Exact Relay Tech 3-Line Headline with Fraunces Italic Accent */}
-              <h1 style={{ color: '#ffffff', marginBottom: '24px', lineHeight: 1.15, fontSize: 'clamp(36px, 8vw, 56px)', fontWeight: 700, fontFamily: "var(--font-geist), 'Inter', sans-serif", letterSpacing: '-0.03em', wordBreak: 'keep-all' }}>
-                {currentLang === 'FR' ? (
-                  <>
-                    Automatisez vos ventes,<br />
-                    encaissez instantanément,<br />
-                    <span className="font-fraunces-italic" style={{ color: '#FF5500', fontSize: 'clamp(40px, 9vw, 64px)', fontWeight: 400 }}>directement sur WhatsApp</span>
-                  </>
-                ) : (
-                  <>
-                    Automate your sales,<br />
-                    collect instant payments,<br />
-                    <span className="font-fraunces-italic" style={{ color: '#FF5500', fontSize: 'clamp(40px, 9vw, 64px)', fontWeight: 400 }}>directly on WhatsApp</span>
-                  </>
-                )}
+              {/* Headline with Blue Italic Accent */}
+              <h1 className="text-white-heading" style={{
+                color: isLight ? '#0F172A' : '#ffffff',
+                fontSize: 'clamp(34px, 7.5vw, 72px)',
+                fontWeight: 800,
+                lineHeight: 1.12,
+                letterSpacing: '-0.03em',
+                marginBottom: '24px'
+              }}>
+                Servez vos clients,<br />
+                encaissez vos paiements,<br />
+                <span 
+                  className="font-fraunces-italic" 
+                  style={{ 
+                    color: '#2563EB', 
+                    fontSize: 'clamp(40px, 8.5vw, 80px)', 
+                    fontWeight: 400,
+                    display: 'inline-block',
+                    marginTop: '4px'
+                  }}
+                >
+                  le tout sur WhatsApp
+                </span>
               </h1>
 
-              <p style={{ color: '#94a3b8', maxWidth: '720px', margin: '0 auto 36px', fontSize: '17.5px', lineHeight: 1.6, fontWeight: 400 }}>
-                {currentLang === 'FR'
-                  ? "Transformez de simples conversations en chiffre d'affaires. Reflex dote votre entreprise d'une IA qui répond 24h/24, gère vos commandes et encaisse via Mobile Money — 100% en automatique."
-                  : "Turn simple conversations into revenue. Reflex gives your business an AI that responds 24/7, handles orders, and collects Mobile Money payments — 100% automatically."}
+              {/* Subtitle */}
+              <p className="text-muted-desc" style={{
+                color: isLight ? '#64748B' : '#94a3b8',
+                fontSize: 'clamp(15px, 2vw, 18.5px)',
+                lineHeight: 1.6,
+                maxWidth: '680px',
+                margin: '0 auto 36px',
+                fontWeight: 400
+              }}>
+                Automatisation des ventes et de la relation client par IA sur WhatsApp pour toute entreprise. Répondez aux demandes, réservez des rendez-vous, traitez les commandes et encaissez — automatiquement 24h/24.
               </p>
 
-              {/* CTA Buttons Matching Relay Tech */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '14px', flexWrap: 'wrap' }}>
+              {/* CTA Buttons in Blue */}
+              <div className="hero-cta-buttons-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '14px', flexWrap: 'wrap' }}>
                 <button
-                  className="btn-orange-primary"
-                  style={{ padding: '14px 32px', fontSize: '16px', borderRadius: '8px', fontWeight: 600, border: 'none', backgroundColor: '#FF5500', color: '#ffffff', cursor: 'pointer' }}
+                  className="relay-btn-primary"
+                  style={{ padding: '14px 34px', fontSize: '16px', borderRadius: '10px' }}
                   onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
                 >
-                  {currentLang === 'FR' ? 'Commencer gratuitement' : 'Get Started'}
+                  Commencer
                 </button>
-                
                 <a
-                  href="#demo-video"
-                  className="btn-demo-secondary"
+                  href="#how-it-works"
+                  className="relay-btn-outline"
+                  style={{ padding: '14px 32px', fontSize: '16px', borderRadius: '10px' }}
                 >
-                  {currentLang === 'FR' ? 'Voir la démo' : 'See How It Works'}
+                  Voir comment ça marche
                 </a>
               </div>
 
-              {/* Relay Sub-caption Guarantee */}
+              {/* Guarantee */}
               <div style={{ color: '#64748b', fontSize: '13px', marginTop: '20px', fontWeight: 400 }}>
-                {currentLang === 'FR' ? 'Sans carte bancaire · Annulation à tout moment' : 'No credit card required · Cancel anytime'}
+                Sans carte bancaire requise · Résiliation à tout moment
               </div>
 
             </div>
-          </div>
+          </section>
 
-          {/* VIDEO DEMO SHOWCASE SECTION */}
-          <div id="demo-video" style={{ maxWidth: '1080px', margin: '0 auto 80px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
-            <div className="glass-card-dark" style={{ padding: '24px', borderRadius: '24px', border: '1px solid rgba(255, 85, 0, 0.35)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)', textAlign: 'center' }}>
-              {/* Clean Video Player Frame */}
-              <div style={{
-                maxWidth: '920px',
-                margin: '0 auto',
-                aspectRatio: '16/9',
-                background: 'linear-gradient(135deg, #020617 0%, #0f172a 100%)',
-                backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'#ff5500\' fill-opacity=\'0.05\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
-                borderRadius: '16px',
-                border: '1px solid rgba(255, 85, 0, 0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                position: 'relative',
-                overflow: 'hidden',
-                boxShadow: '0 20px 40px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.05)'
-              }}>
+          {/* 2. THREE-STEP PROCESS: "Opérationnel en 15 minutes" */}
+          <section id="how-it-works" className="section-container-responsive" style={{ maxWidth: '1140px', margin: '0 auto 120px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
+            <div style={{ textAlign: 'center', marginBottom: '50px' }}>
+              <h2 className="text-white-heading" style={{ fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 800, color: isLight ? '#0F172A' : '#ffffff', lineHeight: 1.2, letterSpacing: '-0.02em' }}>
+                Opérationnel en <span style={{ color: '#2563EB' }}>15 minutes</span>
+              </h2>
+              <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '16px', maxWidth: '600px', margin: '14px auto 0', lineHeight: 1.6 }}>
+                Aucune compétence technique requise. Si vous savez envoyer un message WhatsApp, vous savez utiliser Reflex.
+              </p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+              {/* CARD 01 */}
+              <div className="relay-card-dark mobile-responsive-card">
+                <div style={{ fontSize: '46px', fontWeight: 800, color: '#2563EB', lineHeight: 1, marginBottom: '22px' }}>
+                  01
+                </div>
                 <div style={{
-                  width: '80px',
-                  height: '80px',
-                  borderRadius: '50%',
-                  backgroundColor: '#FF5500',
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '12px',
+                  backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                  border: '1px solid rgba(37, 99, 235, 0.3)',
+                  color: '#2563EB',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 0 40px rgba(255, 85, 0, 0.7)',
-                  cursor: 'pointer',
-                  transition: 'transform 0.2s ease'
+                  marginBottom: '24px'
                 }}>
-                  <Play size={36} color="#ffffff" fill="#ffffff" style={{ marginLeft: '4px' }} />
+                  <QrCode size={22} />
                 </div>
+                <h3 className="text-white-heading" style={{ fontSize: '20px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '12px' }}>
+                  Connectez votre WhatsApp
+                </h3>
+                <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '14.5px', lineHeight: 1.65, margin: 0 }}>
+                  Liez votre numéro en un clic. Vos clients vous contactent exactement comme avant — rien ne change pour eux.
+                </p>
+              </div>
+
+              {/* CARD 02 */}
+              <div className="relay-card-dark mobile-responsive-card">
+                <div style={{ fontSize: '46px', fontWeight: 800, color: '#2563EB', lineHeight: 1, marginBottom: '22px' }}>
+                  02
+                </div>
+                <div style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '12px',
+                  backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                  border: '1px solid rgba(37, 99, 235, 0.3)',
+                  color: '#2563EB',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: '24px'
+                }}>
+                  <LayoutGrid size={22} />
+                </div>
+                <h3 className="text-white-heading" style={{ fontSize: '20px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '12px' }}>
+                  Configurez votre offre
+                </h3>
+                <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '14.5px', lineHeight: 1.65, margin: 0 }}>
+                  Ajoutez vos produits, listez vos services ou décrivez votre activité. Fixez vos prix et disponibilités. L'IA apprend votre métier et répond aux questions.
+                </p>
+              </div>
+
+              {/* CARD 03 */}
+              <div className="relay-card-dark mobile-responsive-card">
+                <div style={{ fontSize: '46px', fontWeight: 800, color: '#2563EB', lineHeight: 1, marginBottom: '22px' }}>
+                  03
+                </div>
+                <div style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '12px',
+                  backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                  border: '1px solid rgba(37, 99, 235, 0.3)',
+                  color: '#2563EB',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: '24px'
+                }}>
+                  <CheckCircle2 size={22} />
+                </div>
+                <h3 className="text-white-heading" style={{ fontSize: '20px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '12px' }}>
+                  Servez, livrez &amp; encaissez
+                </h3>
+                <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '14.5px', lineHeight: 1.65, margin: 0 }}>
+                  L'IA répond aux sollicitations 24h/24 — prises de commandes, réservations, conseils. Vous êtes notifié et le paiement est collecté directement dans le chat.
+                </p>
               </div>
             </div>
-          </div>
+          </section>
 
-          {/* RELAY MATCH 1: 3-STEP PROCESS SECTION ("Up and running in 15 minutes") */}
-          <div style={{ maxWidth: '1140px', margin: '0 auto 100px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
-            <div style={{ textAlign: 'center', marginBottom: '56px' }}>
-              <h2 className="font-outfit" style={{ fontSize: '46px', fontWeight: 800, color: '#ffffff', lineHeight: 1.2 }}>
-                {currentLang === 'FR' ? (
-                  <>Opérationnel en <span style={{ color: '#FF5500' }}>15 minutes</span></>
-                ) : (
-                  <>Up and running in <span style={{ color: '#FF5500' }}>15 minutes</span></>
-                )}
+          {/* 3. USE CASES SECTION: "Produits, services ou toute autre activité" */}
+          <section id="use-cases" className="section-container-responsive" style={{ maxWidth: '1140px', margin: '0 auto 120px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
+            <div style={{ textAlign: 'center', marginBottom: '50px' }}>
+              <h2 className="text-white-heading" style={{ fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 800, color: isLight ? '#0F172A' : '#ffffff', lineHeight: 1.2, letterSpacing: '-0.02em' }}>
+                Produits, services ou <span style={{ color: '#2563EB' }}>toute autre activité</span>
               </h2>
-              <p style={{ color: '#94a3b8', fontSize: '17px', maxWidth: '680px', margin: '14px auto 0', lineHeight: 1.6 }}>
-                {currentLang === 'FR'
-                  ? "Aucune connaissance technique requise. Si vous savez envoyer un message WhatsApp, vous savez utiliser Reflex."
-                  : "No technical knowledge needed. If you can send a WhatsApp message, you can use Reflex."}
+              <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '16px', maxWidth: '680px', margin: '14px auto 0', lineHeight: 1.6 }}>
+                Que vous vendiez des articles, dirigiez une clinique ou gériez une agence — Reflex s'adapte à tous vos besoins sur WhatsApp.
               </p>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-              {/* STEP 01 */}
-              <div className="step-card-hover" style={{ backgroundColor: 'rgba(15, 23, 42, 0.7)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '36px 30px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <div style={{ fontSize: '48px', fontWeight: 800, color: '#FF5500', fontFamily: 'var(--font-geist), sans-serif', lineHeight: 1 }}>01</div>
-                <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', color: '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Globe size={20} />
-                </div>
-                <h3 className="font-outfit" style={{ fontSize: '22px', fontWeight: 700, color: '#ffffff' }}>
-                  {currentLang === 'FR' ? "Connectez votre WhatsApp" : "Connect Your WhatsApp"}
-                </h3>
-                <p style={{ color: '#94a3b8', fontSize: '14.5px', lineHeight: 1.65 }}>
-                  {currentLang === 'FR'
-                    ? "Liez votre numéro en un clic. Vos clients vous joignent exactement comme avant — rien ne change pour eux."
-                    : "Link your number in one click. Your customers reach you exactly as before — nothing changes on their end."}
-                </p>
-              </div>
-
-              {/* STEP 02 */}
-              <div className="step-card-hover" style={{ backgroundColor: 'rgba(15, 23, 42, 0.7)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '36px 30px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <div style={{ fontSize: '48px', fontWeight: 800, color: '#FF5500', fontFamily: 'var(--font-geist), sans-serif', lineHeight: 1 }}>02</div>
-                <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', color: '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Grid size={20} />
-                </div>
-                <h3 className="font-outfit" style={{ fontSize: '22px', fontWeight: 700, color: '#ffffff' }}>
-                  {currentLang === 'FR' ? "Configurez votre Offre" : "Set Up Your Offering"}
-                </h3>
-                <p style={{ color: '#94a3b8', fontSize: '14.5px', lineHeight: 1.65 }}>
-                  {currentLang === 'FR'
-                    ? "Ajoutez vos produits, vos services ou décrivez votre activité. Fixez vos prix. L’IA apprend votre métier et répond aux questions."
-                    : "Add products, list services, or describe what you do. Set prices and availability. The AI learns your business and handles questions."}
-                </p>
-              </div>
-
-              {/* STEP 03 */}
-              <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.7)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '36px 30px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <div style={{ fontSize: '48px', fontWeight: 800, color: '#FF5500', fontFamily: 'var(--font-geist), sans-serif', lineHeight: 1 }}>03</div>
-                <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', color: '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <CheckCircle size={20} />
-                </div>
-                <h3 className="font-outfit" style={{ fontSize: '22px', fontWeight: 700, color: '#ffffff' }}>
-                  {currentLang === 'FR' ? "Servez, Livrez & Encaissez" : "Serve, Deliver & Get Paid"}
-                </h3>
-                <p style={{ color: '#94a3b8', fontSize: '14.5px', lineHeight: 1.65 }}>
-                  {currentLang === 'FR'
-                    ? "L’IA répond 24h/24 et 7j/7 — réservation, enregistrement des commandes, réponses. Vous êtes notifié. Paiement encaissé directement par Mobile Money."
-                    : "AI responds to enquiries 24/7 — booking services, taking orders, answering questions. You get notified. Payment collected inside the chat."}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* RELAY MATCH 2: USE CASES GRID ("Products, services, or anything in between") */}
-          <div style={{ maxWidth: '1140px', margin: '0 auto 100px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
-            <div style={{ textAlign: 'center', marginBottom: '56px' }}>
-              <h2 className="font-outfit" style={{ fontSize: '46px', fontWeight: 800, color: '#ffffff', lineHeight: 1.2 }}>
-                {currentLang === 'FR' ? (
-                  <>Produits, services, ou <span style={{ color: '#FF5500' }}>tout le reste</span></>
-                ) : (
-                  <>Products, services, or <span style={{ color: '#FF5500' }}>anything in between</span></>
-                )}
-              </h2>
-              <p style={{ color: '#94a3b8', fontSize: '17px', maxWidth: '720px', margin: '14px auto 0', lineHeight: 1.6 }}>
-                {currentLang === 'FR'
-                  ? "Que vous vendiez des vêtements, gériez un restaurant, une clinique ou une agence — Reflex gère tout directement sur WhatsApp."
-                  : "Whether you sell jollof, run a clinic, or manage land registrations — Reflex handles it all through WhatsApp."}
-              </p>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
-              {/* CARD 1: Fashion & Retail */}
-              <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.7)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative' }}>
-                <div style={{ width: '44px', height: '44px', borderRadius: '12px', backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', color: '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+              {/* 1. Mode & Prêt-à-porter */}
+              <div className="relay-card-dark mobile-responsive-card">
+                <div style={{ width: '44px', height: '44px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.3)', color: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
                   <ShoppingBag size={20} />
                 </div>
-                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff' }}>
-                  {currentLang === 'FR' ? "Mode & Commerce" : "Fashion & Retail"}
-                </h3>
-                <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: 1.6 }}>
-                  {currentLang === 'FR'
-                    ? "Partagez vos catalogues, prenez les commandes, gériez les tailles et encaissez vos paiements — sans quitter WhatsApp."
-                    : "Share catalogues, take orders, handle size queries, and collect payments — all without leaving WhatsApp."}
+                <h3 className="text-white-heading" style={{ fontSize: '19px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '10px' }}>Mode &amp; Prêt-à-porter</h3>
+                <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
+                  Partagez vos catalogues, prenez les commandes, traitez les questions de pointure ou de taille et encaissez — sans quitter WhatsApp.
                 </p>
               </div>
 
-              {/* CARD 2: Food & Catering (Popular) */}
-              <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.7)', borderRadius: '20px', border: '1px solid rgba(255, 85, 0, 0.4)', padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative' }}>
-                <span style={{ position: 'absolute', top: '24px', right: '24px', backgroundColor: 'rgba(255, 85, 0, 0.15)', border: '1px solid rgba(255, 85, 0, 0.4)', color: '#FF5500', fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '9999px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Popular</span>
-                <div style={{ width: '44px', height: '44px', borderRadius: '12px', backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', color: '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Store size={20} />
-                </div>
-                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff' }}>
-                  {currentLang === 'FR' ? "Restauration & Traiteurs" : "Food & Catering"}
-                </h3>
-                <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: 1.6 }}>
-                  {currentLang === 'FR'
-                    ? "Gériez vos menus, prenez des précommandes, confirmez les réservations et envoyez le suivi des livraisons automatiquement."
-                    : "Manage menus, take pre-orders, confirm bookings, and send delivery updates — hands-free."}
-                </p>
-              </div>
-
-              {/* CARD 3: Schools & Academies (Enterprise) */}
-              <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.7)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative' }}>
-                <span style={{ position: 'absolute', top: '24px', right: '24px', backgroundColor: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.15)', color: '#cbd5e1', fontSize: '11px', fontWeight: 600, padding: '4px 10px', borderRadius: '9999px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Enterprise</span>
-                <div style={{ width: '44px', height: '44px', borderRadius: '12px', backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', color: '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Building size={20} />
-                </div>
-                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff' }}>
-                  {currentLang === 'FR' ? "Écoles & Académies" : "Schools & Academies"}
-                </h3>
-                <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: 1.6 }}>
-                  {currentLang === 'FR'
-                    ? "Traitez les demandes d’admission, partagez les résultats, envoyez les rappels de frais et encaissez les écolages automatiquement."
-                    : "Handle admissions enquiries, share results, send fee reminders, and collect payments automatically."}
-                </p>
-              </div>
-
-              {/* CARD 4: Professional Services */}
-              <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.7)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div style={{ width: '44px', height: '44px', borderRadius: '12px', backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', color: '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Zap size={20} />
-                </div>
-                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff' }}>
-                  {currentLang === 'FR' ? "Services Professionnels" : "Professional Services"}
-                </h3>
-                <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: 1.6 }}>
-                  {currentLang === 'FR'
-                    ? "Consultants, avocats, comptables — envoyez vos devis, planifiez des rendez-vous et relancez vos factures."
-                    : "Consultants, lawyers, accountants — quote, schedule appointments, follow up, and invoice clients automatically."}
-                </p>
-              </div>
-
-              {/* CARD 5: Records & Status Enquiries */}
-              <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.7)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative' }}>
-                <span style={{ position: 'absolute', top: '24px', right: '24px', backgroundColor: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.15)', color: '#cbd5e1', fontSize: '11px', fontWeight: 600, padding: '4px 10px', borderRadius: '9999px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Enterprise</span>
-                <div style={{ width: '44px', height: '44px', borderRadius: '12px', backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', color: '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Receipt size={20} />
-                </div>
-                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff' }}>
-                  {currentLang === 'FR' ? "Gestion des Demandes & Suivis" : "Records & Status Enquiries"}
-                </h3>
-                <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: 1.6 }}>
-                  {currentLang === 'FR'
-                    ? "Agences, coopératives, services publics — permettez aux clients de suivre l'avancement de leur dossier par simple message."
-                    : "Any organisation with records — agencies, registries, cooperatives — let people text in to check status, track progress, or request docs."}
-                </p>
-              </div>
-
-              {/* CARD 6: Health & Wellness */}
-              <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.7)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div style={{ width: '44px', height: '44px', borderRadius: '12px', backgroundColor: 'rgba(255, 85, 0, 0.12)', border: '1px solid rgba(255, 85, 0, 0.3)', color: '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Sparkles size={20} />
-                </div>
-                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff' }}>
-                  {currentLang === 'FR' ? "Santé & Bien-être" : "Health & Wellness"}
-                </h3>
-                <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: 1.6 }}>
-                  {currentLang === 'FR'
-                    ? "Prise de rendez-vous, rappels de soins, résultats d'analyses et réponse aux questions des patients sans personnel supplémentaire."
-                    : "Book appointments, send medication reminders, share lab results, and manage patient queries without extra staff."}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* RELAY MATCH 3: TESTIMONIALS SECTION ("Impactful Successes") */}
-          <div style={{ maxWidth: '1140px', margin: '0 auto 100px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
-            <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-              <h2 className="font-outfit" style={{ fontSize: '46px', fontWeight: 800, color: '#ffffff', lineHeight: 1.2 }}>
-                {currentLang === 'FR' ? (
-                  <>Résultats & <span className="font-fraunces-italic" style={{ color: '#FF5500', fontSize: '52px', fontWeight: 400 }}>Témoignages</span></>
-                ) : (
-                  <>Impactful <span className="font-fraunces-italic" style={{ color: '#FF5500', fontSize: '52px', fontWeight: 400 }}>Successes</span></>
-                )}
-              </h2>
-            </div>
-
-            <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.85)', borderRadius: '24px', border: '1px solid rgba(255, 85, 0, 0.3)', padding: '60px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '32px', flexWrap: 'wrap', position: 'relative', overflow: 'hidden' }}>
-              {/* Giant Left Quote SVG */}
-              <div style={{ fontSize: '140px', lineHeight: 0.6, color: '#FF5500', opacity: 0.35, fontFamily: 'serif', userSelect: 'none' }}>“</div>
-
-              <div style={{ flex: 1, minWidth: '280px', textAlign: 'left' }}>
-                <p style={{ fontSize: '22px', color: '#ffffff', lineHeight: 1.6, fontWeight: 500, fontStyle: 'italic', marginBottom: '24px' }}>
-                  {currentLang === 'FR'
-                    ? "« Avant Reflex, je passais 3 heures chaque soir à répondre aux messages des clients. L'IA gère maintenant 90% des demandes. J'ai enfin pu passer des soirées sereines. »"
-                    : "“I used to spend 3 hours every evening replying to customer messages. Reflex handles 90% of it. I actually slept last night.”"}
-                </p>
-                <div style={{ color: '#FF5500', fontWeight: 700, fontSize: '18px' }}>Amina Sow</div>
-                <div style={{ color: '#94a3b8', fontSize: '14px', marginTop: '2px' }}>AO Fashion Boutique, Cotonou</div>
-              </div>
-
-              {/* Giant Right Quote SVG */}
-              <div style={{ fontSize: '140px', lineHeight: 0.6, color: '#FF5500', opacity: 0.35, fontFamily: 'serif', userSelect: 'none' }}>”</div>
-            </div>
-
-            {/* Carousel Indicators */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '24px' }}>
-              <span style={{ width: '28px', height: '8px', borderRadius: '9999px', backgroundColor: '#FF5500' }} />
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.2)' }} />
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.2)' }} />
-            </div>
-          </div>
-
-
-
-          {/* MOBILE MONEY PAYMENT DEMO BAR */}
-          <div style={{ maxWidth: '1140px', margin: '0 auto 100px', padding: '0 24px' }}>
-            <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.75)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.12)', padding: '28px 36px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '20px' }}>
-              <div>
-                <div className="font-outfit" style={{ fontSize: '18px', fontWeight: 700, color: '#ffffff' }}>{t.momoSupportTitle}</div>
-                <div style={{ fontSize: '13.5px', color: '#94a3b8', marginTop: '4px' }}>{t.momoSupportSub}</div>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
-                <span style={{ backgroundColor: '#FFCC00', color: '#000000', fontWeight: 800, padding: '8px 16px', borderRadius: '10px', fontSize: '13px', boxShadow: '0 4px 12px rgba(255,204,0,0.25)' }}>MTN MoMo (*139#)</span>
-                <span style={{ backgroundColor: '#0055A5', color: '#ffffff', fontWeight: 800, padding: '8px 16px', borderRadius: '10px', fontSize: '13px', boxShadow: '0 4px 12px rgba(0,85,165,0.25)' }}>Moov Money (*155#)</span>
-                <span style={{ backgroundColor: '#1DC3F4', color: '#ffffff', fontWeight: 800, padding: '8px 16px', borderRadius: '10px', fontSize: '13px', boxShadow: '0 4px 12px rgba(29,195,244,0.25)' }}>Wave App</span>
-              </div>
-            </div>
-          </div>
-
-          {/* 4 KEY FEATURES GRID WITH GLASSMORPHISM & MOTION HOVER */}
-          <div id="features" style={{ maxWidth: '1140px', margin: '0 auto 100px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
-            <div style={{ textAlign: 'center', marginBottom: '52px' }}>
-              <span className="font-outfit" style={{ color: '#FF8800', fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.featuresNav}</span>
-              <h2 className="headline-lg" style={{ color: '#ffffff', marginTop: '8px' }}>
-                {t.featuresTitle}
-              </h2>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px' }}>
-              
-              <div className="feature-card-hover">
-                <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, rgba(255, 85, 0, 0.25), rgba(230, 57, 0, 0.25))', color: '#FF5500', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', border: '1px solid rgba(255, 85, 0, 0.35)' }}>
-                  <Zap size={26} />
-                </div>
-                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff', marginBottom: '10px' }}>{t.featAutoReplyTitle}</h3>
-                <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.6 }}>
-                  {t.featAutoReplyDesc}
-                </p>
-              </div>
-
-              <div className="feature-card-hover">
-                <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, rgba(255, 136, 0, 0.25), rgba(245, 158, 11, 0.25))', color: '#FF8800', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', border: '1px solid rgba(255, 136, 0, 0.35)' }}>
-                  <CreditCard size={26} />
-                </div>
-                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff', marginBottom: '10px' }}>{t.featMobileMoneyTitle}</h3>
-                <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.6 }}>
-                  {t.featMobileMoneyDesc}
-                </p>
-              </div>
-
-              <div className="feature-card-hover">
-                <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(16, 185, 129, 0.25))', color: '#06b6d4', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', border: '1px solid rgba(6, 182, 212, 0.35)' }}>
-                  <Receipt size={26} />
-                </div>
-                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff', marginBottom: '10px' }}>{t.featSecurityTitle}</h3>
-                <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.6 }}>
-                  {t.featSecurityDesc}
-                </p>
-              </div>
-
-              <div className="feature-card-hover">
-                <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(168, 85, 247, 0.25))', color: '#818cf8', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', border: '1px solid rgba(99, 102, 241, 0.35)' }}>
-                  <LayoutDashboard size={26} />
-                </div>
-                <h3 className="font-outfit" style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff', marginBottom: '10px' }}>{t.featCatalogTitle}</h3>
-                <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.6 }}>
-                  {t.featCatalogDesc}
-                </p>
-              </div>
-
-            </div>
-          </div>
-
-          {/* REAL PME STORY BANNER */}
-          <div style={{ maxWidth: '1140px', margin: '0 auto 100px', padding: '0 24px' }}>
-            <div className="pme-story-bg" style={{ borderRadius: '24px', padding: '60px 48px', border: '1px solid rgba(255, 85, 0, 0.35)', overflow: 'hidden', position: 'relative', background: 'linear-gradient(135deg, rgba(15,23,42,0.95), rgba(9,13,22,0.98))' }}>
-              <div style={{ maxWidth: '640px' }}>
-                <span className="font-outfit" style={{ color: '#FF5500', fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>CAS CONCRET • BOUTIQUE COTONOU</span>
-                <h2 className="headline-lg" style={{ color: '#ffffff', marginTop: '10px', marginBottom: '20px', fontSize: '36px' }}>
-                  "J'ai multiplié mes ventes par 3 sans recruter de vendeurs."
-                </h2>
-                <p style={{ fontSize: '16px', color: '#cbd5e1', lineHeight: 1.7, marginBottom: '28px' }}>
-                  Avant Reflex, Amara manquait des dizaines de messages clients le soir. Aujourd'hui, l'IA présente les articles du catalogue, fournit les prix en FCFA et encaisse directement par Mobile Money même pendant qu'elle dort.
-                </p>
-
-                <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
-                  <div>
-                    <div className="font-outfit" style={{ fontSize: '32px', fontWeight: 800, color: '#FF5500' }}>+300%</div>
-                    <div style={{ fontSize: '13px', color: '#94a3b8' }}>Chiffre d'affaires MoMo</div>
-                  </div>
-                  <div>
-                    <div className="font-outfit" style={{ fontSize: '32px', fontWeight: 800, color: '#FF8800' }}>&lt; 2 sec</div>
-                    <div style={{ fontSize: '13px', color: '#94a3b8' }}>Temps de réponse client</div>
-                  </div>
-                  <div>
-                    <div className="font-outfit" style={{ fontSize: '32px', fontWeight: 800, color: '#06b6d4' }}>100%</div>
-                    <div style={{ fontSize: '13px', color: '#94a3b8' }}>Reçus certifiés générés</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* PRICING PLANS SECTION (STYLÉ, HIGH-TECH & RESPONSIVE) */}
-          <div id="pricing" style={{ maxWidth: '1200px', margin: '0 auto 120px', padding: '0 24px' }}>
-            <div style={{ textAlign: 'center', marginBottom: '56px' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 18px', borderRadius: '9999px', backgroundColor: 'rgba(255, 85, 0, 0.08)', border: '1px solid rgba(255, 85, 0, 0.25)', marginBottom: '16px' }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#FF5500' }} />
-                <span style={{ fontSize: '13px', fontWeight: 600, color: '#FF5500', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  {currentLang === 'FR' ? 'TARIFS SIMPLES & TRANSPARENTS' : 'SIMPLE & TRANSPARENT PRICING'}
+              {/* 2. Restauration & Traiteur (Populaire) */}
+              <div className="relay-card-dark mobile-responsive-card">
+                <span style={{ position: 'absolute', top: '24px', right: '24px', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.35)', color: '#2563EB', fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '9999px', letterSpacing: '0.04em' }}>
+                  Populaire
                 </span>
+                <div style={{ width: '44px', height: '44px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.3)', color: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
+                  <Utensils size={20} />
+                </div>
+                <h3 className="text-white-heading" style={{ fontSize: '19px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '10px' }}>Restauration &amp; Traiteur</h3>
+                <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
+                  Présentez vos menus, enregistrez les précommandes, confirmez les réservations et suivez les livraisons en toute fluidité.
+                </p>
               </div>
-              <h2 className="headline-lg" style={{ color: '#ffffff', fontSize: '42px', fontWeight: 800, marginBottom: '16px', letterSpacing: '-0.02em' }}>
-                {currentLang === 'FR' ? 'Un plan adapté à chaque étape de votre PME' : 'A plan designed for every stage of your business'}
+
+              {/* 3. Écoles & Formations */}
+              <div className="relay-card-dark mobile-responsive-card">
+                <span style={{ position: 'absolute', top: '24px', right: '24px', backgroundColor: 'rgba(0, 0, 0, 0.05)', border: '1px solid rgba(0, 0, 0, 0.1)', color: '#64748B', fontSize: '11px', fontWeight: 600, padding: '4px 10px', borderRadius: '9999px' }}>
+                  Entreprise
+                </span>
+                <div style={{ width: '44px', height: '44px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.3)', color: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
+                  <GraduationCap size={20} />
+                </div>
+                <h3 className="text-white-heading" style={{ fontSize: '19px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '10px' }}>Écoles &amp; Formations</h3>
+                <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
+                  Gérez les demandes d'admission, communiquez les résultats, envoyez les rappels de scolarité et encaissez automatiquement.
+                </p>
+              </div>
+
+              {/* 4. Services Professionnels */}
+              <div className="relay-card-dark mobile-responsive-card">
+                <div style={{ width: '44px', height: '44px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.3)', color: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
+                  <Briefcase size={20} />
+                </div>
+                <h3 className="text-white-heading" style={{ fontSize: '19px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '10px' }}>Services Professionnels</h3>
+                <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
+                  Consultants, avocats, experts-comptables : réalisez vos devis, planifiez les consultations, effectuez les relances et facturez automatiquement.
+                </p>
+              </div>
+
+              {/* 5. Registres & Suivi de dossiers */}
+              <div className="relay-card-dark mobile-responsive-card">
+                <span style={{ position: 'absolute', top: '24px', right: '24px', backgroundColor: 'rgba(0, 0, 0, 0.05)', border: '1px solid rgba(0, 0, 0, 0.1)', color: '#64748B', fontSize: '11px', fontWeight: 600, padding: '4px 10px', borderRadius: '9999px' }}>
+                  Entreprise
+                </span>
+                <div style={{ width: '44px', height: '44px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.3)', color: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
+                  <Database size={20} />
+                </div>
+                <h3 className="text-white-heading" style={{ fontSize: '19px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '10px' }}>Registres &amp; Suivi de dossiers</h3>
+                <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
+                  Agences, coopératives, cabinets : permettez aux usagers d'envoyer un message pour vérifier un statut ou demander des attestations.
+                </p>
+              </div>
+
+              {/* 6. Santé & Bien-être */}
+              <div className="relay-card-dark mobile-responsive-card">
+                <div style={{ width: '44px', height: '44px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.3)', color: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
+                  <Heart size={20} />
+                </div>
+                <h3 className="text-white-heading" style={{ fontSize: '19px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '10px' }}>Santé &amp; Bien-être</h3>
+                <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
+                  Planifiez les rendez-vous, envoyez les rappels de consultation, transmettez les résultats d'analyses et gérez les patients en continu.
+                </p>
+              </div>
+
+              {/* 7. Réparations & Maintenance */}
+              <div className="relay-card-dark mobile-responsive-card">
+                <div style={{ width: '44px', height: '44px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.3)', color: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
+                  <Wrench size={20} />
+                </div>
+                <h3 className="text-white-heading" style={{ fontSize: '19px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '10px' }}>Réparations &amp; Maintenance</h3>
+                <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
+                  Enregistrez les demandes d'intervention, envoyez les devis détaillés, communiquez l'avancement et encaissez dès la fin du travail.
+                </p>
+              </div>
+            </div>
+
+            {/* Custom Build Callout Banner */}
+            <div className="custom-build-banner-flex" style={{
+              backgroundColor: isLight ? '#EFF6FF' : '#0F1622',
+              border: '1px solid rgba(37, 99, 235, 0.25)',
+              borderRadius: '20px',
+              padding: '40px 48px',
+              marginTop: '32px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '32px',
+              flexWrap: 'wrap',
+              textAlign: 'left'
+            }}>
+              <div style={{ maxWidth: '640px' }}>
+                <h3 className="text-white-heading" style={{ fontSize: '22px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '10px' }}>
+                  Vous ne trouvez pas votre cas d'usage ?
+                </h3>
+                <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '14.5px', lineHeight: 1.6, margin: 0 }}>
+                  Nous concevons des <span style={{ color: '#2563EB', textDecoration: 'underline', textUnderlineOffset: '3px', cursor: 'pointer' }}>solutions WhatsApp sur mesure</span> adaptées à votre fonctionnement précis au Bénin et en Afrique de l'Ouest — réseaux multi-points de vente, logistique, cliniques et grands comptes.
+                </p>
+              </div>
+
+              <button
+                className="relay-btn-outline"
+                style={{ 
+                  borderColor: 'rgba(37, 99, 235, 0.4)', 
+                  color: '#2563EB', 
+                  padding: '12px 24px', 
+                  borderRadius: '8px', 
+                  fontWeight: 600,
+                  gap: '8px'
+                }}
+                onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
+              >
+                Demander une solution sur mesure <ArrowRight size={16} />
+              </button>
+            </div>
+          </section>
+
+          {/* 4. SYSTEME D'EXPLOITATION COMPLET / FEATURES SECTION (From User Screenshots media_1794514925285_bcff9a36.png) */}
+          <section id="features" className="section-container-responsive" style={{ maxWidth: '1140px', margin: '0 auto 120px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
+            <div style={{ textAlign: 'center', marginBottom: '56px' }}>
+              <div style={{
+                fontSize: '13px',
+                fontWeight: 700,
+                color: '#2563EB',
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                marginBottom: '14px'
+              }}>
+                BIEN PLUS QU'UN SIMPLE CHATBOT
+              </div>
+              <h2 className="text-white-heading" style={{ fontSize: 'clamp(30px, 5vw, 48px)', fontWeight: 800, color: isLight ? '#0F172A' : '#ffffff', lineHeight: 1.2, letterSpacing: '-0.02em', marginBottom: '16px' }}>
+                Un <span style={{ color: '#2563EB' }}>système d'exploitation complet</span> pour votre entreprise
               </h2>
-              <p style={{ fontSize: '16px', color: '#94a3b8', maxWidth: '640px', margin: '0 auto', lineHeight: 1.6 }}>
-                {currentLang === 'FR' 
-                  ? 'Automatisez vos ventes sur WhatsApp, encaissez par Mobile Money et développez votre chiffre d’affaires en toute simplicité.'
-                  : 'Automate sales on WhatsApp, accept Mobile Money payments and scale your business effortlessly.'}
+              <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '16.5px', maxWidth: '680px', margin: '0 auto', lineHeight: 1.6 }}>
+                Des outils performants conçus pour les entrepreneurs des marchés émergents
               </p>
             </div>
 
-            {/* Responsive Grid 3 Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(310px, 1fr))', gap: '28px', alignItems: 'stretch' }}>
-              
-              {/* Plan 1: Starter - 15 000 FCFA / mois */}
-              <div className="feature-card-hover" style={{
-                backgroundColor: '#0F172A',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                borderRadius: '24px',
-                padding: '36px 28px',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                position: 'relative',
-                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)'
-              }}>
-                <div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
-                    {currentLang === 'FR' ? 'Starter / Débutant' : 'Starter'}
-                  </div>
-                  <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '24px', minHeight: '38px' }}>
-                    {currentLang === 'FR' ? 'Pour les petites boutiques et créateurs qui se lancent.' : 'Ideal for small shops and new merchants.'}
-                  </div>
-                  
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '24px' }}>
-                    <span style={{ fontSize: '38px', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.03em' }}>15 000</span>
-                    <span style={{ fontSize: '16px', fontWeight: 700, color: '#FF5500' }}>FCFA</span>
-                    <span style={{ fontSize: '14px', color: '#64748b' }}>/ {currentLang === 'FR' ? 'mois' : 'month'}</span>
-                  </div>
-
-                  <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '24px', marginBottom: '32px' }}>
-                    <div style={{ fontWeight: 700, color: '#ffffff', fontSize: '13.5px', marginBottom: '16px' }}>
-                      {currentLang === 'FR' ? 'Ce qui est inclus :' : 'What is included:'}
-                    </div>
-                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', color: '#cbd5e1' }}>
-                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <CheckCircle size={18} color="#FF5500" />
-                        <span>Jusqu'à <strong>100 ventes conclues</strong> / mois</span>
-                      </li>
-                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <CheckCircle size={18} color="#FF5500" />
-                        <span>Jusqu'à <strong>1 500 000 FCFA</strong> encaissés</span>
-                      </li>
-                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <CheckCircle size={18} color="#FF5500" />
-                        <span>1 Numéro WhatsApp Business connecté</span>
-                      </li>
-                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <CheckCircle size={18} color="#FF5500" />
-                        <span>Assistant IA commercial 24/7 (GPT-4o)</span>
-                      </li>
-                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <CheckCircle size={18} color="#FF5500" />
-                        <span>Catalogue jusqu'à 20 produits</span>
-                      </li>
-                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <CheckCircle size={18} color="#FF5500" />
-                        <span>Reçus de paiement PDF certifiés</span>
-                      </li>
-                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <CheckCircle size={18} color="#FF5500" />
-                        <span>Support par email & ticket</span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedPlan({ name: 'Starter', price: 15000 });
-                    setAuthMode('signup');
-                    setActiveView('auth');
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '14px',
-                    borderRadius: '12px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                    color: '#ffffff',
-                    border: '1px solid rgba(255, 255, 255, 0.15)',
-                    fontSize: '15px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  {currentLang === 'FR' ? 'Choisir le plan Starter' : 'Choose Starter'}
-                </button>
-              </div>
-
-              {/* Plan 2: Pro / Croissance - 50 000 FCFA / mois (POPULAIRE) */}
-              <div className="feature-card-hover" style={{
-                backgroundColor: '#0F172A',
-                border: '2px solid #FF5500',
-                borderRadius: '24px',
-                padding: '36px 28px',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                position: 'relative',
-                boxShadow: '0 20px 45px rgba(255, 85, 0, 0.22)'
-              }}>
-                {/* Badge Populaire */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+              {/* Card 1: Intégration WhatsApp */}
+              <div className="relay-card-dark mobile-responsive-card">
                 <div style={{
-                  position: 'absolute',
-                  top: '-16px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  backgroundColor: '#FF5500',
-                  color: '#ffffff',
-                  fontSize: '11.5px',
-                  fontWeight: 800,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                  padding: '6px 18px',
-                  borderRadius: '9999px',
-                  boxShadow: '0 4px 15px rgba(255, 85, 0, 0.45)',
-                  whiteSpace: 'nowrap'
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '12px',
+                  backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                  border: '1px solid rgba(37, 99, 235, 0.3)',
+                  color: '#2563EB',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: '20px'
                 }}>
-                  {currentLang === 'FR' ? 'LE PLUS POPULAIRE' : 'MOST POPULAR'}
+                  <MessageSquare size={22} />
                 </div>
-
-                <div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#FF5500', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
-                    {currentLang === 'FR' ? 'Pro / Croissance' : 'Pro Growth'}
-                  </div>
-                  <div style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '24px', minHeight: '38px' }}>
-                    {currentLang === 'FR' ? 'Pour les PME actives voulant automatiser 100% de leurs ventes.' : 'For growing businesses automating 100% of sales.'}
-                  </div>
-                  
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '24px' }}>
-                    <span style={{ fontSize: '42px', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.03em' }}>50 000</span>
-                    <span style={{ fontSize: '18px', fontWeight: 800, color: '#FF5500' }}>FCFA</span>
-                    <span style={{ fontSize: '14px', color: '#64748b' }}>/ {currentLang === 'FR' ? 'mois' : 'month'}</span>
-                  </div>
-
-                  <div style={{ borderTop: '1px solid rgba(255, 85, 0, 0.25)', paddingTop: '24px', marginBottom: '32px' }}>
-                    <div style={{ fontWeight: 700, color: '#ffffff', fontSize: '13.5px', marginBottom: '16px' }}>
-                      {currentLang === 'FR' ? 'Tout le plan Starter, plus :' : 'Everything in Starter, plus:'}
-                    </div>
-                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', color: '#ffffff' }}>
-                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <CheckCircle size={18} color="#FF5500" />
-                        <span><strong>Ventes conclues illimitées</strong></span>
-                      </li>
-                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <CheckCircle size={18} color="#FF5500" />
-                        <span>Jusqu'à <strong>10 000 000 FCFA</strong> encaissements / mois</span>
-                      </li>
-                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <CheckCircle size={18} color="#FF5500" />
-                        <span>Catalogue & produits <strong>illimités</strong></span>
-                      </li>
-                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <CheckCircle size={18} color="#FF5500" />
-                        <span>Prise en main humaine 1-clic dans l'Inbox Live</span>
-                      </li>
-                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <CheckCircle size={18} color="#FF5500" />
-                        <span>Relances automatiques de paniers abandonnés</span>
-                      </li>
-                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <CheckCircle size={18} color="#FF5500" />
-                        <span>Personnalisation du logo sur les reçus</span>
-                      </li>
-                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <CheckCircle size={18} color="#FF5500" />
-                        <span>Support prioritaire WhatsApp 7j/7</span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedPlan({ name: 'Pro', price: 50000 });
-                    setAuthMode('signup');
-                    setActiveView('auth');
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '16px',
-                    borderRadius: '12px',
-                    backgroundColor: '#FF5500',
-                    color: '#ffffff',
-                    border: 'none',
-                    fontSize: '15px',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    boxShadow: '0 8px 25px rgba(255, 85, 0, 0.4)',
-                    transition: 'transform 0.2s'
-                  }}
-                >
-                  {currentLang === 'FR' ? 'Commencer le Plan Pro →' : 'Start Pro Plan →'}
-                </button>
+                <h3 className="text-white-heading" style={{ fontSize: '19px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '10px' }}>
+                  Intégration WhatsApp
+                </h3>
+                <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
+                  Connectez votre compte WhatsApp Business et commencez à servir vos clients instantanément : produits, services, réservations ou tout autre chose.
+                </p>
               </div>
 
-              {/* Plan 3: Enterprise / Illimité - 100 000 FCFA / mois */}
-              <div className="feature-card-hover" style={{
-                backgroundColor: '#0F172A',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                borderRadius: '24px',
-                padding: '36px 28px',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                position: 'relative',
-                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)'
-              }}>
-                <div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
-                    {currentLang === 'FR' ? 'Enterprise / Illimité' : 'Enterprise'}
-                  </div>
-                  <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '24px', minHeight: '38px' }}>
-                    {currentLang === 'FR' ? 'Pour les réseaux de vente, franchises et grands comptes.' : 'For multi-location brands and large networks.'}
-                  </div>
-                  
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '24px' }}>
-                    <span style={{ fontSize: '38px', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.03em' }}>100 000</span>
-                    <span style={{ fontSize: '16px', fontWeight: 700, color: '#38bdf8' }}>FCFA</span>
-                    <span style={{ fontSize: '14px', color: '#64748b' }}>/ {currentLang === 'FR' ? 'mois' : 'month'}</span>
-                  </div>
-
-                  <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '24px', marginBottom: '32px' }}>
-                    <div style={{ fontWeight: 700, color: '#ffffff', fontSize: '13.5px', marginBottom: '16px' }}>
-                      {currentLang === 'FR' ? 'Fonctionnalités avancées :' : 'Advanced features:'}
-                    </div>
-                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', color: '#cbd5e1' }}>
-                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <CheckCircle size={18} color="#38bdf8" />
-                        <span><strong>Ventes & Encaissements illimités</strong></span>
-                      </li>
-                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <CheckCircle size={18} color="#38bdf8" />
-                        <span>Multi-numéros WhatsApp (jusqu'à 5 numéros)</span>
-                      </li>
-                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <CheckCircle size={18} color="#38bdf8" />
-                        <span>Agrégation Mobile Money & Cartes sur mesure</span>
-                      </li>
-                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <CheckCircle size={18} color="#38bdf8" />
-                        <span>Paramétrage IA sur-mesure par un expert</span>
-                      </li>
-                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <CheckCircle size={18} color="#38bdf8" />
-                        <span>Intégrations API & Webhooks personnalisés</span>
-                      </li>
-                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <CheckCircle size={18} color="#38bdf8" />
-                        <span>Garantie de service SLA 99,9%</span>
-                      </li>
-                      <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <CheckCircle size={18} color="#38bdf8" />
-                        <span>Support VIP Dédié 24/7 & Account Manager</span>
-                      </li>
-                    </ul>
-                  </div>
+              {/* Card 2: Réponses basées sur l'IA */}
+              <div className="relay-card-dark mobile-responsive-card">
+                <div style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '12px',
+                  backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                  border: '1px solid rgba(37, 99, 235, 0.3)',
+                  color: '#2563EB',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: '20px'
+                }}>
+                  <Zap size={22} />
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedPlan({ name: 'Enterprise', price: 100000 });
-                    setAuthMode('signup');
-                    setActiveView('auth');
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '14px',
-                    borderRadius: '12px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                    color: '#ffffff',
-                    border: '1px solid rgba(255, 255, 255, 0.15)',
-                    fontSize: '15px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  {currentLang === 'FR' ? 'Choisir le plan Enterprise' : 'Choose Enterprise'}
-                </button>
+                <h3 className="text-white-heading" style={{ fontSize: '19px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '10px' }}>
+                  Réponses basées sur l'IA
+                </h3>
+                <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
+                  Il traite les demandes de renseignements, prend les rendez-vous, recommande des produits, établit des devis et envoie des mises à jour — automatiquement, 24 heures sur 24.
+                </p>
               </div>
 
+              {/* Card 3: Paiements instantanés */}
+              <div className="relay-card-dark mobile-responsive-card">
+                <div style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '12px',
+                  backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                  border: '1px solid rgba(37, 99, 235, 0.3)',
+                  color: '#2563EB',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: '20px'
+                }}>
+                  <Wallet size={22} />
+                </div>
+                <h3 className="text-white-heading" style={{ fontSize: '19px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '10px' }}>
+                  Paiements instantanés
+                </h3>
+                <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
+                  Encaissez les paiements pour tout type de produit, service, dépôt ou frais via MTN MoMo, Moov Money, Celtiis Cash, Wave et cartes bancaires directement dans la conversation.
+                </p>
+              </div>
+
+              {/* Card 4: Tableau de bord analytique */}
+              <div className="relay-card-dark mobile-responsive-card">
+                <div style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '12px',
+                  backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                  border: '1px solid rgba(37, 99, 235, 0.3)',
+                  color: '#2563EB',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: '20px'
+                }}>
+                  <BarChart3 size={22} />
+                </div>
+                <h3 className="text-white-heading" style={{ fontSize: '19px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '10px' }}>
+                  Tableau de bord analytique
+                </h3>
+                <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
+                  Suivez les revenus, les réservations, la prestation de services, l'engagement client et les indicateurs de performance de votre entreprise, le tout au même endroit et en temps réel.
+                </p>
+              </div>
+
+              {/* Card 5: Sécurisé et fiable */}
+              <div className="relay-card-dark mobile-responsive-card">
+                <div style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '12px',
+                  backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                  border: '1px solid rgba(37, 99, 235, 0.3)',
+                  color: '#2563EB',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: '20px'
+                }}>
+                  <ShieldCheck size={22} />
+                </div>
+                <h3 className="text-white-heading" style={{ fontSize: '19px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '10px' }}>
+                  Sécurisé et fiable
+                </h3>
+                <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
+                  Sécurité de niveau bancaire avec données cryptées et conformité aux normes internationales.
+                </p>
+              </div>
+
+              {/* Card 6: Automatisations personnalisées (avec badge Prochainement) */}
+              <div className="relay-card-dark mobile-responsive-card" style={{ position: 'relative' }}>
+                <span style={{
+                  position: 'absolute',
+                  top: '24px',
+                  right: '24px',
+                  backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                  border: '1px solid rgba(37, 99, 235, 0.35)',
+                  color: '#2563EB',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  padding: '4px 10px',
+                  borderRadius: '9999px',
+                  letterSpacing: '0.04em'
+                }}>
+                  Prochainement
+                </span>
+                <div style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '12px',
+                  backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                  border: '1px solid rgba(37, 99, 235, 0.3)',
+                  color: '#2563EB',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: '20px'
+                }}>
+                  <Workflow size={22} />
+                </div>
+                <h3 className="text-white-heading" style={{ fontSize: '19px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '10px' }}>
+                  Automatisations personnalisées
+                </h3>
+                <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
+                  Créez des flux de travail adaptés à votre activité précise : suivis, rappels de service, confirmations de rendez-vous, réapprovisionnements, et plus encore.
+                </p>
+              </div>
             </div>
-          </div>
+          </section>
 
-          {/* INTERACTIVE FAQ ACCORDION SECTION */}
-          <div id="faq" style={{ maxWidth: '880px', margin: '0 auto 100px', padding: '0 24px' }}>
+          {/* 5. TESTIMONIALS SECTION */}
+          <section id="testimonials" className="section-container-responsive" style={{ maxWidth: '1140px', margin: '0 auto 120px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
             <div style={{ textAlign: 'center', marginBottom: '44px' }}>
-              <span className="font-outfit" style={{ color: '#FF8800', fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.faqTitle}</span>
-              <h2 className="headline-lg" style={{ color: '#ffffff', marginTop: '8px' }}>
-                {t.faqSub}
+              <h2 className="text-white-heading" style={{ fontSize: 'clamp(32px, 6vw, 56px)', fontWeight: 800, color: isLight ? '#0F172A' : '#ffffff', lineHeight: 1.15, letterSpacing: '-0.02em' }}>
+                Impactant<br />
+                <span style={{ color: '#2563EB' }}>Succès</span>
               </h2>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              {[
-                {
-                  q: t.faqQ1,
-                  a: t.faqA1
-                },
-                {
-                  q: t.faqQ2,
-                  a: t.faqA2
-                },
-                {
-                  q: t.faqQ3,
-                  a: t.faqA3
-                }
-              ].map((faq, idx) => (
+            <div className="mobile-responsive-card" style={{
+              backgroundColor: isLight ? '#FFFFFF' : '#0C1320',
+              border: isLight ? '1px solid rgba(37, 99, 235, 0.15)' : '1px solid rgba(37, 99, 235, 0.25)',
+              borderRadius: '24px',
+              padding: '56px 44px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '36px',
+              position: 'relative',
+              overflow: 'hidden',
+              boxShadow: isLight ? '0 15px 40px rgba(0,0,0,0.04)' : '0 20px 50px rgba(0,0,0,0.5)'
+            }}>
+              <div className="quote-svg-desktop" style={{ flexShrink: 0, opacity: 0.9 }}>
+                <svg width="100" height="90" viewBox="0 0 100 90" fill="#2563EB">
+                  <path d="M0 50 C0 20 20 0 45 0 L45 20 C30 20 20 30 20 50 L45 50 L45 90 L0 90 Z" />
+                  <path d="M55 50 C55 20 75 0 100 0 L100 20 C85 20 75 30 75 50 L100 50 L100 90 L55 90 Z" />
+                </svg>
+              </div>
+
+              <div style={{ flex: 1, minWidth: 0, width: '100%', textAlign: 'left' }}>
+                {/* Mobile Single Top Quote SVG */}
+                <div className="quote-svg-mobile" style={{ marginBottom: '14px', opacity: 0.9 }}>
+                  <svg width="36" height="30" viewBox="0 0 100 90" fill="#2563EB">
+                    <path d="M0 50 C0 20 20 0 45 0 L45 20 C30 20 20 30 20 50 L45 50 L45 90 L0 90 Z" />
+                    <path d="M55 50 C55 20 75 0 100 0 L100 20 C85 20 75 30 75 50 L100 50 L100 90 L55 90 Z" />
+                  </svg>
+                </div>
+
+                <p className="text-white-heading" style={{
+                  fontSize: 'clamp(16px, 2.5vw, 24px)',
+                  color: isLight ? '#0F172A' : '#ffffff',
+                  lineHeight: 1.6,
+                  fontWeight: 400,
+                  margin: '0 0 20px 0'
+                }}>
+                  "{testimonials[activeTestimonial].quote}"
+                </p>
+                <div style={{ color: '#2563EB', fontWeight: 700, fontSize: '17px' }}>
+                  {testimonials[activeTestimonial].author}
+                </div>
+                <div className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '13.5px', marginTop: '3px' }}>
+                  {testimonials[activeTestimonial].role}
+                </div>
+              </div>
+
+              <div className="quote-svg-desktop" style={{ flexShrink: 0, opacity: 0.9 }}>
+                <svg width="100" height="90" viewBox="0 0 100 90" fill="#2563EB">
+                  <path d="M0 0 L45 0 L45 40 C45 70 25 90 0 90 L0 70 C15 70 25 60 25 40 L0 40 Z" />
+                  <path d="M55 0 L100 0 L100 40 C100 70 80 90 55 90 L55 70 C70 70 80 60 80 40 L55 40 Z" />
+                </svg>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '28px' }}>
+              {testimonials.map((_, idx) => (
+                <span
+                  key={idx}
+                  onClick={() => setActiveTestimonial(idx)}
+                  style={{
+                    width: activeTestimonial === idx ? '32px' : '8px',
+                    height: '8px',
+                    borderRadius: activeTestimonial === idx ? '9999px' : '50%',
+                    backgroundColor: activeTestimonial === idx ? '#2563EB' : (isLight ? '#CBD5E1' : '#1E293B'),
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                />
+              ))}
+            </div>
+          </section>
+
+          {/* 5. PRICING SECTION */}
+          <section id="pricing" className="section-container-responsive" style={{ maxWidth: '1140px', margin: '0 auto 120px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
+            <div style={{ textAlign: 'center', marginBottom: '50px' }}>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '6px 18px',
+                borderRadius: '9999px',
+                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                border: '1px solid rgba(37, 99, 235, 0.3)',
+                marginBottom: '16px'
+              }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#2563EB' }} />
+                <span style={{ fontSize: '13px', fontWeight: 600, color: '#2563EB', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Tarifs Simples &amp; Transparents
+                </span>
+              </div>
+              <h2 className="text-white-heading" style={{ fontSize: 'clamp(28px, 5vw, 44px)', fontWeight: 800, color: isLight ? '#0F172A' : '#ffffff', letterSpacing: '-0.02em', marginBottom: '14px' }}>
+                Un plan adapté à chaque étape de votre entreprise
+              </h2>
+              <p className="text-muted-desc" style={{ fontSize: '16px', color: isLight ? '#64748B' : '#94a3b8', maxWidth: '640px', margin: '0 auto', lineHeight: 1.6 }}>
+                Automatisez vos ventes sur WhatsApp, encaissez par Mobile Money (MTN MoMo, Moov Money, Celtiis Cash) et développez votre chiffre d'affaires.
+              </p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', alignItems: 'stretch' }}>
+              {/* Starter */}
+              <div className="relay-card-dark mobile-responsive-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                    Starter
+                  </div>
+                  <div className="text-muted-desc" style={{ fontSize: '13px', color: '#64748b', marginBottom: '24px', minHeight: '38px' }}>
+                    Idéal pour les boutiques débutantes et créateurs indépendants.
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '24px' }}>
+                    <span className="text-white-heading" style={{ fontSize: '38px', fontWeight: 900, color: isLight ? '#0F172A' : '#ffffff' }}>15,000</span>
+                    <span style={{ fontSize: '16px', fontWeight: 700, color: '#2563EB' }}>FCFA</span>
+                    <span style={{ fontSize: '13px', color: '#64748b' }}>/ mois</span>
+                  </div>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px 0', display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', color: isLight ? '#475569' : '#cbd5e1' }}>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><CheckCircle2 size={18} color="#2563EB" /> 1 Numéro WhatsApp</li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><CheckCircle2 size={18} color="#2563EB" /> Jusqu'à 500 conversations IA / mois</li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><CheckCircle2 size={18} color="#2563EB" /> Catalogue jusqu'à 25 articles</li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><CheckCircle2 size={18} color="#2563EB" /> Reçus Mobile Money certifiés</li>
+                  </ul>
+                </div>
+                <button 
+                  className="relay-btn-outline" 
+                  style={{ width: '100%' }}
+                  onClick={() => { setSelectedPlan && setSelectedPlan('starter'); setAuthMode('signup'); setActiveView('auth'); }}
+                >
+                  Démarrer avec Starter
+                </button>
+              </div>
+
+              {/* Pro Business */}
+              <div className="relay-card-dark mobile-responsive-card" style={{ 
+                border: '2px solid #2563EB', 
+                boxShadow: '0 20px 45px rgba(37, 99, 235, 0.25)',
+                display: 'flex', 
+                flexDirection: 'column', 
+                justifyContent: 'space-between',
+                position: 'relative'
+              }}>
+                <span style={{
+                  position: 'absolute',
+                  top: '-14px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  backgroundColor: '#2563EB',
+                  color: '#ffffff',
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  padding: '4px 14px',
+                  borderRadius: '9999px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                }}>
+                  Plus Populaire
+                </span>
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#2563EB', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                    Pro Business
+                  </div>
+                  <div className="text-muted-desc" style={{ fontSize: '13px', color: isLight ? '#64748B' : '#94a3b8', marginBottom: '24px', minHeight: '38px' }}>
+                    Pour les entreprises actives gérant des commandes quotidiennes.
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '24px' }}>
+                    <span className="text-white-heading" style={{ fontSize: '38px', fontWeight: 900, color: isLight ? '#0F172A' : '#ffffff' }}>35,000</span>
+                    <span style={{ fontSize: '16px', fontWeight: 700, color: '#2563EB' }}>FCFA</span>
+                    <span style={{ fontSize: '13px', color: '#64748b' }}>/ mois</span>
+                  </div>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px 0', display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', color: isLight ? '#0F172A' : '#ffffff' }}>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><CheckCircle2 size={18} color="#2563EB" /> Conversations IA illimitées</li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><CheckCircle2 size={18} color="#2563EB" /> Catalogue produits &amp; services complet</li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><CheckCircle2 size={18} color="#2563EB" /> Encaissement auto Mobile Money &amp; Cartes</li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><CheckCircle2 size={18} color="#2563EB" /> Statistiques en direct &amp; Support prioritaire</li>
+                  </ul>
+                </div>
+                <button 
+                  className="relay-btn-primary" 
+                  style={{ width: '100%', backgroundColor: '#2563EB' }}
+                  onClick={() => { setSelectedPlan && setSelectedPlan('pro'); setAuthMode('signup'); setActiveView('auth'); }}
+                >
+                  Choisir Pro Business
+                </button>
+              </div>
+
+              {/* Enterprise */}
+              <div className="relay-card-dark mobile-responsive-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                    Enterprise
+                  </div>
+                  <div className="text-muted-desc" style={{ fontSize: '13px', color: '#64748b', marginBottom: '24px', minHeight: '38px' }}>
+                    Solutions sur-mesure pour cliniques, réseaux d'agences et franchises.
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '24px' }}>
+                    <span className="text-white-heading" style={{ fontSize: '38px', fontWeight: 900, color: isLight ? '#0F172A' : '#ffffff' }}>Sur Devis</span>
+                  </div>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px 0', display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', color: isLight ? '#475569' : '#cbd5e1' }}>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><CheckCircle2 size={18} color="#2563EB" /> Multi-numéros &amp; Boîte de réception collaborative</li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><CheckCircle2 size={18} color="#2563EB" /> Intégration CRM / ERP / Base interne</li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><CheckCircle2 size={18} color="#2563EB" /> Gestionnaire de compte dédié &amp; SLA</li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><CheckCircle2 size={18} color="#2563EB" /> Entraînement sur vos procédures internes</li>
+                  </ul>
+                </div>
+                <button 
+                  className="relay-btn-outline" 
+                  style={{ width: '100%' }}
+                  onClick={() => { setSelectedPlan && setSelectedPlan('enterprise'); setAuthMode('signup'); setActiveView('auth'); }}
+                >
+                  Contacter l'équipe
+                </button>
+              </div>
+            </div>
+          </section>
+
+          {/* 6. FAQ ACCORDION SECTION (Screenshot 3) */}
+          <section id="faq" className="section-container-responsive" style={{ maxWidth: '840px', margin: '0 auto 120px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
+            <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+              <h2 className="text-white-heading" style={{ fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 800, color: isLight ? '#0F172A' : '#ffffff', letterSpacing: '-0.02em', marginBottom: '14px' }}>
+                Des questions ? Nous avons les réponses.
+              </h2>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', borderTop: isLight ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255, 255, 255, 0.08)' }}>
+              {faqs.map((faq, idx) => (
                 <div
                   key={idx}
-                  className="faq-accordion-item"
+                  style={{
+                    borderBottom: isLight ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255, 255, 255, 0.08)',
+                    padding: '22px 4px',
+                    cursor: 'pointer'
+                  }}
                   onClick={() => setOpenFaqIndex(openFaqIndex === idx ? null : idx)}
-                  style={{ cursor: 'pointer', padding: '20px 24px' }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontWeight: 700, fontSize: '16px', color: '#ffffff' }}>
-                    <span>{faq.q}</span>
-                    {openFaqIndex === idx ? <ChevronUp size={18} color="#FF5500" /> : <ChevronDown size={18} color="#94a3b8" />}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+                    <span className="text-white-heading" style={{ fontSize: '16.5px', fontWeight: 600, color: isLight ? '#0F172A' : '#ffffff' }}>
+                      {faq.q}
+                    </span>
+                    <span style={{ color: '#2563EB', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                      {openFaqIndex === idx ? <ChevronUp size={19} color="#2563EB" /> : <ChevronDown size={19} color="#2563EB" />}
+                    </span>
                   </div>
-
                   {openFaqIndex === idx && (
-                    <p style={{ marginTop: '12px', fontSize: '14px', color: '#cbd5e1', lineHeight: 1.6, margin: '12px 0 0 0' }}>
+                    <p className="text-muted-desc" style={{ marginTop: '14px', fontSize: '14.5px', color: isLight ? '#64748B' : '#94a3b8', lineHeight: 1.65, margin: '14px 0 0 0' }}>
                       {faq.a}
                     </p>
                   )}
                 </div>
               ))}
             </div>
-          </div>
+          </section>
 
-          {/* RELAY MATCH CONVERSION CTA BANNER */}
-          <div style={{ maxWidth: '1000px', margin: '0 auto 100px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
-            <div style={{
-              backgroundColor: '#0F172A',
-              borderRadius: '24px',
-              border: '1px solid rgba(255, 85, 0, 0.35)',
-              padding: '60px 32px',
-              textAlign: 'center',
-              background: 'radial-gradient(circle at 50% 0%, rgba(255, 85, 0, 0.25) 0%, rgba(15, 23, 42, 0.95) 75%)',
-              boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
-            }}>
-              <h2 className="font-outfit" style={{ fontSize: '38px', fontWeight: 800, color: '#ffffff', marginBottom: '16px', lineHeight: 1.25 }}>
-                {currentLang === 'FR' ? 'Prêt à transformer votre entreprise ?' : 'Ready to Transform Your Business?'}
-              </h2>
-              <p style={{ color: '#94a3b8', fontSize: '16.5px', maxWidth: '640px', margin: '0 auto 32px', lineHeight: 1.6 }}>
-                {currentLang === 'FR'
-                  ? 'Rejoignez des centaines d’entrepreneurs qui utilisent Reflex pour développer leur activité sur WhatsApp — au Bénin et dans toute l’Afrique.'
-                  : 'Join hundreds of entrepreneurs using Reflex to grow their businesses on WhatsApp — across Africa and beyond.'}
-              </p>
+          {/* 7. CALL TO ACTION BAR (Screenshot 2) */}
+          <section className="section-container-responsive" style={{ maxWidth: '880px', margin: '0 auto 100px', padding: '0 24px', textAlign: 'center', position: 'relative', zIndex: 10 }}>
+            <div className="hero-cta-buttons-group" style={{ display: 'inline-flex', justifyContent: 'center' }}>
               <button
-                className="cta-design-button"
+                className="relay-btn-primary"
+                style={{ padding: '16px 40px', fontSize: '16.5px', borderRadius: '10px' }}
                 onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
               >
-                {currentLang === 'FR' ? 'Commencer à vendre sur WhatsApp dès aujourd’hui' : 'Start Selling on WhatsApp Today'}
+                Commencez à vendre sur WhatsApp dès aujourd'hui
               </button>
-              <div style={{ color: '#64748b', fontSize: '13.5px', marginTop: '16px' }}>
-                {currentLang === 'FR' ? 'Sans carte bancaire · Annulation à tout moment' : 'No credit card required · Cancel anytime'}
-              </div>
+            </div>
+            <div style={{ color: '#64748b', fontSize: '13px', marginTop: '16px' }}>
+              Sans carte bancaire requise · Résiliation à tout moment
+            </div>
+          </section>
+        </>
+      )}
+
+      {/* ========================================================================= */}
+      {/* SUB-VIEW 2: ABOUT PAGE (Screenshot 4 - media_1794429710877_65f278fe.png) */}
+      {/* ========================================================================= */}
+      {currentSubView === 'about' && (
+        <section className="hero-section-responsive" style={{ paddingTop: '150px', paddingBottom: '120px', paddingLeft: '24px', paddingRight: '24px', maxWidth: '1080px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
+          
+          <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+            <h1 className="text-white-heading" style={{
+              color: isLight ? '#0F172A' : '#ffffff',
+              fontSize: 'clamp(32px, 6.5vw, 64px)',
+              fontWeight: 800,
+              lineHeight: 1.15,
+              letterSpacing: '-0.03em',
+              marginBottom: '20px'
+            }}>
+              Conçu pour propulser <span style={{ color: '#2563EB' }}>les entreprises d'Afrique</span>
+            </h1>
+            <p className="text-muted-desc" style={{
+              color: isLight ? '#64748B' : '#94a3b8',
+              fontSize: 'clamp(15px, 2vw, 19px)',
+              lineHeight: 1.6,
+              maxWidth: '740px',
+              margin: '0 auto 32px',
+              fontWeight: 400
+            }}>
+              Nous croyons que chaque entrepreneur — de la créatrice de mode à Cotonou au responsable de clinique à Porto-Novo — mérite une équipe commerciale et opérationnelle de classe mondiale. Reflex place cette équipe directement dans WhatsApp, disponible 24h/24.
+            </p>
+            <div className="hero-cta-buttons-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '14px', flexWrap: 'wrap' }}>
+              <button
+                className="relay-btn-primary"
+                style={{ padding: '14px 34px', fontSize: '15.5px', borderRadius: '10px' }}
+                onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
+              >
+                Commencer
+              </button>
+              <button
+                className="relay-btn-outline"
+                style={{ padding: '14px 32px', fontSize: '15.5px', borderRadius: '10px' }}
+                onClick={() => navigateTo('home')}
+              >
+                Retour à l'accueil
+              </button>
             </div>
           </div>
 
-          {/* DUAL DESKTOP & MOBILE RESPONSIVE FOOTER */}
-          <footer className="landing-footer-section" style={{ borderTop: '1px solid rgba(255, 85, 0, 0.3)', backgroundColor: '#060911' }}>
-            <div className="footer-glow-line" style={{ background: 'linear-gradient(90deg, #FF5500, #FF8800, #06b6d4)' }} />
+          {/* WHY WE BUILT THIS */}
+          <div className="mobile-responsive-card" style={{
+            backgroundColor: isLight ? '#FFFFFF' : '#0E141D',
+            border: isLight ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '24px',
+            padding: '56px 44px',
+            marginBottom: '48px',
+            boxShadow: isLight ? '0 15px 40px rgba(0,0,0,0.03)' : '0 20px 50px rgba(0,0,0,0.4)'
+          }}>
+            <div style={{ fontSize: '13px', fontWeight: 700, color: '#2563EB', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '14px' }}>
+              Pourquoi nous avons créé Reflex
+            </div>
+            <h2 className="text-white-heading" style={{ fontSize: 'clamp(22px, 4vw, 32px)', fontWeight: 800, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '18px', lineHeight: 1.3 }}>
+              En Afrique, le commerce ne se fait pas sur des sites e-commerce lents. Il vit sur WhatsApp.
+            </h2>
+            <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '15px', lineHeight: 1.7, marginBottom: '18px' }}>
+              Pourtant, vendre sur WhatsApp à la main est un calvaire épuisant : des dizaines de messages non lus le soir, des clients qui attendent, des prix à répéter 100 fois par jour, et la vérification manuelle stressante des captures d'écran Mobile Money.
+            </p>
+            <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '15px', lineHeight: 1.7, margin: 0 }}>
+              Reflex a été conçu pour résoudre exactement ce problème : donner à chaque PME béninoise et africaine un vendeur IA ultra-compétent qui accueille les clients, présente les produits en FCFA, et génère des liens de paiement Mobile Money certifiés instantanément.
+            </p>
+          </div>
 
-            <div className="desktop-footer-only">
-              <div className="grid-responsive-footer" style={{ maxWidth: '1140px', margin: '0 auto 40px' }}>
+          {/* 3 Pillars */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+            <div className="relay-card-dark mobile-responsive-card">
+              <div style={{ width: '44px', height: '44px', borderRadius: '12px', backgroundColor: 'rgba(37, 99, 235, 0.12)', color: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
+                <Zap size={22} />
+              </div>
+              <h3 className="text-white-heading" style={{ fontSize: '19px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '10px' }}>WhatsApp-First</h3>
+              <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '14.5px', lineHeight: 1.6, margin: 0 }}>
+                Zéro friction : pas de formulaire à remplir, pas de compte à créer pour vos clients. Toute l'expérience d'achat se fait dans leur discussion habituelle.
+              </p>
+            </div>
+
+            <div className="relay-card-dark mobile-responsive-card">
+              <div style={{ width: '44px', height: '44px', borderRadius: '12px', backgroundColor: 'rgba(37, 99, 235, 0.12)', color: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
+                <ShieldCheck size={22} />
+              </div>
+              <h3 className="text-white-heading" style={{ fontSize: '19px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '10px' }}>Paiements Locaux MoMo</h3>
+              <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '14.5px', lineHeight: 1.6, margin: 0 }}>
+                Intégration profonde avec MTN Mobile Money, Moov Money, Celtiis Cash et Wave. Vérification instantanée sans faux reçus.
+              </p>
+            </div>
+
+            <div className="relay-card-dark mobile-responsive-card">
+              <div style={{ width: '44px', height: '44px', borderRadius: '12px', backgroundColor: 'rgba(37, 99, 235, 0.12)', color: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
+                <Users size={22} />
+              </div>
+              <h3 className="text-white-heading" style={{ fontSize: '19px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '10px' }}>100% Sensation Humaine</h3>
+              <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '14.5px', lineHeight: 1.6, margin: 0 }}>
+                L'IA n'est pas un robot rigide : elle dialogue courtoisement, négocie, renseigne et encaisse exactement comme le meilleur vendeur de votre boutique.
+              </p>
+            </div>
+          </div>
+
+        </section>
+      )}
+
+      {/* ========================================================================= */}
+      {/* SUB-VIEW 3: BLOG PAGE (Screenshot 1 & media_1794431011796_4a784b6d.png) */}
+      {/* ========================================================================= */}
+      {currentSubView === 'blog' && (
+        <section className="hero-section-responsive" style={{ paddingTop: '150px', paddingBottom: '120px', paddingLeft: '24px', paddingRight: '24px', maxWidth: '1140px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
+          
+          <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+            <div style={{
+              fontSize: '13px',
+              fontWeight: 700,
+              color: '#2563EB',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              marginBottom: '12px'
+            }}>
+              Blog Reflex
+            </div>
+            <h1 className="text-white-heading" style={{
+              color: isLight ? '#0F172A' : '#ffffff',
+              fontSize: 'clamp(32px, 6vw, 56px)',
+              fontWeight: 800,
+              letterSpacing: '-0.02em',
+              marginBottom: '16px'
+            }}>
+              Conseils &amp; Stratégies pour Commerçants
+            </h1>
+            <p className="text-muted-desc" style={{
+              color: isLight ? '#64748B' : '#94a3b8',
+              fontSize: 'clamp(15px, 2vw, 17px)',
+              maxWidth: '620px',
+              margin: '0 auto 32px',
+              lineHeight: 1.6
+            }}>
+              Guides pratiques, nouveautés et tactiques concrètes pour développer votre entreprise sur WhatsApp au Bénin et en Afrique.
+            </p>
+
+            {/* Filter Category Pills */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              {(['Tous', 'Produit', 'Guide', 'Croissance'] as const).map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setBlogFilter(cat)}
+                  style={{
+                    padding: '8px 18px',
+                    borderRadius: '9999px',
+                    fontSize: '13.5px',
+                    fontWeight: 600,
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    backgroundColor: blogFilter === cat 
+                      ? '#2563EB' 
+                      : (isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)'),
+                    color: blogFilter === cat 
+                      ? '#ffffff' 
+                      : (isLight ? '#475569' : '#94a3b8')
+                  }}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Blog Cards Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '48px' }}>
+            {filteredBlogPosts.map((post, idx) => (
+              <div 
+                key={idx}
+                className="relay-card-dark mobile-responsive-card"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  padding: '36px 30px'
+                }}
+              >
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
-                    <img src="/logo.png" alt="Reflex Logo" style={{ height: '56px', width: 'auto', borderRadius: '10px' }} />
+                  <div style={{
+                    display: 'inline-block',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    border: '1px solid rgba(37, 99, 235, 0.25)',
+                    color: '#2563EB',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    padding: '4px 12px',
+                    borderRadius: '6px',
+                    marginBottom: '20px'
+                  }}>
+                    {post.tag}
                   </div>
-                  <p style={{ fontSize: '13.5px', color: '#94a3b8', lineHeight: 1.6, maxWidth: '300px', marginBottom: '16px' }}>
-                    {t.footerDesc}
+
+                  <h2 className="text-white-heading" style={{
+                    fontSize: '19px',
+                    fontWeight: 700,
+                    color: isLight ? '#0F172A' : '#ffffff',
+                    lineHeight: 1.4,
+                    marginBottom: '14px'
+                  }}>
+                    {post.title}
+                  </h2>
+
+                  <p className="text-muted-desc" style={{
+                    fontSize: '14px',
+                    color: isLight ? '#64748B' : '#94a3b8',
+                    lineHeight: 1.65,
+                    marginBottom: '24px'
+                  }}>
+                    {post.snippet}
                   </p>
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <span style={{ backgroundColor: 'rgba(255,85,0,0.12)', border: '1px solid rgba(255,85,0,0.3)', padding: '5px 10px', borderRadius: '6px', fontSize: '11.5px', color: '#FF5500', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-                      <MapPin size={12} color="#FF5500" /> Cotonou, Bénin
-                    </span>
-                    <span style={{ backgroundColor: 'rgba(255,255,255,0.06)', padding: '5px 10px', borderRadius: '6px', fontSize: '11.5px', color: '#06b6d4', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-                      <Zap size={12} color="#06b6d4" /> 24/7 Active
-                    </span>
-                  </div>
                 </div>
 
-                <div>
-                  <div className="font-outfit" style={{ fontSize: '15px', fontWeight: 700, marginBottom: '14px', color: '#ffffff' }}>{t.featuresNav}</div>
-                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13.5px', color: '#cbd5e1' }}>
-                    <li style={{ cursor: 'pointer' }} onClick={() => setActiveView('landing')}>{t.featuresNav}</li>
-                    <li style={{ cursor: 'pointer' }} onClick={() => setActiveView('payment-checkout')}>{t.featMobileMoneyTitle}</li>
-                    <li style={{ cursor: 'pointer' }} onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}>{t.startFree}</li>
-                  </ul>
-                </div>
-
-                <div>
-                  <div className="font-outfit" style={{ fontSize: '15px', fontWeight: 700, marginBottom: '14px', color: '#ffffff' }}>Paiements</div>
-                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13.5px', color: '#cbd5e1' }}>
-                    <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#FF8800' }} /> MTN Mobile Money</li>
-                    <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#FF5500' }} /> Moov Money</li>
-                    <li style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#06b6d4' }} /> Wave & Cartes</li>
-                  </ul>
-                </div>
-
-                <div>
-                  <div className="font-outfit" style={{ fontSize: '15px', fontWeight: 700, marginBottom: '14px', color: '#ffffff' }}>Contact</div>
-                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13.5px', color: '#cbd5e1' }}>
-                    <li style={{ color: '#FF5500', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}><Mail size={14} /> support@reflex.bj</li>
-                    <li style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}><Phone size={14} /> +229 97 00 00 00</li>
-                  </ul>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  paddingTop: '20px',
+                  borderTop: isLight ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255, 255, 255, 0.08)',
+                  fontSize: '13px',
+                  color: '#64748b'
+                }}>
+                  <span>{post.author} · {post.date}</span>
+                  <span style={{ color: '#2563EB', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    {post.readTime} →
+                  </span>
                 </div>
               </div>
+            ))}
+          </div>
 
-              <div style={{ maxWidth: '1140px', margin: '0 auto', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', color: '#94a3b8' }}>
-                <div>© 2026 <strong>Reflex</strong>. {t.footerRights}</div>
-                <div style={{ display: 'flex', gap: '16px' }}>
-                  <span style={{ cursor: 'pointer', color: '#cbd5e1' }}>{t.footerSecurityNotice}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="mobile-footer-only">
-              <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                  <img src="/logo.png" alt="Reflex Logo" style={{ height: '48px', width: 'auto', borderRadius: '8px' }} />
-                </div>
-                <p style={{ fontSize: '13px', color: '#94a3b8', margin: '0 auto 12px', maxWidth: '280px', lineHeight: 1.4 }}>
-                  {t.footerDesc}
-                </p>
-              </div>
-
-              <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '16px', textAlign: 'center', fontSize: '12px', color: '#64748b' }}>
-                <div>© 2026 <strong>Reflex</strong>. {t.footerRights}</div>
-              </div>
-            </div>
-          </footer>
-
-          {/* Floating Back to Top Button */}
-          {showScrollTop && (
+          <div style={{ textAlign: 'center' }}>
             <button
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              style={{
-                position: 'fixed',
-                bottom: '24px',
-                right: '24px',
-                zIndex: 9999,
-                backgroundColor: '#FF5500',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '50%',
-                width: '46px',
-                height: '46px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: 'bold',
-                fontSize: '16px',
-                boxShadow: '0 10px 25px rgba(255, 85, 0, 0.45)',
-                cursor: 'pointer',
-                transition: 'transform 0.2s'
-              }}
-              aria-label="Remonter en haut"
+              className="relay-btn-outline"
+              style={{ padding: '12px 28px', fontSize: '14.5px', borderRadius: '10px' }}
+              onClick={() => navigateTo('home')}
             >
-              ▲
+              ← Retour à l'accueil
             </button>
-          )}
+          </div>
 
+        </section>
+      )}
 
+      {/* ========================================================================= */}
+      {/* 8. STRUCTURED FOOTER (Consistent across all sub-views) */}
+      {/* ========================================================================= */}
+      <footer className="landing-footer-dark" style={{ borderTop: isLight ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255, 255, 255, 0.08)', backgroundColor: isLight ? '#F8FAFC' : '#070A0F', padding: '60px 24px 36px' }}>
+        <div style={{ maxWidth: '1140px', margin: '0 auto' }}>
+          
+          <div className="mobile-footer-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '40px', marginBottom: '50px' }}>
+            
+            {/* Brand Col with ONLY Reflex Logo Image */}
+            <div className="mobile-footer-brand-col">
+              <div 
+                style={{ display: 'flex', alignItems: 'center', marginBottom: '16px', cursor: 'pointer' }}
+                onClick={() => navigateTo('home')}
+              >
+                <img 
+                  src={isLight ? "/logo-light-bg.png" : "/logo.png"} 
+                  alt="Reflex" 
+                  style={{ height: '38px', width: 'auto', display: 'block' }} 
+                />
+              </div>
+              <p className="text-muted-desc" style={{ fontSize: '13.5px', color: isLight ? '#64748B' : '#94a3b8', lineHeight: 1.6, maxWidth: '280px', margin: '0 0 16px 0' }}>
+                Plateforme d'automatisation des ventes et de relation client par IA sur WhatsApp pour le Bénin et l'Afrique.
+              </p>
+              <div style={{ fontSize: '13.5px', color: '#2563EB', fontWeight: 600 }}>
+                support@reflex.bj
+              </div>
+            </div>
+
+            {/* PRODUCT Column */}
+            <div>
+              <div className="text-white-heading" style={{ fontSize: '12px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '16px' }}>
+                Produit
+              </div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px', color: isLight ? '#64748B' : '#94a3b8' }}>
+                <li style={{ cursor: 'pointer' }} onClick={() => navigateTo('home', 'features')}>Fonctionnalités</li>
+                <li style={{ cursor: 'pointer' }} onClick={() => navigateTo('home', 'pricing')}>Tarification</li>
+                <li style={{ cursor: 'pointer' }} onClick={() => navigateTo('home', 'how-it-works')}>Comment ça marche</li>
+                <li style={{ cursor: 'pointer' }} onClick={() => navigateTo('home', 'use-cases')}>Cas d'usage</li>
+              </ul>
+            </div>
+
+            {/* COMPANY Column */}
+            <div>
+              <div className="text-white-heading" style={{ fontSize: '12px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '16px' }}>
+                Entreprise
+              </div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px', color: isLight ? '#64748B' : '#94a3b8' }}>
+                <li style={{ cursor: 'pointer', color: currentSubView === 'about' ? '#2563EB' : 'inherit', fontWeight: currentSubView === 'about' ? 700 : 400 }} onClick={() => navigateTo('about')}>À propos</li>
+                <li style={{ cursor: 'pointer', color: currentSubView === 'blog' ? '#2563EB' : 'inherit', fontWeight: currentSubView === 'blog' ? 700 : 400 }} onClick={() => navigateTo('blog')}>Blog</li>
+                <li><span style={{ cursor: 'pointer' }}>Politique de Confidentialité</span></li>
+                <li><span style={{ cursor: 'pointer' }}>Conditions Générales</span></li>
+              </ul>
+            </div>
+
+            {/* SUPPORT Column */}
+            <div>
+              <div className="text-white-heading" style={{ fontSize: '12px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '16px' }}>
+                Support
+              </div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px', color: isLight ? '#64748B' : '#94a3b8' }}>
+                <li style={{ cursor: 'pointer' }} onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}>Commencer</li>
+                <li style={{ cursor: 'pointer' }} onClick={() => { setAuthMode('login'); setActiveView('auth'); }}>Se connecter</li>
+                <li><a href="mailto:support@reflex.bj" style={{ color: 'inherit', textDecoration: 'none' }}>Contactez-nous</a></li>
+                <li style={{ color: '#2563EB', fontWeight: 600 }}>Cotonou, Bénin</li>
+              </ul>
+            </div>
+
+          </div>
+
+          <div style={{ borderTop: isLight ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', fontSize: '13px', color: '#64748b' }}>
+            <div>© 2026 Reflex Technologies (Bénin). Tous droits réservés.</div>
+            <div style={{ display: 'flex', gap: '20px' }}>
+              <span style={{ cursor: 'pointer' }}>Confidentialité</span>
+              <span style={{ cursor: 'pointer' }}>Conditions d'utilisation</span>
+            </div>
+          </div>
 
         </div>
-      
-    </>
+      </footer>
+
+      {/* Floating Scroll to Top Button */}
+      {showScrollTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            zIndex: 9999,
+            backgroundColor: '#2563EB',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '50%',
+            width: '46px',
+            height: '46px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 'bold',
+            fontSize: '16px',
+            boxShadow: '0 8px 24px rgba(37, 99, 235, 0.45)',
+            cursor: 'pointer',
+            transition: 'transform 0.2s'
+          }}
+          aria-label="Back to top"
+        >
+          ▲
+        </button>
+      )}
+
+    </div>
   );
 }

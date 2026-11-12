@@ -11,7 +11,7 @@ export function SkeletonCard() {
       boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
     }}>
       <div style={{ width: '40%', height: '14px', backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: '6px' }} className="animate-pulse" />
-      <div style={{ width: '70%', height: '28px', backgroundColor: 'rgba(255,85,0,0.15)', borderRadius: '8px' }} className="animate-pulse" />
+      <div style={{ width: '70%', height: '28px', backgroundColor: 'rgba(37,99,235,0.15)', borderRadius: '8px' }} className="animate-pulse" />
       <div style={{ width: '90%', height: '12px', backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: '6px' }} className="animate-pulse" />
     </div>
   );
@@ -30,7 +30,7 @@ export function SkeletonTable() {
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
         <div style={{ width: '30%', height: '20px', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: '6px' }} className="animate-pulse" />
-        <div style={{ width: '20%', height: '20px', backgroundColor: 'rgba(255,85,0,0.2)', borderRadius: '6px' }} className="animate-pulse" />
+        <div style={{ width: '20%', height: '20px', backgroundColor: 'rgba(37,99,235,0.2)', borderRadius: '6px' }} className="animate-pulse" />
       </div>
 
       {[1, 2, 3, 4].map((i) => (

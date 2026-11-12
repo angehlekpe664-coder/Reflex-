@@ -120,8 +120,8 @@ export function WhatsAppSimulator({ currentLang, onCheckout }: { currentLang: La
       margin: '0 auto',
       backgroundColor: '#0B132B',
       borderRadius: '24px',
-      border: '1px solid rgba(255, 85, 0, 0.3)',
-      boxShadow: '0 20px 50px rgba(0,0,0,0.6), 0 0 40px rgba(255,85,0,0.15)',
+      border: '1px solid rgba(37, 99, 235, 0.3)',
+      boxShadow: '0 20px 50px rgba(0,0,0,0.6), 0 0 40px rgba(37,99,235,0.15)',
       overflow: 'hidden',
       fontFamily: 'Inter, system-ui, sans-serif'
     }}>
@@ -140,14 +140,14 @@ export function WhatsAppSimulator({ currentLang, onCheckout }: { currentLang: La
               width: '42px',
               height: '42px',
               borderRadius: '50%',
-              backgroundColor: '#FF5500',
+              backgroundColor: '#2563EB',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontWeight: 800,
               color: '#ffffff',
               fontSize: '18px',
-              boxShadow: '0 4px 14px rgba(255,85,0,0.4)'
+              boxShadow: '0 4px 14px rgba(37,99,235,0.4)'
             }}>
               R
             </div>
@@ -166,7 +166,7 @@ export function WhatsAppSimulator({ currentLang, onCheckout }: { currentLang: La
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span style={{ color: '#ffffff', fontWeight: 700, fontSize: '15px' }}>Reflex Assistant IA</span>
-              <Sparkles size={14} color="#FF5500" />
+              <Sparkles size={14} color="#2563EB" />
             </div>
             <span style={{ color: '#22c55e', fontSize: '12px', fontWeight: 500 }}>
               {isTyping ? (isEn ? 'Typing...' : 'En train d’écrire...') : (isEn ? 'Online 24/7 • Instant replies' : 'En ligne 24/7 • Réponses instantanées')}
@@ -177,11 +177,11 @@ export function WhatsAppSimulator({ currentLang, onCheckout }: { currentLang: La
         <div style={{
           fontSize: '11px',
           fontWeight: 700,
-          color: '#FF5500',
-          backgroundColor: 'rgba(255, 85, 0, 0.15)',
+          color: '#2563EB',
+          backgroundColor: 'rgba(37, 99, 235, 0.15)',
           padding: '4px 10px',
           borderRadius: '9999px',
-          border: '1px solid rgba(255,85,0,0.3)',
+          border: '1px solid rgba(37,99,235,0.3)',
           display: 'flex',
           alignItems: 'center',
           gap: '4px'
@@ -197,7 +197,7 @@ export function WhatsAppSimulator({ currentLang, onCheckout }: { currentLang: La
         maxHeight: '400px',
         overflowY: 'auto',
         backgroundColor: '#070B19',
-        backgroundImage: 'radial-gradient(rgba(255, 85, 0, 0.04) 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(rgba(37, 99, 235, 0.04) 1px, transparent 1px)',
         backgroundSize: '16px 16px',
         display: 'flex',
         flexDirection: 'column',
@@ -225,8 +225,8 @@ export function WhatsAppSimulator({ currentLang, onCheckout }: { currentLang: La
             {msg.paymentLink && (
               <div style={{
                 marginTop: '10px',
-                backgroundColor: 'rgba(255, 85, 0, 0.12)',
-                border: '1px solid rgba(255, 85, 0, 0.4)',
+                backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                border: '1px solid rgba(37, 99, 235, 0.4)',
                 borderRadius: '12px',
                 padding: '12px',
                 display: 'flex',
@@ -235,7 +235,7 @@ export function WhatsAppSimulator({ currentLang, onCheckout }: { currentLang: La
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                   <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>{isEn ? 'MOBILE MONEY CHECKOUT' : 'PAIEMENT MOBILE MONEY'}</span>
-                  <CreditCard size={14} color="#FF5500" />
+                  <CreditCard size={14} color="#2563EB" />
                 </div>
                 <div style={{ fontSize: '15px', fontWeight: 800, color: '#ffffff' }}>
                   {msg.paymentLink.amount.toLocaleString('fr-FR')} FCFA
@@ -248,7 +248,7 @@ export function WhatsAppSimulator({ currentLang, onCheckout }: { currentLang: La
                   style={{
                     marginTop: '4px',
                     width: '100%',
-                    backgroundColor: '#FF5500',
+                    backgroundColor: '#2563EB',
                     color: '#ffffff',
                     border: 'none',
                     borderRadius: '8px',
@@ -260,7 +260,7 @@ export function WhatsAppSimulator({ currentLang, onCheckout }: { currentLang: La
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '6px',
-                    boxShadow: '0 4px 12px rgba(255,85,0,0.4)',
+                    boxShadow: '0 4px 12px rgba(37,99,235,0.4)',
                     transition: 'transform 0.15s'
                   }}
                 >
@@ -290,7 +290,7 @@ export function WhatsAppSimulator({ currentLang, onCheckout }: { currentLang: La
             backgroundColor: '#1F2937',
             padding: '10px 16px',
             borderRadius: '18px 18px 18px 4px',
-            color: '#FF5500',
+            color: '#2563EB',
             fontSize: '13px',
             fontWeight: 600,
             display: 'flex',
@@ -331,7 +331,7 @@ export function WhatsAppSimulator({ currentLang, onCheckout }: { currentLang: La
         <button
           type="submit"
           style={{
-            backgroundColor: '#FF5500',
+            backgroundColor: '#2563EB',
             color: '#ffffff',
             border: 'none',
             borderRadius: '12px',
@@ -344,7 +344,7 @@ export function WhatsAppSimulator({ currentLang, onCheckout }: { currentLang: La
             gap: '6px',
             whiteSpace: 'nowrap',
             flexShrink: 0,
-            boxShadow: '0 4px 12px rgba(255,85,0,0.3)'
+            boxShadow: '0 4px 12px rgba(37,99,235,0.3)'
           }}
         >
           <span>{t.simulatorSend}</span>

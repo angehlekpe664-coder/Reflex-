@@ -46,11 +46,11 @@ export function ReceiptModal({ isOpen, onClose, currentLang, order }: ReceiptPro
     }}>
       <div className="receipt-container" style={{
         backgroundColor: '#0F172A',
-        border: '1px solid rgba(255, 85, 0, 0.4)',
+        border: '1px solid rgba(37, 99, 235, 0.4)',
         borderRadius: '24px',
         width: '100%',
         maxWidth: '520px',
-        boxShadow: '0 25px 60px rgba(0,0,0,0.8), 0 0 50px rgba(255,85,0,0.2)',
+        boxShadow: '0 25px 60px rgba(0,0,0,0.8), 0 0 50px rgba(37,99,235,0.2)',
         overflow: 'hidden',
         color: '#ffffff',
         position: 'relative'
@@ -90,7 +90,7 @@ export function ReceiptModal({ isOpen, onClose, currentLang, order }: ReceiptPro
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '11px', color: '#FF5500', fontWeight: 700 }}>RÉF. {order.id}</div>
+              <div style={{ fontSize: '11px', color: '#2563EB', fontWeight: 700 }}>RÉF. {order.id}</div>
               <div style={{ fontSize: '11px', color: '#64748b' }}>{dateStr} à {timeStr}</div>
             </div>
           </div>
@@ -123,13 +123,13 @@ export function ReceiptModal({ isOpen, onClose, currentLang, order }: ReceiptPro
             borderRadius: '16px',
             padding: '18px',
             textAlign: 'center',
-            border: '1px solid rgba(255, 85, 0, 0.2)',
+            border: '1px solid rgba(37, 99, 235, 0.2)',
             marginBottom: '20px'
           }}>
             <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               {t.receiptAmount}
             </div>
-            <div style={{ fontSize: '30px', fontWeight: 900, color: '#FF5500', marginTop: '4px' }}>
+            <div style={{ fontSize: '30px', fontWeight: 900, color: '#2563EB', marginTop: '4px' }}>
               {order.amount.toLocaleString('fr-FR')} FCFA
             </div>
           </div>
@@ -180,7 +180,7 @@ export function ReceiptModal({ isOpen, onClose, currentLang, order }: ReceiptPro
             onClick={handlePrint}
             style={{
               flex: 1,
-              backgroundColor: '#FF5500',
+              backgroundColor: '#2563EB',
               color: '#ffffff',
               border: 'none',
               borderRadius: '12px',
@@ -192,7 +192,7 @@ export function ReceiptModal({ isOpen, onClose, currentLang, order }: ReceiptPro
               alignItems: 'center',
               justifyContent: 'center',
               gap: '8px',
-              boxShadow: '0 4px 14px rgba(255,85,0,0.35)'
+              boxShadow: '0 4px 14px rgba(37,99,235,0.35)'
             }}
           >
             <Printer size={16} /> {t.receiptDownloadBtn}
