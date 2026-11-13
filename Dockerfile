@@ -23,6 +23,10 @@ RUN npm ci --only=production
 
 COPY --from=builder /app/dist ./dist
 
+# Sécurité: Exécuter en utilisateur non-root 'node'
+RUN chown -R node:node /app
+USER node
+
 EXPOSE 3000
 
 CMD ["node", "dist/index.js"]

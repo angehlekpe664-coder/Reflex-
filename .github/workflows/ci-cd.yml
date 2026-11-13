@@ -7,6 +7,30 @@ on:
     branches: [ main ]
 
 jobs:
+  security-audit:
+    name: Security Vulnerability Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Audit Backend Dependencies
+        run: npm audit --audit-level=critical
+        continue-on-error: true
+
+      - name: Audit Frontend Dependencies
+        run: |
+          cd dashboard
+          npm audit --audit-level=critical
+        continue-on-error: true
+
   lint-and-check:
     name: Code Verification & TypeCheck
     runs-on: ubuntu-latest
@@ -39,7 +63,7 @@ jobs:
 
   build:
     name: Build Frontend & Backend
-    needs: lint-and-check
+    needs: [lint-and-check, security-audit]
     runs-on: ubuntu-latest
 
     steps:
@@ -50,6 +74,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
       - name: Build Backend
         run: |
@@ -81,6 +106,8 @@ jobs:
           file: ./Dockerfile
           push: false
           tags: reflex-api:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Build Frontend Docker Image
         uses: docker/build-push-action@v5
@@ -89,13 +116,25 @@ jobs:
           file: ./dashboard/Dockerfile
           push: false
           tags: reflex-dashboard:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   deploy-render:
-    name: Render Auto-Deploy Summary
+    name: Production Deploy Trigger
     needs: docker
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
-      - name: Pipeline Completion Summary
-        run: echo "Reflex CI/CD Pipeline successfully executed on branch main! Render auto-deploy triggered."
+      - name: Trigger Render Deploy Hook (if configured)
+        env:
+          RENDER_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -n "$RENDER_HOOK" ]; then
+            echo "🚀 Déclenchement du Deploy Hook Render..."
+            curl -fsS -X POST "$RENDER_HOOK"
+            echo "✅ Déploiement Render enclenché avec succès."
+          else
+            echo "ℹ️ RENDER_DEPLOY_HOOK_URL non configuré. Déploiement automatique géré par l'intégration Git Render."
+          fi
+

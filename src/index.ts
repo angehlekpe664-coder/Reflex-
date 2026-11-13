@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import axios from 'axios';
-import { config } from './config/env.js';
+import { config, validateEnvironmentSecurity } from './config/env.js';
 import { whatsappService } from './services/whatsapp.service.js';
 import { aiService } from './services/ai.service.js';
 import { databaseService } from './services/supabase.service.js';
@@ -12,20 +12,67 @@ import { inventoryService } from './services/inventory.service.js';
 import { verifyMetaWebhookSignature, verifyPaymentWebhookSignature } from './middleware/webhookAuth.js';
 import { requireAuth } from './middleware/auth.js';
 
-const app = express();
-app.use(cors());
+// Validation de sécurité au démarrage
+validateEnvironmentSecurity();
 
-// Middleware pour conserver le corps brut (raw body) pour la vérification HMAC Meta Signature
+const app = express();
+
+// En-têtes HTTP de sécurité
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.removeHeader('X-Powered-By');
+  next();
+});
+
+// Configuration CORS sécurisée
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:9190',
+  'http://localhost:9191',
+  'http://localhost:3000',
+  'https://reflex.bj',
+  'https://getreflex.bj',
+  'https://reflex-zjf7.onrender.com',
+  ...config.allowedOrigins,
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Autoriser les requêtes sans origine (serveur-à-serveur, webhooks Meta/FedaPay, curl)
+    if (!origin) return callback(null, true);
+    if (!config.isProduction || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Accès bloqué par la politique CORS'));
+  },
+  credentials: true
+}));
+
+// Middleware JSON avec limite de taille (protection DoS) et conservation du corps brut pour signatures HMAC
 app.use(express.json({
+  limit: '2mb',
   verify: (req: any, _res, buf) => {
     req.rawBody = buf.toString();
   }
 }));
 
-// Simple Rate Limiting Middleware (Protection contre le Spam / DoS)
+// Middleware de limitation de débit (Rate Limiter anti-DoS avec nettoyage mémoire automatique)
 const requestCounts = new Map<string, { count: number; resetTime: number }>();
 const rateLimitWindowMs = 60 * 1000; // 1 minute
 const maxRequestsPerWindow = 120; // 120 requêtes/min
+
+// Nettoyage périodique pour éviter toute fuite de mémoire
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, record] of requestCounts.entries()) {
+    if (now > record.resetTime) {
+      requestCounts.delete(ip);
+    }
+  }
+}, 60000).unref();
 
 app.use((req, res, next) => {
   const ip = req.ip || req.socket.remoteAddress || 'unknown';
@@ -282,6 +329,10 @@ app.get('/api/pme/config', (_req, res) => {
 
 // Route de test d'un message WhatsApp client simulant le bot en direct
 app.post('/api/test-wa-message', async (req, res) => {
+  if (config.isProduction) {
+    return res.status(404).json({ success: false, error: 'Endpoint désactivé en environnement de production' });
+  }
+
   try {
     const { userText } = req.body;
     const aiResponse = await aiService.generateResponse(
@@ -568,6 +619,10 @@ app.get('/privacy', (_req, res) => {
 
 // Route de test diagnostic direct pour vérifier les envois Meta Graph API
 app.post('/api/debug/test-wa', async (req, res) => {
+  if (config.isProduction) {
+    return res.status(404).json({ success: false, error: 'Endpoint diagnostic désactivé en environnement de production' });
+  }
+
   const { toPhone, customToken, customPhoneId } = req.body;
   const phoneNumberId = customPhoneId || config.whatsapp.phoneNumberId;
   const token = customToken || config.whatsapp.token;
