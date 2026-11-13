@@ -23,7 +23,19 @@ import {
   MessageSquare,
   Wallet,
   BarChart3,
-  Workflow
+  Workflow,
+  Package,
+  ShoppingCart,
+  CreditCard,
+  Tag,
+  Layers,
+  Radio,
+  TrendingUp,
+  Key,
+  Webhook,
+  PhoneCall,
+  Sparkles,
+  Headphones
 } from 'lucide-react';
 
 export function LandingPage(props: any) {
@@ -44,6 +56,7 @@ export function LandingPage(props: any) {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [blogFilter, setBlogFilter] = useState<'Tous' | 'Produit' | 'Guide' | 'Croissance'>('Tous');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual');
 
   const isLight = theme === 'light';
 
@@ -934,142 +947,737 @@ export function LandingPage(props: any) {
             </div>
           </section>
 
-          {/* 5. PRICING SECTION */}
-          <section id="pricing" className="section-container-responsive" style={{ maxWidth: '1140px', margin: '0 auto 120px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
-            <div style={{ textAlign: 'center', marginBottom: '50px' }}>
-              <div style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '6px 18px',
-                borderRadius: '9999px',
-                backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                border: '1px solid rgba(37, 99, 235, 0.3)',
-                marginBottom: '16px'
+          {/* 5. PRICING SECTION (EXACT REPLICA FROM SCREENSHOTS IN FCFA) */}
+          <section id="pricing" className="section-container-responsive" style={{ maxWidth: '1280px', margin: '0 auto 120px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
+            {/* Header: Title */}
+            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+              <h2 className="text-white-heading" style={{ 
+                fontSize: 'clamp(32px, 5.5vw, 54px)', 
+                fontWeight: 800, 
+                color: isLight ? '#0F172A' : '#ffffff', 
+                letterSpacing: '-0.025em', 
+                lineHeight: 1.15,
+                margin: '0 auto 20px auto'
               }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#2563EB' }} />
-                <span style={{ fontSize: '13px', fontWeight: 600, color: '#2563EB', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Tarifs Simples &amp; Transparents
-                </span>
-              </div>
-              <h2 className="text-white-heading" style={{ fontSize: 'clamp(28px, 5vw, 44px)', fontWeight: 800, color: isLight ? '#0F172A' : '#ffffff', letterSpacing: '-0.02em', marginBottom: '14px' }}>
-                Un plan adapté à chaque étape de votre entreprise
+                Nous avons un plan<br />qui est parfait pour vous.
               </h2>
-              <p className="text-muted-desc" style={{ fontSize: '16px', color: isLight ? '#64748B' : '#94a3b8', maxWidth: '640px', margin: '0 auto', lineHeight: 1.6 }}>
-                Automatisez vos ventes sur WhatsApp, encaissez par Mobile Money (MTN MoMo, Moov Money, Celtiis Cash) et développez votre chiffre d'affaires.
-              </p>
+
+              {/* Free Trial Pill */}
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '28px' }}>
+                <div style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '9px 20px',
+                  borderRadius: '9999px',
+                  backgroundColor: isLight ? 'rgba(37, 99, 235, 0.08)' : 'rgba(37, 99, 235, 0.12)',
+                  border: '1px solid rgba(37, 99, 235, 0.28)',
+                  color: isLight ? '#1D4ED8' : '#93C5FD',
+                  fontSize: '13.5px',
+                  fontWeight: 500,
+                  lineHeight: 1.4,
+                  maxWidth: '95%'
+                }}>
+                  <Sparkles size={16} color="#2563EB" style={{ flexShrink: 0 }} />
+                  <span>
+                    Commencez par un <strong style={{ color: isLight ? '#0F172A' : '#ffffff', fontWeight: 700 }}>essai gratuit de 3 jours</strong> — 50 conversations avec l'IA, aucune carte de crédit requise.
+                  </span>
+                </div>
+              </div>
+
+              {/* Billing Toggle Switch & 2 Months Free Badge */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '14px', flexWrap: 'wrap' }}>
+                <div style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  backgroundColor: isLight ? '#E2E8F0' : '#111827',
+                  borderRadius: '9999px',
+                  padding: '4px',
+                  border: isLight ? '1px solid #CBD5E1' : '1px solid rgba(255, 255, 255, 0.1)',
+                }}>
+                  <button
+                    type="button"
+                    onClick={() => setBillingCycle('monthly')}
+                    style={{
+                      padding: '8px 20px',
+                      borderRadius: '9999px',
+                      fontSize: '13.5px',
+                      fontWeight: 600,
+                      border: 'none',
+                      cursor: 'pointer',
+                      backgroundColor: billingCycle === 'monthly' ? (isLight ? '#0F172A' : '#ffffff') : 'transparent',
+                      color: billingCycle === 'monthly' ? (isLight ? '#ffffff' : '#0F172A') : (isLight ? '#64748B' : '#94A3B8'),
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    Facturation mensuelle
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBillingCycle('annual')}
+                    style={{
+                      padding: '8px 20px',
+                      borderRadius: '9999px',
+                      fontSize: '13.5px',
+                      fontWeight: 600,
+                      border: 'none',
+                      cursor: 'pointer',
+                      backgroundColor: billingCycle === 'annual' ? (isLight ? '#0F172A' : '#ffffff') : 'transparent',
+                      color: billingCycle === 'annual' ? (isLight ? '#ffffff' : '#0F172A') : (isLight ? '#64748B' : '#94A3B8'),
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    Facturation annuelle
+                  </button>
+                </div>
+
+                <div style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  padding: '6px 14px',
+                  borderRadius: '9999px',
+                  backgroundColor: 'rgba(37, 99, 235, 0.15)',
+                  border: '1px solid rgba(37, 99, 235, 0.35)',
+                  color: '#2563EB',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  letterSpacing: '0.02em',
+                }}>
+                  Économisez 17 % — 2 mois gratuits
+                </div>
+              </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', alignItems: 'stretch' }}>
-              {/* Starter */}
-              <div className="relay-card-dark mobile-responsive-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            {/* 4 Cards Grid */}
+            <div className="pricing-4col-grid" style={{ marginTop: '48px' }}>
+              {/* CARD 1: Starter */}
+              <div 
+                className="pricing-card-hover" 
+                style={{
+                  backgroundColor: isLight ? '#FFFFFF' : '#111827',
+                  border: isLight ? '1px solid #E2E8F0' : '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: '24px',
+                  padding: '32px 24px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  boxShadow: isLight ? '0 10px 25px rgba(0,0,0,0.04)' : '0 10px 30px rgba(0,0,0,0.3)',
+                }}
+              >
                 <div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                  <div style={{ fontSize: '18px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '18px' }}>
                     Starter
                   </div>
-                  <div className="text-muted-desc" style={{ fontSize: '13px', color: '#64748b', marginBottom: '24px', minHeight: '38px' }}>
-                    Idéal pour les boutiques débutantes et créateurs indépendants.
+
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '14px', fontWeight: 700, color: '#2563EB' }}>FCFA</span>
+                      <span style={{ fontSize: '36px', fontWeight: 800, color: isLight ? '#0F172A' : '#ffffff', letterSpacing: '-0.02em' }}>
+                        {billingCycle === 'annual' ? '12 500' : '15 000'}
+                      </span>
+                      <span style={{ fontSize: '13px', color: '#64748B' }}>/mois</span>
+                    </div>
+                    {billingCycle === 'annual' && (
+                      <div style={{ fontSize: '13px', fontWeight: 600, color: '#2563EB', marginTop: '4px' }}>
+                        150 000 FCFA /an
+                      </div>
+                    )}
+                    <div style={{ fontSize: '12.5px', color: '#64748B', marginTop: '6px' }}>
+                      Aucun frais de transaction
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '24px' }}>
-                    <span className="text-white-heading" style={{ fontSize: '38px', fontWeight: 900, color: isLight ? '#0F172A' : '#ffffff' }}>15,000</span>
-                    <span style={{ fontSize: '16px', fontWeight: 700, color: '#2563EB' }}>FCFA</span>
-                    <span style={{ fontSize: '13px', color: '#64748b' }}>/ mois</span>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (setSelectedPlan) setSelectedPlan({ name: 'Starter', price: billingCycle === 'annual' ? 150000 : 15000 });
+                      setAuthMode('signup');
+                      setActiveView('auth');
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '13px 20px',
+                      borderRadius: '12px',
+                      backgroundColor: isLight ? '#0F172A' : '#ffffff',
+                      color: isLight ? '#ffffff' : '#0F172A',
+                      fontWeight: 700,
+                      fontSize: '14px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      marginBottom: '28px',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    Commencez gratuitement
+                  </button>
+
+                  {/* Feature items */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <MessageSquare size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '4px' }}>
+                          300 conversations IA/mois
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: isLight ? '#64748B' : '#94A3B8', lineHeight: 1.5 }}>
+                          Votre assistant commercial IA gère jusqu'à 300 conversations clients sur WhatsApp — répondant aux questions, prenant les commandes et concluant les ventes automatiquement.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Package size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '4px' }}>
+                          produits ou services illimités
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: isLight ? '#64748B' : '#94A3B8', lineHeight: 1.5 }}>
+                          Répertoriez tous les produits ou services que vous proposez. Les clients peuvent consulter, rechercher et commander directement dans le chat.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <ShoppingCart size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '4px' }}>
+                          Commandes illimitées
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: isLight ? '#64748B' : '#94A3B8', lineHeight: 1.5 }}>
+                          Acceptez autant de commandes que vous pouvez en gérer. Aucun frais par commande : vous ne payez que votre abonnement mensuel.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <CreditCard size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '4px' }}>
+                          Collecte manuelle des paiements
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: isLight ? '#64748B' : '#94A3B8', lineHeight: 1.5 }}>
+                          Les clients règlent en espèces, par MoMo ou par virement bancaire en dehors de la plateforme. Vous confirmez le paiement manuellement.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <BarChart3 size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '4px' }}>
+                          Analyses de base
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: isLight ? '#64748B' : '#94A3B8', lineHeight: 1.5 }}>
+                          Consultez en un coup d'œil le nombre total de vos commandes et votre chiffre d'affaires total ; tout ce dont vous avez besoin pour suivre votre activité.
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px 0', display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', color: isLight ? '#475569' : '#cbd5e1' }}>
-                    <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><CheckCircle2 size={18} color="#2563EB" /> 1 Numéro WhatsApp</li>
-                    <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><CheckCircle2 size={18} color="#2563EB" /> Jusqu'à 500 conversations IA / mois</li>
-                    <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><CheckCircle2 size={18} color="#2563EB" /> Catalogue jusqu'à 25 articles</li>
-                    <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><CheckCircle2 size={18} color="#2563EB" /> Reçus Mobile Money certifiés</li>
-                  </ul>
                 </div>
-                <button 
-                  className="relay-btn-outline" 
-                  style={{ width: '100%' }}
-                  onClick={() => { setSelectedPlan && setSelectedPlan('starter'); setAuthMode('signup'); setActiveView('auth'); }}
-                >
-                  Démarrer avec Starter
-                </button>
               </div>
 
-              {/* Pro Business */}
-              <div className="relay-card-dark mobile-responsive-card" style={{ 
-                border: '2px solid #2563EB', 
-                boxShadow: '0 20px 45px rgba(37, 99, 235, 0.25)',
-                display: 'flex', 
-                flexDirection: 'column', 
-                justifyContent: 'space-between',
-                position: 'relative'
-              }}>
-                <span style={{
-                  position: 'absolute',
-                  top: '-14px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  backgroundColor: '#2563EB',
-                  color: '#ffffff',
-                  fontSize: '11px',
-                  fontWeight: 800,
-                  padding: '4px 14px',
-                  borderRadius: '9999px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em'
-                }}>
-                  Plus Populaire
-                </span>
+              {/* CARD 2: Croissance (POPULAIRE - WHITE BACKGROUND) */}
+              <div 
+                className="pricing-card-hover" 
+                style={{
+                  backgroundColor: '#FFFFFF',
+                  color: '#0F172A',
+                  border: isLight ? '2px solid #2563EB' : '1px solid #E2E8F0',
+                  borderRadius: '24px',
+                  padding: '32px 24px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  boxShadow: '0 20px 45px rgba(37, 99, 235, 0.2)',
+                  position: 'relative',
+                }}
+              >
                 <div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#2563EB', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
-                    Pro Business
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
+                    <div style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A' }}>
+                      Croissance
+                    </div>
+                    <span style={{
+                      backgroundColor: '#2563EB',
+                      color: '#ffffff',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      padding: '4px 12px',
+                      borderRadius: '9999px',
+                      letterSpacing: '0.04em'
+                    }}>
+                      Populaire
+                    </span>
                   </div>
-                  <div className="text-muted-desc" style={{ fontSize: '13px', color: isLight ? '#64748B' : '#94a3b8', marginBottom: '24px', minHeight: '38px' }}>
-                    Pour les entreprises actives gérant des commandes quotidiennes.
+
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '14px', fontWeight: 700, color: '#2563EB' }}>FCFA</span>
+                      <span style={{ fontSize: '36px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em' }}>
+                        {billingCycle === 'annual' ? '29 000' : '35 000'}
+                      </span>
+                      <span style={{ fontSize: '13px', color: '#64748B' }}>/mois</span>
+                    </div>
+                    {billingCycle === 'annual' && (
+                      <div style={{ fontSize: '13px', fontWeight: 600, color: '#2563EB', marginTop: '4px' }}>
+                        350 000 FCFA /an
+                      </div>
+                    )}
+                    <div style={{ fontSize: '12.5px', color: '#64748B', marginTop: '6px' }}>
+                      + 1,5 % par commande via Paystack
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '24px' }}>
-                    <span className="text-white-heading" style={{ fontSize: '38px', fontWeight: 900, color: isLight ? '#0F172A' : '#ffffff' }}>35,000</span>
-                    <span style={{ fontSize: '16px', fontWeight: 700, color: '#2563EB' }}>FCFA</span>
-                    <span style={{ fontSize: '13px', color: '#64748b' }}>/ mois</span>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (setSelectedPlan) setSelectedPlan({ name: 'Croissance', price: billingCycle === 'annual' ? 350000 : 35000 });
+                      setAuthMode('signup');
+                      setActiveView('auth');
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '13px 20px',
+                      borderRadius: '12px',
+                      backgroundColor: '#2563EB',
+                      color: '#ffffff',
+                      fontWeight: 700,
+                      fontSize: '14px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      marginBottom: '28px',
+                      boxShadow: '0 8px 20px rgba(37, 99, 235, 0.35)',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    Commencez gratuitement
+                  </button>
+
+                  {/* Feature items */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.1)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <MessageSquare size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', marginBottom: '4px' }}>
+                          1 500 conversations IA/mois
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: '#475569', lineHeight: 1.5 }}>
+                          5 fois plus de conversations clients qu'avec Starter. Votre assistant IA gère le volume pour que vous ne ratiez plus aucune vente.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.1)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Package size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', marginBottom: '4px' }}>
+                          produits ou services illimités
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: '#475569', lineHeight: 1.5 }}>
+                          Aucune limite. Les clients peuvent effectuer une recherche par nom, catégorie ou mot-clé ; l'IA trouve la correspondance idéale.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.1)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <CreditCard size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', marginBottom: '4px' }}>
+                          Liens de paiement Paystack dans le chat
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: '#475569', lineHeight: 1.5 }}>
+                          L'IA envoie un lien de paiement sécurisé directement dans WhatsApp. Les clients paient en quelques secondes sans quitter la conversation.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.1)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Zap size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', marginBottom: '4px' }}>
+                          Négociation de prix (marchandage) de l'IA
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: '#475569', lineHeight: 1.5 }}>
+                          Votre IA négocie pour vous : elle maintient le prix initial, puis cède jusqu'au prix plancher que vous avez fixé. Elle ne descend jamais en dessous de votre limite et ne perd jamais une affaire inutilement.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.1)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Tag size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', marginBottom: '4px' }}>
+                          Réductions promotionnelles
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: '#475569', lineHeight: 1.5 }}>
+                          Mettez n'importe quel produit en promotion avec une réduction en pourcentage, une mention comme « Vente flash » et une date limite facultative. L'IA l'annonce automatiquement à vos clients.
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px 0', display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', color: isLight ? '#0F172A' : '#ffffff' }}>
-                    <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><CheckCircle2 size={18} color="#2563EB" /> Conversations IA illimitées</li>
-                    <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><CheckCircle2 size={18} color="#2563EB" /> Catalogue produits &amp; services complet</li>
-                    <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><CheckCircle2 size={18} color="#2563EB" /> Encaissement auto Mobile Money &amp; Cartes</li>
-                    <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><CheckCircle2 size={18} color="#2563EB" /> Statistiques en direct &amp; Support prioritaire</li>
-                  </ul>
                 </div>
-                <button 
-                  className="relay-btn-primary" 
-                  style={{ width: '100%', backgroundColor: '#2563EB' }}
-                  onClick={() => { setSelectedPlan && setSelectedPlan('pro'); setAuthMode('signup'); setActiveView('auth'); }}
-                >
-                  Choisir Pro Business
-                </button>
               </div>
 
-              {/* Enterprise */}
-              <div className="relay-card-dark mobile-responsive-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              {/* CARD 3: Entreprise */}
+              <div 
+                className="pricing-card-hover" 
+                style={{
+                  backgroundColor: isLight ? '#FFFFFF' : '#111827',
+                  border: isLight ? '1px solid #E2E8F0' : '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: '24px',
+                  padding: '32px 24px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  boxShadow: isLight ? '0 10px 25px rgba(0,0,0,0.04)' : '0 10px 30px rgba(0,0,0,0.3)',
+                }}
+              >
                 <div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
-                    Enterprise
+                  <div style={{ fontSize: '18px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '18px' }}>
+                    Entreprise
                   </div>
-                  <div className="text-muted-desc" style={{ fontSize: '13px', color: '#64748b', marginBottom: '24px', minHeight: '38px' }}>
-                    Solutions sur-mesure pour cliniques, réseaux d'agences et franchises.
+
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '14px', fontWeight: 700, color: '#2563EB' }}>FCFA</span>
+                      <span style={{ fontSize: '36px', fontWeight: 800, color: isLight ? '#0F172A' : '#ffffff', letterSpacing: '-0.02em' }}>
+                        {billingCycle === 'annual' ? '62 500' : '75 000'}
+                      </span>
+                      <span style={{ fontSize: '13px', color: '#64748B' }}>/mois</span>
+                    </div>
+                    {billingCycle === 'annual' && (
+                      <div style={{ fontSize: '13px', fontWeight: 600, color: '#2563EB', marginTop: '4px' }}>
+                        750 000 FCFA /an
+                      </div>
+                    )}
+                    <div style={{ fontSize: '12.5px', color: '#64748B', marginTop: '6px' }}>
+                      + 0,75 % par commande via Paystack
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '24px' }}>
-                    <span className="text-white-heading" style={{ fontSize: '38px', fontWeight: 900, color: isLight ? '#0F172A' : '#ffffff' }}>Sur Devis</span>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (setSelectedPlan) setSelectedPlan({ name: 'Entreprise', price: billingCycle === 'annual' ? 750000 : 75000 });
+                      setAuthMode('signup');
+                      setActiveView('auth');
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '13px 20px',
+                      borderRadius: '12px',
+                      backgroundColor: isLight ? '#0F172A' : '#ffffff',
+                      color: isLight ? '#ffffff' : '#0F172A',
+                      fontWeight: 700,
+                      fontSize: '14px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      marginBottom: '28px',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    Commencez gratuitement
+                  </button>
+
+                  {/* Feature items */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <MessageSquare size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '4px' }}>
+                          5 000 conversations IA/mois
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: isLight ? '#64748B' : '#94A3B8', lineHeight: 1.5 }}>
+                          Gérer le volume de conversations d'un commerce de détail très actif — plus de 160 conversations clients par jour.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Package size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '4px' }}>
+                          produits ou services illimités
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: isLight ? '#64748B' : '#94A3B8', lineHeight: 1.5 }}>
+                          Aucune limite. Ajoutez autant de produits ou de services que votre entreprise propose : l'IA effectue une recherche instantanée parmi tous.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Layers size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '4px' }}>
+                          Remises sur quantité
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: isLight ? '#64748B' : '#94A3B8', lineHeight: 1.5 }}>
+                          Configurez des tarifs dégressifs automatiques : par exemple, 5 % de réduction pour 5 à 9 unités achetées, 12 % pour 10 unités ou plus. L'IA applique la réduction appropriée à chaque commande.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Radio size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '4px' }}>
+                          Diffusion intelligente IA
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: isLight ? '#64748B' : '#94A3B8', lineHeight: 1.5 }}>
+                          L'IA analyse votre message et sélectionne le segment de clientèle cible le plus approprié, afin que vos publicités atteignent les personnes les plus susceptibles d'acheter.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <TrendingUp size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '4px' }}>
+                          Informations client IA
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: isLight ? '#64748B' : '#94A3B8', lineHeight: 1.5 }}>
+                          Obtenez un rapport généré par l'IA sur les segments de clientèle, les habitudes d'achat, le risque de désabonnement et les opportunités de revenus — mis à jour à la demande.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <ShieldCheck size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '4px' }}>
+                          Contrôle d'accès du personnel
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: isLight ? '#64748B' : '#94A3B8', lineHeight: 1.5 }}>
+                          Le personnel voit les commandes et les clients, mais pas la facturation, les rapports financiers ni la gestion d'équipe — les rôles étant automatiquement appliqués dans le tableau de bord.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Key size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '4px' }}>
+                          Accès API
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: isLight ? '#64748B' : '#94A3B8', lineHeight: 1.5 }}>
+                          Connectez Reflex à votre ERP, CRM ou outils personnalisés via l'API REST. Consultez les commandes, synchronisez les stocks et déclenchez des diffusions par programmation.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Webhook size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '4px' }}>
+                          Envoi de webhook
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: isLight ? '#64748B' : '#94A3B8', lineHeight: 1.5 }}>
+                          Recevez des notifications d'événements en temps réel (nouvelles commandes, paiements, réservations) directement sur n'importe quel terminal que vous configurez.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Users size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '4px' }}>
+                          Inviter et gérer 10 comptes de collaborateurs
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: isLight ? '#64748B' : '#94A3B8', lineHeight: 1.5 }}>
+                          Développez votre équipe opérationnelle avec jusqu'à 10 utilisateurs de tableau de bord. Invitez-les par e-mail : les collaborateurs obtiennent automatiquement un accès adapté à leur rôle.
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px 0', display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', color: isLight ? '#475569' : '#cbd5e1' }}>
-                    <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><CheckCircle2 size={18} color="#2563EB" /> Multi-numéros &amp; Boîte de réception collaborative</li>
-                    <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><CheckCircle2 size={18} color="#2563EB" /> Intégration CRM / ERP / Base interne</li>
-                    <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><CheckCircle2 size={18} color="#2563EB" /> Gestionnaire de compte dédié &amp; SLA</li>
-                    <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><CheckCircle2 size={18} color="#2563EB" /> Entraînement sur vos procédures internes</li>
-                  </ul>
                 </div>
-                <button 
-                  className="relay-btn-outline" 
-                  style={{ width: '100%' }}
-                  onClick={() => { setSelectedPlan && setSelectedPlan('enterprise'); setAuthMode('signup'); setActiveView('auth'); }}
-                >
-                  Contacter l'équipe
-                </button>
+              </div>
+
+              {/* CARD 4: Grande Entreprise */}
+              <div 
+                className="pricing-card-hover" 
+                style={{
+                  backgroundColor: isLight ? '#FFFFFF' : '#111827',
+                  border: isLight ? '1px solid #E2E8F0' : '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: '24px',
+                  padding: '32px 24px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  boxShadow: isLight ? '0 10px 25px rgba(0,0,0,0.04)' : '0 10px 30px rgba(0,0,0,0.3)',
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: '18px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '18px' }}>
+                    Entreprise
+                  </div>
+
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '14px', fontWeight: 700, color: '#2563EB' }}>FCFA</span>
+                      <span style={{ fontSize: '36px', fontWeight: 800, color: isLight ? '#0F172A' : '#ffffff', letterSpacing: '-0.02em' }}>
+                        {billingCycle === 'annual' ? '104 000' : '125 000'}
+                      </span>
+                      <span style={{ fontSize: '13px', color: '#64748B' }}>/mois</span>
+                    </div>
+                    {billingCycle === 'annual' && (
+                      <div style={{ fontSize: '13px', fontWeight: 600, color: '#2563EB', marginTop: '4px' }}>
+                        1 250 000 FCFA /an
+                      </div>
+                    )}
+                    <div style={{ fontSize: '12.5px', color: '#64748B', marginTop: '6px' }}>
+                      + 0,5 % par commande via Paystack
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (setSelectedPlan) setSelectedPlan({ name: 'Entreprise Scale', price: billingCycle === 'annual' ? 1250000 : 125000 });
+                      setAuthMode('signup');
+                      setActiveView('auth');
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '13px 20px',
+                      borderRadius: '12px',
+                      backgroundColor: isLight ? '#0F172A' : '#ffffff',
+                      color: isLight ? '#ffffff' : '#0F172A',
+                      fontWeight: 700,
+                      fontSize: '14px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      marginBottom: '28px',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    Commencez gratuitement
+                  </button>
+
+                  {/* Feature items */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <MessageSquare size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '4px' }}>
+                          5 000 conversations IA par mois
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: isLight ? '#64748B' : '#94A3B8', lineHeight: 1.5 }}>
+                          Partage entre tous vos magasins. Suffisant pour une entreprise multimagasin à forte activité, avec une marge de croissance.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <PhoneCall size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '4px' }}>
+                          Plusieurs numéros WhatsApp
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: isLight ? '#64748B' : '#94A3B8', lineHeight: 1.5 }}>
+                          Gérez différentes marques, régions ou unités commerciales sur des lignes WhatsApp distinctes, le tout géré depuis un seul tableau de bord.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Sparkles size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '4px' }}>
+                          Personnalité IA personnalisée
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: isLight ? '#64748B' : '#94A3B8', lineHeight: 1.5 }}>
+                          Nous peaufinons le nom, le ton et le style de réponse de votre assistant IA pour qu'ils correspondent à votre marque, afin qu'il s'intègre parfaitement à votre équipe.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <CheckCircle2 size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '4px' }}>
+                          Tout dans le monde des affaires
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: isLight ? '#64748B' : '#94A3B8', lineHeight: 1.5 }}>
+                          Toutes les fonctionnalités API, webhook, analyses IA, paliers de quantité, négociation, promotions, diffusion et contrôle du personnel sont incluses.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Users size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '4px' }}>
+                          Comptes employés illimités
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: isLight ? '#64748B' : '#94A3B8', lineHeight: 1.5 }}>
+                          Ajoutez autant de membres d'équipe que votre organisation en a besoin — sans frais par utilisateur.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', backgroundColor: 'rgba(37, 99, 235, 0.12)', border: '1px solid rgba(37, 99, 235, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Headphones size={16} color="#2563EB" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '4px' }}>
+                          Intégration dédiée &amp; SLA
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: isLight ? '#64748B' : '#94A3B8', lineHeight: 1.5 }}>
+                          Accompagnement VIP, onboarding sur-mesure de votre équipe et temps de réponse garanti par notre équipe technique.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
