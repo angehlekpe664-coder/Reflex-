@@ -35,7 +35,9 @@ import {
   Webhook,
   PhoneCall,
   Sparkles,
-  Headphones
+  Headphones,
+  Target,
+  Award
 } from 'lucide-react';
 
 export function LandingPage(props: any) {
@@ -1680,6 +1682,30 @@ export function LandingPage(props: any) {
                 </div>
               </div>
             </div>
+
+            {/* Custom Plan Call To Action Question (From media_1795327256722_27fc8064.png) */}
+            <div style={{ textAlign: 'center', marginTop: '54px', marginBottom: '10px' }}>
+              <p style={{ fontSize: '15.5px', color: isLight ? '#64748B' : '#94a3b8', marginBottom: '8px' }}>
+                Vous avez besoin de quelque chose de plus spécifique pour votre opération ?
+              </p>
+              <span
+                onClick={() => {
+                  window.open('https://wa.me/22997000000?text=Bonjour%2C%20je%20souhaite%20un%20plan%20personnalis%C3%A9%20pour%20mon%20entreprise%20sur%20Reflex.', '_blank');
+                }}
+                style={{
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  color: '#2563EB',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                Parlez-nous d'un plan personnalisé →
+              </span>
+            </div>
           </section>
 
           {/* 6. FAQ ACCORDION SECTION (Screenshot 3) */}
@@ -1719,7 +1745,112 @@ export function LandingPage(props: any) {
             </div>
           </section>
 
-          {/* 7. CALL TO ACTION BAR (Screenshot 2) */}
+          {/* 7. FROM THE BLOG PREVIEW SECTION */}
+          <section id="blog-preview" className="section-container-responsive" style={{ maxWidth: '1140px', margin: '0 auto 120px', padding: '0 24px', position: 'relative', zIndex: 10 }}>
+            <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '6px 18px',
+                borderRadius: '9999px',
+                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                border: '1px solid rgba(37, 99, 235, 0.3)',
+                marginBottom: '16px'
+              }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#2563EB' }} />
+                <span style={{ fontSize: '13px', fontWeight: 600, color: '#2563EB', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Depuis le Blog
+                </span>
+              </div>
+              <h2 className="text-white-heading" style={{ fontSize: 'clamp(28px, 5vw, 44px)', fontWeight: 800, color: isLight ? '#0F172A' : '#ffffff', letterSpacing: '-0.02em', marginBottom: '14px' }}>
+                Conseils &amp; Stratégies pour Vendre sur WhatsApp
+              </h2>
+              <p className="text-muted-desc" style={{ fontSize: '16px', color: isLight ? '#64748B' : '#94a3b8', maxWidth: '640px', margin: '0 auto', lineHeight: 1.6 }}>
+                Découvrez comment les meilleures PME automatisent leurs ventes et développent leur activité au Bénin et en Afrique.
+              </p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '40px' }}>
+              {allBlogPosts.slice(0, 3).map((post, idx) => (
+                <div 
+                  key={idx}
+                  className="relay-card-dark mobile-responsive-card"
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    padding: '36px 30px',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onClick={() => navigateTo('blog')}
+                >
+                  <div>
+                    <div style={{
+                      display: 'inline-block',
+                      backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                      border: '1px solid rgba(37, 99, 235, 0.25)',
+                      color: '#2563EB',
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      padding: '4px 12px',
+                      borderRadius: '6px',
+                      marginBottom: '20px'
+                    }}>
+                      {post.tag}
+                    </div>
+
+                    <h3 className="text-white-heading" style={{
+                      fontSize: '18px',
+                      fontWeight: 700,
+                      color: isLight ? '#0F172A' : '#ffffff',
+                      lineHeight: 1.4,
+                      marginBottom: '14px'
+                    }}>
+                      {post.title}
+                    </h3>
+
+                    <p className="text-muted-desc" style={{
+                      fontSize: '14px',
+                      color: isLight ? '#64748B' : '#94a3b8',
+                      lineHeight: 1.65,
+                      marginBottom: '24px'
+                    }}>
+                      {post.snippet}
+                    </p>
+                  </div>
+
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    borderTop: isLight ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.08)',
+                    paddingTop: '16px',
+                    fontSize: '13px',
+                    color: isLight ? '#64748B' : '#94a3b8'
+                  }}>
+                    <span>{post.readTime}</span>
+                    <span style={{ color: '#2563EB', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      Lire l'article →
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ textAlign: 'center' }}>
+              <button
+                className="relay-btn-outline"
+                style={{ padding: '13px 32px', fontSize: '15px', borderRadius: '10px' }}
+                onClick={() => navigateTo('blog')}
+              >
+                Voir tous les articles
+              </button>
+            </div>
+          </section>
+
+          {/* 8. CALL TO ACTION BAR (Screenshot 2) */}
           <section className="section-container-responsive" style={{ maxWidth: '880px', margin: '0 auto 100px', padding: '0 24px', textAlign: 'center', position: 'relative', zIndex: 10 }}>
             <div className="hero-cta-buttons-group" style={{ display: 'inline-flex', justifyContent: 'center' }}>
               <button
@@ -1743,7 +1874,23 @@ export function LandingPage(props: any) {
       {currentSubView === 'about' && (
         <section className="hero-section-responsive" style={{ paddingTop: '150px', paddingBottom: '120px', paddingLeft: '24px', paddingRight: '24px', maxWidth: '1080px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
           
+          {/* Hero Header */}
           <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '6px 18px',
+              borderRadius: '9999px',
+              backgroundColor: 'rgba(37, 99, 235, 0.1)',
+              border: '1px solid rgba(37, 99, 235, 0.3)',
+              marginBottom: '20px'
+            }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#2563EB' }} />
+              <span style={{ fontSize: '13px', fontWeight: 600, color: '#2563EB', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Notre Histoire &amp; Mission
+              </span>
+            </div>
             <h1 className="text-white-heading" style={{
               color: isLight ? '#0F172A' : '#ffffff',
               fontSize: 'clamp(32px, 6.5vw, 64px)',
@@ -1762,7 +1909,7 @@ export function LandingPage(props: any) {
               margin: '0 auto 32px',
               fontWeight: 400
             }}>
-              Nous croyons que chaque entrepreneur — de la créatrice de mode à Cotonou au responsable de clinique à Porto-Novo — mérite une équipe commerciale et opérationnelle de classe mondiale. Reflex place cette équipe directement dans WhatsApp, disponible 24h/24.
+              Nous croyons que chaque entrepreneur — de la créatrice de mode à Cotonou au responsable de clinique à Porto-Novo — mérite une force commerciale et opérationnelle de premier plan, accessible 24h/24 directement dans WhatsApp.
             </p>
             <div className="hero-cta-buttons-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '14px', flexWrap: 'wrap' }}>
               <button
@@ -1770,7 +1917,7 @@ export function LandingPage(props: any) {
                 style={{ padding: '14px 34px', fontSize: '15.5px', borderRadius: '10px' }}
                 onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
               >
-                Commencer
+                Commencer gratuitement
               </button>
               <button
                 className="relay-btn-outline"
@@ -1782,7 +1929,31 @@ export function LandingPage(props: any) {
             </div>
           </div>
 
-          {/* WHY WE BUILT THIS */}
+          {/* Key Impact Metrics Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', marginBottom: '56px' }}>
+            <div className="relay-card-dark mobile-responsive-card" style={{ textAlign: 'center', padding: '32px 20px' }}>
+              <div style={{ fontSize: '38px', fontWeight: 900, color: '#2563EB', letterSpacing: '-0.02em', marginBottom: '6px' }}>24h/7j</div>
+              <div style={{ fontSize: '14px', fontWeight: 600, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '4px' }}>Disponibilité Continue</div>
+              <div style={{ fontSize: '13px', color: isLight ? '#64748B' : '#94a3b8' }}>Sans pause, sans congés, de jour comme de nuit</div>
+            </div>
+            <div className="relay-card-dark mobile-responsive-card" style={{ textAlign: 'center', padding: '32px 20px' }}>
+              <div style={{ fontSize: '38px', fontWeight: 900, color: '#2563EB', letterSpacing: '-0.02em', marginBottom: '6px' }}>&lt; 3s</div>
+              <div style={{ fontSize: '14px', fontWeight: 600, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '4px' }}>Réponse Instantanée</div>
+              <div style={{ fontSize: '13px', color: isLight ? '#64748B' : '#94a3b8' }}>Vos prospects ne repartent plus chez la concurrence</div>
+            </div>
+            <div className="relay-card-dark mobile-responsive-card" style={{ textAlign: 'center', padding: '32px 20px' }}>
+              <div style={{ fontSize: '38px', fontWeight: 900, color: '#2563EB', letterSpacing: '-0.02em', marginBottom: '6px' }}>100%</div>
+              <div style={{ fontSize: '14px', fontWeight: 600, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '4px' }}>Mobile Money Sécurisé</div>
+              <div style={{ fontSize: '13px', color: isLight ? '#64748B' : '#94a3b8' }}>MTN, Moov, Celtiis &amp; Wave sans faux reçus</div>
+            </div>
+            <div className="relay-card-dark mobile-responsive-card" style={{ textAlign: 'center', padding: '32px 20px' }}>
+              <div style={{ fontSize: '38px', fontWeight: 900, color: '#2563EB', letterSpacing: '-0.02em', marginBottom: '6px' }}>0 FCFA</div>
+              <div style={{ fontSize: '14px', fontWeight: 600, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '4px' }}>Frais Cachés</div>
+              <div style={{ fontSize: '13px', color: isLight ? '#64748B' : '#94a3b8' }}>Tarification claire et transparente en Francs CFA</div>
+            </div>
+          </div>
+
+          {/* L'HISTOIRE DE REFLEX - NARRATIVE SECTION */}
           <div className="mobile-responsive-card" style={{
             backgroundColor: isLight ? '#FFFFFF' : '#0E141D',
             border: isLight ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255, 255, 255, 0.08)',
@@ -1792,28 +1963,81 @@ export function LandingPage(props: any) {
             boxShadow: isLight ? '0 15px 40px rgba(0,0,0,0.03)' : '0 20px 50px rgba(0,0,0,0.4)'
           }}>
             <div style={{ fontSize: '13px', fontWeight: 700, color: '#2563EB', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '14px' }}>
-              Pourquoi nous avons créé Reflex
+              L'Histoire de Reflex
             </div>
-            <h2 className="text-white-heading" style={{ fontSize: 'clamp(22px, 4vw, 32px)', fontWeight: 800, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '18px', lineHeight: 1.3 }}>
-              En Afrique, le commerce ne se fait pas sur des sites e-commerce lents. Il vit sur WhatsApp.
+            <h2 className="text-white-heading" style={{ fontSize: 'clamp(24px, 4.5vw, 36px)', fontWeight: 800, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '24px', lineHeight: 1.25 }}>
+              De la galère des messages non lus à l'automatisation intelligente
             </h2>
-            <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '15px', lineHeight: 1.7, marginBottom: '18px' }}>
-              Pourtant, vendre sur WhatsApp à la main est un calvaire épuisant : des dizaines de messages non lus le soir, des clients qui attendent, des prix à répéter 100 fois par jour, et la vérification manuelle stressante des captures d'écran Mobile Money.
-            </p>
-            <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '15px', lineHeight: 1.7, margin: 0 }}>
-              Reflex a été conçu pour résoudre exactement ce problème : donner à chaque PME béninoise et africaine un vendeur IA ultra-compétent qui accueille les clients, présente les produits en FCFA, et génère des liens de paiement Mobile Money certifiés instantanément.
-            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', fontSize: '15.5px', lineHeight: 1.75, color: isLight ? '#475569' : '#94a3b8' }}>
+              <div>
+                <h3 style={{ fontSize: '18px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '8px' }}>
+                  1. Le constat sur le terrain : le calvaire WhatsApp
+                </h3>
+                <p style={{ margin: 0 }}>
+                  En Afrique de l'Ouest, le commerce ne se fait pas sur des sites e-commerce lents et compliqués. Il vit à 100% sur <strong>WhatsApp</strong>. 
+                  Mais pour les gérants de boutiques, prestataires de services et distributeurs, cette réalité était devenue un cauchemar : 
+                  passer des soirées entières à répéter les mêmes prix, répondre à 23h pour ne pas perdre un client, et subir le stress constant de vérifier si une capture de virement Mobile Money n'était pas truquée.
+                </p>
+              </div>
+
+              <div>
+                <h3 style={{ fontSize: '18px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '8px' }}>
+                  2. La genèse : pourquoi les chatbots existants échouaient
+                </h3>
+                <p style={{ margin: 0 }}>
+                  Les outils occidentaux importés n'étaient absolument pas pensés pour notre écosystème : facturés en dollars avec carte bancaire obligatoire, 
+                  dotés d'arbres de décision rigides et impersonnels, et totalement incapables d'encaisser via MTN MoMo, Moov Money, Celtiis Cash ou Wave. 
+                  Les clients détestaient parler à ces robots froids, et les marchands perdaient de l'argent.
+                </p>
+              </div>
+
+              <div>
+                <h3 style={{ fontSize: '18px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '8px' }}>
+                  3. La naissance de Reflex : une IA conçue pour notre réalité
+                </h3>
+                <p style={{ margin: 0 }}>
+                  Nous avons créé <strong>Reflex</strong> avec une vision claire : doter chaque entreprise locale d'un véritable conseiller commercial IA. 
+                  Un assistant qui maîtrise votre catalogue, négocie dans les marges que vous avez fixées, répond avec politesse et chaleur en moins de 3 secondes, 
+                  et encaisse les paiements Mobile Money certifiés directement en FCFA. Sans friction, sans carte bancaire, sans faux reçus.
+                </p>
+              </div>
+
+              <div style={{
+                padding: '24px',
+                borderRadius: '16px',
+                backgroundColor: isLight ? 'rgba(37, 99, 235, 0.05)' : 'rgba(37, 99, 235, 0.08)',
+                borderLeft: '4px solid #2563EB',
+                marginTop: '12px'
+              }}>
+                <h4 style={{ fontSize: '16px', fontWeight: 700, color: '#2563EB', marginBottom: '6px' }}>
+                  Notre Mission
+                </h4>
+                <p style={{ margin: 0, fontStyle: 'italic', color: isLight ? '#1E293B' : '#E2E8F0', fontWeight: 500 }}>
+                  « Donner à chaque PME, artisan et créateur d'Afrique les mêmes super-pouvoirs technologiques que les multinationales, en transformant leur numéro WhatsApp en une force de vente automatisée, infatigable et rentable. »
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* 3 Pillars */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+            <h2 className="text-white-heading" style={{ fontSize: '26px', fontWeight: 800, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '8px' }}>
+              Nos Trois Piliers Fondateurs
+            </h2>
+            <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '15px' }}>
+              Les principes qui guident chaque fonctionnalité développée sur Reflex
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '56px' }}>
             <div className="relay-card-dark mobile-responsive-card">
               <div style={{ width: '44px', height: '44px', borderRadius: '12px', backgroundColor: 'rgba(37, 99, 235, 0.12)', color: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
                 <Zap size={22} />
               </div>
               <h3 className="text-white-heading" style={{ fontSize: '19px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '10px' }}>WhatsApp-First</h3>
               <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '14.5px', lineHeight: 1.6, margin: 0 }}>
-                Zéro friction : pas de formulaire à remplir, pas de compte à créer pour vos clients. Toute l'expérience d'achat se fait dans leur discussion habituelle.
+                Zéro friction : pas d'application lourde à télécharger, pas de compte à créer pour vos clients. Toute la relation commerciale se vit là où ils sont déjà chaque jour.
               </p>
             </div>
 
@@ -1823,7 +2047,7 @@ export function LandingPage(props: any) {
               </div>
               <h3 className="text-white-heading" style={{ fontSize: '19px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '10px' }}>Paiements Locaux MoMo</h3>
               <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '14.5px', lineHeight: 1.6, margin: 0 }}>
-                Intégration profonde avec MTN Mobile Money, Moov Money, Celtiis Cash et Wave. Vérification instantanée sans faux reçus.
+                Intégration directe avec MTN Mobile Money, Moov Money, Celtiis Cash et Wave. Encaissement certifié en FCFA et notification instantanée.
               </p>
             </div>
 
@@ -1833,8 +2057,89 @@ export function LandingPage(props: any) {
               </div>
               <h3 className="text-white-heading" style={{ fontSize: '19px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '10px' }}>100% Sensation Humaine</h3>
               <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '14.5px', lineHeight: 1.6, margin: 0 }}>
-                L'IA n'est pas un robot rigide : elle dialogue courtoisement, négocie, renseigne et encaisse exactement comme le meilleur vendeur de votre boutique.
+                L'IA n'est pas un robot froid : elle dialogue courtoisement, renseigne avec précision, négocie et conclut les ventes avec la touche chaleureuse de votre marque.
               </p>
+            </div>
+          </div>
+
+          {/* Core Values */}
+          <div style={{
+            backgroundColor: isLight ? '#FFFFFF' : '#0E141D',
+            border: isLight ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '24px',
+            padding: '48px 40px',
+            marginBottom: '56px',
+            boxShadow: isLight ? '0 15px 40px rgba(0,0,0,0.03)' : '0 20px 50px rgba(0,0,0,0.4)'
+          }}>
+            <h3 className="text-white-heading" style={{ fontSize: '22px', fontWeight: 800, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '28px', textAlign: 'center' }}>
+              Nos Valeurs Fondatrices
+            </h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '28px' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                  <Target size={20} color="#2563EB" />
+                  <span style={{ fontSize: '16.5px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff' }}>Simplicité Radicale</span>
+                </div>
+                <p style={{ fontSize: '14px', lineHeight: 1.6, color: isLight ? '#64748B' : '#94a3b8', margin: 0 }}>
+                  Aucun savoir technique n'est requis. Tout est conçu pour être configuré en quelques clics depuis votre téléphone ou ordinateur.
+                </p>
+              </div>
+
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                  <Award size={20} color="#2563EB" />
+                  <span style={{ fontSize: '16.5px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff' }}>Ancrage &amp; Souveraineté</span>
+                </div>
+                <p style={{ fontSize: '14px', lineHeight: 1.6, color: isLight ? '#64748B' : '#94a3b8', margin: 0 }}>
+                  Créé pour les réalités d'Afrique, Reflex respecte les habitudes d'achat locales, les devises FCFA et les opérateurs régionaux.
+                </p>
+              </div>
+
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                  <CheckCircle2 size={20} color="#2563EB" />
+                  <span style={{ fontSize: '16.5px', fontWeight: 700, color: isLight ? '#0F172A' : '#ffffff' }}>Fiabilité Inconditionnelle</span>
+                </div>
+                <p style={{ fontSize: '14px', lineHeight: 1.6, color: isLight ? '#64748B' : '#94a3b8', margin: 0 }}>
+                  Chaque message compte. Notre infrastructure est taillée pour supporter des milliers d'échanges simultanés sans jamais flancher.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Final CTA Bar on About Page */}
+          <div className="mobile-responsive-card" style={{
+            background: isLight 
+              ? 'linear-gradient(135deg, rgba(37,99,235,0.08) 0%, rgba(37,99,235,0.02) 100%)' 
+              : 'linear-gradient(135deg, rgba(37,99,235,0.15) 0%, rgba(15,23,42,0.6) 100%)',
+            border: '1px solid rgba(37, 99, 235, 0.25)',
+            borderRadius: '24px',
+            padding: '48px 32px',
+            textAlign: 'center'
+          }}>
+            <h3 className="text-white-heading" style={{ fontSize: 'clamp(22px, 4vw, 30px)', fontWeight: 800, color: isLight ? '#0F172A' : '#ffffff', marginBottom: '12px' }}>
+              Prêt à transformer votre entreprise sur WhatsApp ?
+            </h3>
+            <p className="text-muted-desc" style={{ color: isLight ? '#64748B' : '#94a3b8', fontSize: '15px', maxWidth: '580px', margin: '0 auto 28px', lineHeight: 1.6 }}>
+              Rejoignez les entrepreneurs visionnaires qui automatisent leurs ventes et encaissent sans effort au Bénin et en Afrique.
+            </p>
+            <div className="hero-cta-buttons-group" style={{ display: 'inline-flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button
+                className="relay-btn-primary"
+                style={{ padding: '14px 34px', fontSize: '15.5px', borderRadius: '10px' }}
+                onClick={() => { setAuthMode('signup'); setActiveView('auth'); }}
+              >
+                Démarrer mon essai gratuit
+              </button>
+              <button
+                className="relay-btn-outline"
+                style={{ padding: '14px 30px', fontSize: '15.5px', borderRadius: '10px' }}
+                onClick={() => {
+                  window.open('https://wa.me/22997000000?text=Bonjour%2C%20je%20souhaite%20en%20savoir%20plus%20sur%20Reflex.', '_blank');
+                }}
+              >
+                Parler à un conseiller WhatsApp
+              </button>
             </div>
           </div>
 

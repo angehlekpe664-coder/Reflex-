@@ -25,6 +25,11 @@ CREATE TABLE IF NOT EXISTS pmes (
     welcome_message TEXT,
     delivery_info TEXT,
     is_ai_active BOOLEAN DEFAULT TRUE,
+    fedapay_secret_key TEXT,
+    fedapay_public_key TEXT,
+    kkiapay_secret_key TEXT,
+    kkiapay_public_key TEXT,
+    active_plan VARCHAR(50) DEFAULT 'Starter',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -82,5 +87,19 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     customer_id UUID REFERENCES customers(id) ON DELETE CASCADE,
     sender VARCHAR(20) NOT NULL, -- 'user', 'assistant', ou 'human_agent'
     content TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 8. Table des Abonnements SaaS PME Reflex
+CREATE TABLE IF NOT EXISTS subscriptions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    pme_id UUID REFERENCES pmes(id) ON DELETE CASCADE,
+    plan_name VARCHAR(50) DEFAULT 'Starter', -- Starter, Pro, Business, Enterprise
+    status VARCHAR(50) DEFAULT 'ACTIVE', -- ACTIVE, PAST_DUE, CANCELLED, TRIAL
+    price_xof NUMERIC(12, 2) DEFAULT 15000,
+    messages_limit INT DEFAULT 1000,
+    messages_used INT DEFAULT 0,
+    started_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP WITH TIME ZONE DEFAULT (CURRENT_TIMESTAMP + INTERVAL '30 days'),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

@@ -40,6 +40,46 @@ export class WhatsAppService {
   }
 
   /**
+   * Envoie une image sur WhatsApp (ex: photo d'un article du catalogue)
+   */
+  async sendImageMessage(
+    toPhone: string,
+    imageUrl: string,
+    caption?: string,
+    creds?: WhatsAppCredentials
+  ): Promise<void> {
+    const phoneNumberId = creds?.phoneNumberId || config.whatsapp.phoneNumberId;
+    const token = creds?.token || config.whatsapp.token;
+    const apiUrl = `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`;
+
+    try {
+      await axios.post(
+        apiUrl,
+        {
+          messaging_product: 'whatsapp',
+          recipient_type: 'individual',
+          to: toPhone,
+          type: 'image',
+          image: {
+            link: imageUrl,
+            caption: caption || undefined,
+          },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      console.log(`📸 Image WhatsApp envoyée avec succès à ${toPhone} (${imageUrl})`);
+    } catch (error: any) {
+      const errDetails = error?.response?.data || error.message;
+      console.error(`❌ Erreur Meta WhatsApp Image [PhoneId: ${phoneNumberId}] -> Destinataire: ${toPhone} :`, JSON.stringify(errDetails));
+    }
+  }
+
+  /**
    * Envoie un message avec des boutons interactifs (ex: Réserver / Payer)
    */
   async sendInteractiveButtons(

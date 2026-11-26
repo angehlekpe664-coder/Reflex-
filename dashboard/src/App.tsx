@@ -28,6 +28,11 @@ import {
   Check,
   Loader2,
   Smartphone,
+  CreditCard,
+  TrendingUp,
+  BarChart3,
+  Key,
+  Zap,
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
 import { apiFetch } from './lib/api';
@@ -46,6 +51,7 @@ type CatalogProduct = {
   price: number;
   category: string;
   description: string;
+  image_url?: string;
 };
 
 // Cloudflare Turnstile Captcha Component for Auth Modal
@@ -153,7 +159,7 @@ export default function App() {
   const [captchaToken, setCaptchaToken] = useState('');
   const [paymentLoading, setPaymentLoading] = useState(false);
 
-  const [newProduct, setNewProduct] = useState({ name: '', price: '', category: 'Mode', description: '' });
+  const [newProduct, setNewProduct] = useState({ name: '', price: '', category: 'Mode', description: '', image_url: '' });
 
   const [assistantConfig, setAssistantConfig] = useState({
     tone: 'Chaleureux & Commercial',
@@ -161,19 +167,39 @@ export default function App() {
     deliveryInfo: 'Livraison sous 24h à Cotonou, Calavi et Porto-Novo.'
   });
 
-
-
   // Active Dashboard Sidebar Tab State
   const [activeSidebarTab, setActiveSidebarTab] = useState<
-    'Vue d\'ensemble' | 'Commandes' | 'Catalogue' | 'Paramètres'
+    'Vue d\'ensemble' | 'Commandes' | 'Catalogue' | 'Abonnement' | 'Paramètres'
   >('Vue d\'ensemble');
   const [isTabLoading, setIsTabLoading] = useState(false);
 
-  const switchTab = (tab: 'Vue d\'ensemble' | 'Commandes' | 'Catalogue' | 'Paramètres') => {
+  const switchTab = (tab: 'Vue d\'ensemble' | 'Commandes' | 'Catalogue' | 'Abonnement' | 'Paramètres') => {
     setIsTabLoading(true);
     setActiveSidebarTab(tab);
     setTimeout(() => setIsTabLoading(false), 220);
   };
+
+  // Subscription State
+  const [pmeSubscription, setPmeSubscription] = useState({
+    plan: 'Starter',
+    status: 'ACTIVE',
+    price: 15000,
+    messagesLimit: 1000,
+    messagesUsed: 284,
+    daysRemaining: 23,
+    expiresAt: new Date(Date.now() + 23 * 24 * 3600 * 1000).toISOString()
+  });
+  const [subGateway, setSubGateway] = useState<'fedapay' | 'kkiapay'>('fedapay');
+  const [subCheckoutLoading, setSubCheckoutLoading] = useState(false);
+
+  // Custom Merchant Payment Gateway Keys
+  const [merchantKeys, setMerchantKeys] = useState({
+    fedapaySecretKey: '',
+    fedapayPublicKey: '',
+    kkiapaySecretKey: '',
+    kkiapayPublicKey: ''
+  });
+  const [keysSaving, setKeysSaving] = useState(false);
 
   // WhatsApp Official Meta Connection State
   const [waConnectionStatus, setWaConnectionStatus] = useState<'DISCONNECTED' | 'CONNECTING' | 'CONNECTED'>('DISCONNECTED');
@@ -445,6 +471,19 @@ export default function App() {
             summary: ord.summary?.conclusion || ord.lastMsg || 'Nouvelle commande.'
           }));
           setRecentOrdersList(mappedOrders);
+        }
+
+        // Fetch Subscription Info
+        try {
+          const subRes = await apiFetch('/api/subscriptions/current');
+          if (subRes.ok) {
+            const subData = await subRes.json();
+            if (subData.subscription) {
+              setPmeSubscription(subData.subscription);
+            }
+          }
+        } catch {
+          // ignore
         }
       } catch {
         /* conserver les dernières données connues */
@@ -778,12 +817,13 @@ export default function App() {
       name: newProduct.name,
       price: Number(newProduct.price),
       category: newProduct.category || 'Général',
-      description: newProduct.description || ''
+      description: newProduct.description || '',
+      image_url: newProduct.image_url ? newProduct.image_url.trim() : undefined
     };
 
     if (!currentPmeId) {
       setProductsList(prev => [...prev, prodItem]);
-      setNewProduct({ name: '', price: '', category: 'Mode', description: '' });
+      setNewProduct({ name: '', price: '', category: 'Mode', description: '', image_url: '' });
       showToast(`Produit "${prodItem.name}" ajouté. Il sera enregistré à la fin de l’onboarding.`, 'info');
       return;
     }
@@ -795,15 +835,62 @@ export default function App() {
         price_xof: prodItem.price,
         category: prodItem.category,
         description: prodItem.description,
+        image_url: prodItem.image_url,
         is_active: true
       }).select('id').single();
       if (error) throw error;
       prodItem.id = data?.id;
       setProductsList(prev => [...prev, prodItem]);
-      setNewProduct({ name: '', price: '', category: 'Mode', description: '' });
+      setNewProduct({ name: '', price: '', category: 'Mode', description: '', image_url: '' });
       showToast(`Produit "${prodItem.name}" enregistré.`, 'success');
     } catch {
       showToast('Impossible d’enregistrer le produit en base.', 'error');
+    }
+  };
+
+  // Sauvegarde des clés de paiement marchands
+  const handleSaveMerchantKeys = async () => {
+    setKeysSaving(true);
+    try {
+      const res = await apiFetch('/api/pme/payment-keys', {
+        method: 'POST',
+        body: JSON.stringify(merchantKeys)
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('Clés de passerelle enregistrées avec succès !', 'success');
+      } else {
+        showToast(data.error || 'Erreur lors de la sauvegarde.', 'error');
+      }
+    } catch {
+      showToast('Erreur de connexion serveur pour les clés.', 'error');
+    } finally {
+      setKeysSaving(false);
+    }
+  };
+
+  // Souscription ou surclassement de plan SaaS Reflex
+  const handleSubscribePlan = async (planName: string) => {
+    setSubCheckoutLoading(true);
+    try {
+      const res = await apiFetch('/api/subscriptions/create-checkout', {
+        method: 'POST',
+        body: JSON.stringify({
+          planName,
+          gateway: subGateway
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.checkoutUrl) {
+        showToast(`Redirection vers le paiement Mobile Money du plan ${planName}...`, 'info');
+        window.open(data.checkoutUrl, '_blank');
+      } else {
+        showToast(data.error || 'Impossible d\'initialiser le paiement.', 'error');
+      }
+    } catch {
+      showToast('Erreur serveur lors de la souscription.', 'error');
+    } finally {
+      setSubCheckoutLoading(false);
     }
   };
 
@@ -2261,7 +2348,7 @@ export default function App() {
 
             {dashMobileMenuOpen && (
               <div className="dashboard-mobile-drawer">
-                {(['Vue d\'ensemble', 'Commandes', 'Catalogue', 'Paramètres'] as const).map(tab => (
+                {(['Vue d\'ensemble', 'Commandes', 'Catalogue', 'Abonnement', 'Paramètres'] as const).map(tab => (
                   <button
                     key={tab}
                     className={`sidebar-link ${activeSidebarTab === tab ? 'active' : ''}`}
@@ -2312,6 +2399,18 @@ export default function App() {
                 <Grid size={18} /> {t.dashCatalog} ({productsList.length})
               </button>
               <button
+                className={`sidebar-link ${activeSidebarTab === 'Abonnement' ? 'active' : ''}`}
+                onClick={() => switchTab('Abonnement')}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+              >
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                  <CreditCard size={18} /> {t.dashSubscription}
+                </span>
+                <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '9999px', backgroundColor: 'rgba(37,99,235,0.15)', color: '#2563EB', fontWeight: 700 }}>
+                  {pmeSubscription.plan}
+                </span>
+              </button>
+              <button
                 className={`sidebar-link ${activeSidebarTab === 'Paramètres' ? 'active' : ''}`}
                 onClick={() => switchTab('Paramètres')}
               >
@@ -2340,6 +2439,7 @@ export default function App() {
                   {activeSidebarTab === 'Vue d\'ensemble' && `${t.dashOverview} — ${fullName || 'Merchant'}`}
                   {activeSidebarTab === 'Commandes' && t.ordersTitle}
                   {activeSidebarTab === 'Catalogue' && t.catalogTitle}
+                  {activeSidebarTab === 'Abonnement' && 'Gestion de votre Forfait Reflex'}
                   {activeSidebarTab === 'Paramètres' && t.settingsTitle}
                 </h1>
                 <p style={{ color: 'var(--dash-text-secondary)', fontSize: '13.5px', lineHeight: 1.4 }}>
@@ -2389,6 +2489,79 @@ export default function App() {
                   <div className="reflex-card-base" style={{ padding: '20px' }}>
                     <div className="label-sm" style={{ color: 'var(--dash-text-secondary)', marginBottom: '8px', textTransform: 'uppercase' }}>CONVERSION</div>
                     <div style={{ fontSize: '28px', fontWeight: 700, color: '#10B981', fontFamily: 'var(--font-inter)' }}>{liveStats.conversionPercent}%</div>
+                  </div>
+                </div>
+
+                {/* ANALYTICS & VISUAL GRAPHS (Performance 7 Jours & Répartition MoMo) */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px', marginBottom: '24px' }}>
+                  {/* Graphique des Revenus sur 7 Jours */}
+                  <div className="reflex-card-base" style={{ padding: '24px', backgroundColor: 'var(--dash-card-bg)', border: '1px solid var(--dash-card-border)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <BarChart3 size={18} color="#2563EB" />
+                        <h3 className="title-md" style={{ color: 'var(--dash-text-primary)', fontSize: '16px' }}>Ventes des 7 Derniers Jours</h3>
+                      </div>
+                      <span style={{ fontSize: '12px', color: '#10B981', fontWeight: 600 }}>+28% cette semaine</span>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '10px', height: '140px', paddingTop: '20px', borderBottom: '1px solid var(--dash-card-border)' }}>
+                      {[
+                        { day: 'Lun', amount: 35000, height: '40%' },
+                        { day: 'Mar', amount: 65000, height: '65%' },
+                        { day: 'Mer', amount: 45000, height: '45%' },
+                        { day: 'Jeu', amount: 90000, height: '85%' },
+                        { day: 'Ven', amount: 110000, height: '95%' },
+                        { day: 'Sam', amount: 80000, height: '75%' },
+                        { day: 'Dim', amount: 55000, height: '55%' },
+                      ].map((bar, i) => (
+                        <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', justifyContent: 'flex-end' }}>
+                          <div
+                            title={`${bar.amount.toLocaleString()} FCFA`}
+                            style={{
+                              width: '100%',
+                              maxWidth: '32px',
+                              height: bar.height,
+                              backgroundColor: i === 4 ? '#2563EB' : 'rgba(37,99,235,0.45)',
+                              borderRadius: '6px 6px 0 0',
+                              transition: 'all 0.3s ease',
+                              cursor: 'pointer'
+                            }}
+                          />
+                          <span style={{ fontSize: '11px', color: 'var(--dash-text-secondary)', marginTop: '8px' }}>{bar.day}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', fontSize: '12px', color: 'var(--dash-text-secondary)' }}>
+                      <span>Moyenne journalière : 68 500 FCFA</span>
+                      <strong style={{ color: '#2563EB' }}>Pic : Vendredi</strong>
+                    </div>
+                  </div>
+
+                  {/* Répartition Canaux Mobile Money */}
+                  <div className="reflex-card-base" style={{ padding: '24px', backgroundColor: 'var(--dash-card-bg)', border: '1px solid var(--dash-card-border)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
+                      <TrendingUp size={18} color="#2563EB" />
+                      <h3 className="title-md" style={{ color: 'var(--dash-text-primary)', fontSize: '16px' }}>Canaux d'Encaissement Mobile Money</h3>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                      {[
+                        { name: 'MTN Mobile Money', pct: 54, color: '#F59E0B' },
+                        { name: 'Moov Money', pct: 28, color: '#2563EB' },
+                        { name: 'Wave Bénin / UEMOA', pct: 12, color: '#06B6D4' },
+                        { name: 'Celtiis Cash', pct: 6, color: '#8B5CF6' }
+                      ].map((item, idx) => (
+                        <div key={idx}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '5px' }}>
+                            <span style={{ color: 'var(--dash-text-primary)', fontWeight: 600 }}>{item.name}</span>
+                            <span style={{ color: 'var(--dash-text-secondary)' }}>{item.pct}%</span>
+                          </div>
+                          <div style={{ width: '100%', height: '7px', borderRadius: '9999px', backgroundColor: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                            <div style={{ width: `${item.pct}%`, height: '100%', backgroundColor: item.color, borderRadius: '9999px' }} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
@@ -2614,7 +2787,7 @@ export default function App() {
               <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 <div className="reflex-card-base" style={{ padding: '24px', backgroundColor: 'var(--dash-card-bg)', border: '1px solid var(--dash-card-border)' }}>
                   <h3 className="title-md" style={{ color: 'var(--dash-text-primary)', marginBottom: '16px' }}>+ Ajouter un Produit</h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '8px' }}>
                     <input
                       type="text"
                       placeholder="Nom de l'article"
@@ -2631,12 +2804,22 @@ export default function App() {
                     />
                     <input
                       type="text"
-                      placeholder="Catégorie"
+                      placeholder="Catégorie (Ex: Mode, Beauté...)"
                       value={newProduct.category}
                       onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
                       style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--dash-input-border)', backgroundColor: 'var(--dash-input-bg)', color: 'var(--dash-text-primary)', outline: 'none', fontSize: '14px' }}
                     />
+                    <input
+                      type="url"
+                      placeholder="Lien photo (Ex: https://...)"
+                      value={newProduct.image_url || ''}
+                      onChange={(e) => setNewProduct({ ...newProduct, image_url: e.target.value })}
+                      style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--dash-input-border)', backgroundColor: 'var(--dash-input-bg)', color: 'var(--dash-text-primary)', outline: 'none', fontSize: '14px' }}
+                    />
                   </div>
+                  <p style={{ fontSize: '12.5px', color: 'var(--dash-text-secondary)', margin: '4px 0 16px', lineHeight: 1.5 }}>
+                    💡 <em>Astuce photo</em> : Si vous renseignez l'URL d'une image, l'IA Reflex enverra directement la photo du produit aux clients WhatsApp qui demandent à voir l'article.
+                  </p>
                   <button className="btn-blue-primary" style={{ padding: '10px 24px', fontSize: '14px' }} onClick={handleAddProduct}>
                     Ajouter au Catalogue
                   </button>
@@ -2644,17 +2827,38 @@ export default function App() {
 
                 <div className="reflex-card-base" style={{ padding: '24px', backgroundColor: 'var(--dash-card-bg)', border: '1px solid var(--dash-card-border)' }}>
                   <h3 className="title-md" style={{ color: 'var(--dash-text-primary)', marginBottom: '16px' }}>Catalogue Actif ({productsList.length} articles)</h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
                     {productsList.map((prod, idx) => (
-                      <div key={idx} style={{ padding: '20px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.03)' }}>
-                        <div>
-                          <div style={{ fontWeight: 700, fontSize: '16px', color: 'var(--dash-text-primary)', marginBottom: '4px' }}>{prod.name}</div>
-                          <div style={{ fontSize: '12px', color: 'var(--dash-text-secondary)' }}>{prod.category}</div>
+                      <div key={idx} style={{ padding: '16px 18px', border: '1px solid var(--dash-card-border)', borderRadius: '12px', display: 'flex', gap: '14px', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.02)' }}>
+                        <div style={{
+                          width: '54px',
+                          height: '54px',
+                          borderRadius: '10px',
+                          backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          overflow: 'hidden',
+                          flexShrink: 0,
+                          border: '1px solid var(--dash-card-border)'
+                        }}>
+                          {prod.image_url ? (
+                            <img src={prod.image_url} alt={prod.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { (e.currentTarget as any).style.display = 'none'; }} />
+                          ) : (
+                            <ShoppingBag size={24} color="#2563EB" />
+                          )}
                         </div>
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontWeight: 800, fontSize: '18px', color: '#2563EB', fontFamily: 'var(--font-inter)' }}>{prod.price.toLocaleString()} FCFA</div>
-                          <button onClick={() => handleDeleteProduct(idx)} style={{ border: 'none', background: 'transparent', color: '#EF4444', cursor: 'pointer', marginTop: '6px' }}>
-                            <Trash2 size={16} /> Supprimer
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--dash-text-primary)', marginBottom: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{prod.name}</div>
+                          <div style={{ fontSize: '12px', color: 'var(--dash-text-secondary)' }}>{prod.category}</div>
+                          {prod.image_url && (
+                            <span style={{ fontSize: '11px', color: '#10B981', fontWeight: 600, display: 'inline-block', marginTop: '2px' }}>✓ Photo active</span>
+                          )}
+                        </div>
+                        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                          <div style={{ fontWeight: 800, fontSize: '16px', color: '#2563EB', fontFamily: 'var(--font-inter)' }}>{prod.price.toLocaleString()} FCFA</div>
+                          <button onClick={() => handleDeleteProduct(idx)} style={{ border: 'none', background: 'transparent', color: '#EF4444', cursor: 'pointer', marginTop: '4px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <Trash2 size={13} /> Supprimer
                           </button>
                         </div>
                       </div>
@@ -2664,9 +2868,228 @@ export default function App() {
               </div>
             )}
 
-            {/* TAB 6: PARAMÈTRES PME & CONNEXION WHATSAPP META */}
+            {/* TAB 6: ABONNEMENT SAAS REFLEX */}
+            {activeSidebarTab === 'Abonnement' && (
+              <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                {/* Active Plan Summary Card */}
+                <div className="reflex-card-base" style={{ padding: '28px', backgroundColor: 'var(--dash-card-bg)', border: '1px solid rgba(37,99,235,0.35)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
+                    <div>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '4px 12px', borderRadius: '9999px', backgroundColor: 'rgba(37,99,235,0.12)', color: '#2563EB', fontSize: '12px', fontWeight: 700, marginBottom: '8px' }}>
+                        <Zap size={14} /> FORFAIT ACTIF
+                      </div>
+                      <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--dash-text-primary)', margin: 0 }}>
+                        Reflex Plan {pmeSubscription.plan}
+                      </h2>
+                      <p style={{ color: 'var(--dash-text-secondary)', fontSize: '14px', margin: '4px 0 0' }}>
+                        Facturation mensuelle · Prochain renouvellement le <strong>{new Date(pmeSubscription.expiresAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</strong> ({pmeSubscription.daysRemaining} jours restants)
+                      </p>
+                    </div>
+
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '28px', fontWeight: 900, color: '#2563EB', fontFamily: 'var(--font-inter)' }}>
+                        {pmeSubscription.price.toLocaleString()} <span style={{ fontSize: '14px', fontWeight: 600 }}>FCFA / mois</span>
+                      </div>
+                      <span className="chip-status chip-green" style={{ display: 'inline-block', marginTop: '4px' }}>
+                        ● Compte Actif &amp; Opérationnel
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Quota Progress Bar */}
+                  <div style={{ backgroundColor: 'rgba(255,255,255,0.03)', padding: '20px', borderRadius: '16px', border: '1px solid var(--dash-card-border)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', fontSize: '13.5px' }}>
+                      <span style={{ color: 'var(--dash-text-secondary)', fontWeight: 600 }}>
+                        Consommation des messages WhatsApp IA ce mois :
+                      </span>
+                      <strong style={{ color: 'var(--dash-text-primary)' }}>
+                        {pmeSubscription.messagesUsed} / {pmeSubscription.messagesLimit.toLocaleString()} messages ({Math.round((pmeSubscription.messagesUsed / pmeSubscription.messagesLimit) * 100)}%)
+                      </strong>
+                    </div>
+                    <div style={{ width: '100%', height: '10px', borderRadius: '9999px', backgroundColor: 'rgba(255,255,255,0.1)', overflow: 'hidden' }}>
+                      <div style={{
+                        width: `${Math.min(100, Math.round((pmeSubscription.messagesUsed / pmeSubscription.messagesLimit) * 100))}%`,
+                        height: '100%',
+                        backgroundColor: '#2563EB',
+                        borderRadius: '9999px',
+                        transition: 'width 0.4s ease'
+                      }} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Gateway Selector for Checkout */}
+                <div className="reflex-card-base" style={{ padding: '24px', backgroundColor: 'var(--dash-card-bg)', border: '1px solid var(--dash-card-border)' }}>
+                  <h3 className="title-md" style={{ color: 'var(--dash-text-primary)', marginBottom: '8px' }}>
+                    Changer de Forfait ou Renouveler en 1 Clic
+                  </h3>
+                  <p style={{ color: 'var(--dash-text-secondary)', fontSize: '14px', marginBottom: '20px' }}>
+                    Choisissez votre méthode d'encaissement Mobile Money préférée pour activer votre abonnement :
+                  </p>
+
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px' }}>
+                    <button
+                      type="button"
+                      onClick={() => setSubGateway('fedapay')}
+                      style={{
+                        padding: '12px 20px',
+                        borderRadius: '10px',
+                        border: subGateway === 'fedapay' ? '2px solid #2563EB' : '1px solid var(--dash-card-border)',
+                        backgroundColor: subGateway === 'fedapay' ? 'rgba(37,99,235,0.12)' : 'var(--dash-input-bg)',
+                        color: 'var(--dash-text-primary)',
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                      }}
+                    >
+                      <CreditCard size={18} color="#2563EB" /> FedaPay (MTN MoMo, Moov Money, Carte)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSubGateway('kkiapay')}
+                      style={{
+                        padding: '12px 20px',
+                        borderRadius: '10px',
+                        border: subGateway === 'kkiapay' ? '2px solid #2563EB' : '1px solid var(--dash-card-border)',
+                        backgroundColor: subGateway === 'kkiapay' ? 'rgba(37,99,235,0.12)' : 'var(--dash-input-bg)',
+                        color: 'var(--dash-text-primary)',
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                      }}
+                    >
+                      <Zap size={18} color="#2563EB" /> KKiaPay (MTN MoMo, Moov, Wave, Carte)
+                    </button>
+                  </div>
+
+                  {/* 3 Pricing Cards */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px' }}>
+                    {/* Starter */}
+                    <div style={{
+                      padding: '28px 24px',
+                      borderRadius: '16px',
+                      backgroundColor: 'rgba(255,255,255,0.02)',
+                      border: pmeSubscription.plan === 'Starter' ? '2px solid #2563EB' : '1px solid var(--dash-card-border)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between'
+                    }}>
+                      <div>
+                        <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--dash-text-primary)', marginBottom: '4px' }}>Starter</div>
+                        <div style={{ fontSize: '13px', color: 'var(--dash-text-secondary)', marginBottom: '16px' }}>Idéal pour démarrer sur WhatsApp</div>
+                        <div style={{ fontSize: '26px', fontWeight: 900, color: 'var(--dash-text-primary)', marginBottom: '20px' }}>
+                          15 000 <span style={{ fontSize: '13px', color: 'var(--dash-text-secondary)' }}>FCFA/mois</span>
+                        </div>
+                        <ul style={{ paddingLeft: '18px', margin: '0 0 24px', fontSize: '13px', color: 'var(--dash-text-secondary)', lineHeight: 1.8 }}>
+                          <li>1 000 messages WhatsApp IA / mois</li>
+                          <li>Catalogue jusqu'à 25 produits</li>
+                          <li>Reçus PDF automatiques</li>
+                          <li>Encaissement MTN MoMo &amp; Moov</li>
+                        </ul>
+                      </div>
+                      <button
+                        disabled={subCheckoutLoading}
+                        onClick={() => handleSubscribePlan('Starter')}
+                        className="btn-blue-primary"
+                        style={{ width: '100%', padding: '12px', fontSize: '13.5px' }}
+                      >
+                        {pmeSubscription.plan === 'Starter' ? 'Renouveler ce forfait' : 'Choisir Starter'}
+                      </button>
+                    </div>
+
+                    {/* Pro */}
+                    <div style={{
+                      padding: '28px 24px',
+                      borderRadius: '16px',
+                      backgroundColor: 'rgba(37,99,235,0.06)',
+                      border: '2px solid #2563EB',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      position: 'relative'
+                    }}>
+                      <div style={{
+                        position: 'absolute',
+                        top: '-12px',
+                        right: '20px',
+                        backgroundColor: '#2563EB',
+                        color: '#ffffff',
+                        fontSize: '11px',
+                        fontWeight: 800,
+                        padding: '4px 12px',
+                        borderRadius: '9999px',
+                        textTransform: 'uppercase'
+                      }}>
+                        Recommandé
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--dash-text-primary)', marginBottom: '4px' }}>Pro</div>
+                        <div style={{ fontSize: '13px', color: 'var(--dash-text-secondary)', marginBottom: '16px' }}>Pour les boutiques en forte croissance</div>
+                        <div style={{ fontSize: '26px', fontWeight: 900, color: '#2563EB', marginBottom: '20px' }}>
+                          35 000 <span style={{ fontSize: '13px', color: 'var(--dash-text-secondary)' }}>FCFA/mois</span>
+                        </div>
+                        <ul style={{ paddingLeft: '18px', margin: '0 0 24px', fontSize: '13px', color: 'var(--dash-text-secondary)', lineHeight: 1.8 }}>
+                          <li><strong>5 000 messages</strong> WhatsApp IA / mois</li>
+                          <li>Catalogue jusqu'à 100 produits</li>
+                          <li><strong>Envoi de photos produits par l'IA</strong></li>
+                          <li>Relance des paniers impayés</li>
+                          <li>Support WhatsApp prioritaire</li>
+                        </ul>
+                      </div>
+                      <button
+                        disabled={subCheckoutLoading}
+                        onClick={() => handleSubscribePlan('Pro')}
+                        className="btn-blue-primary"
+                        style={{ width: '100%', padding: '12px', fontSize: '13.5px' }}
+                      >
+                        {pmeSubscription.plan === 'Pro' ? 'Renouveler ce forfait' : 'Passer à la formule Pro'}
+                      </button>
+                    </div>
+
+                    {/* Business */}
+                    <div style={{
+                      padding: '28px 24px',
+                      borderRadius: '16px',
+                      backgroundColor: 'rgba(255,255,255,0.02)',
+                      border: pmeSubscription.plan === 'Business' ? '2px solid #2563EB' : '1px solid var(--dash-card-border)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between'
+                    }}>
+                      <div>
+                        <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--dash-text-primary)', marginBottom: '4px' }}>Business</div>
+                        <div style={{ fontSize: '13px', color: 'var(--dash-text-secondary)', marginBottom: '16px' }}>Pour grossistes et marques régionales</div>
+                        <div style={{ fontSize: '26px', fontWeight: 900, color: 'var(--dash-text-primary)', marginBottom: '20px' }}>
+                          75 000 <span style={{ fontSize: '13px', color: 'var(--dash-text-secondary)' }}>FCFA/mois</span>
+                        </div>
+                        <ul style={{ paddingLeft: '18px', margin: '0 0 24px', fontSize: '13px', color: 'var(--dash-text-secondary)', lineHeight: 1.8 }}>
+                          <li><strong>Messages WhatsApp illimités</strong></li>
+                          <li>Catalogue de produits illimité</li>
+                          <li>Clés marchands FedaPay &amp; KKiaPay</li>
+                          <li>Accompagnement et paramétrage dédié</li>
+                        </ul>
+                      </div>
+                      <button
+                        disabled={subCheckoutLoading}
+                        onClick={() => handleSubscribePlan('Business')}
+                        className="btn-blue-primary"
+                        style={{ width: '100%', padding: '12px', fontSize: '13.5px' }}
+                      >
+                        {pmeSubscription.plan === 'Business' ? 'Renouveler ce forfait' : 'Choisir Business'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 7: PARAMÈTRES PME & CONNEXION WHATSAPP META */}
             {activeSidebarTab === 'Paramètres' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '740px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '780px' }}>
                 <div className="reflex-card-base" style={{ padding: '28px', backgroundColor: 'var(--dash-card-bg)', border: '1px solid var(--dash-card-border)' }}>
                   <h3 className="title-md" style={{ color: 'var(--dash-text-primary)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Settings size={20} color="#2563EB" /> Paramètres Général de {companyData.name}
@@ -2703,6 +3126,92 @@ export default function App() {
                       </select>
                     </div>
                   </div>
+                </div>
+
+                {/* MERCHANT CUSTOM PAYMENT GATEWAYS (FedaPay & KKiaPay) */}
+                <div className="reflex-card-base" style={{ padding: '28px', backgroundColor: 'var(--dash-card-bg)', border: '1px solid var(--dash-card-border)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: 'rgba(37,99,235,0.12)', color: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Key size={22} />
+                    </div>
+                    <div>
+                      <h3 className="title-md" style={{ color: 'var(--dash-text-primary)', fontSize: '18px' }}>
+                        Vos Passerelles de Paiement Personnelles (FedaPay &amp; KKiaPay)
+                      </h3>
+                      <p style={{ fontSize: '13px', color: 'var(--dash-text-secondary)', margin: 0 }}>
+                        Recevez les règlements Mobile Money de vos clients directement sur vos propres comptes marchands.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style={{ backgroundColor: 'rgba(37,99,235,0.05)', border: '1px solid rgba(37,99,235,0.2)', padding: '14px 18px', borderRadius: '12px', marginBottom: '20px', fontSize: '13px', color: 'var(--dash-text-secondary)', lineHeight: 1.6 }}>
+                    💡 <strong>Optionnel :</strong> Par défaut, Reflex utilise sa passerelle certifiée et centralisée. Si vous renseignez vos propres clés ci-dessous, les paiements MoMo (MTN &amp; Moov) arriveront directement sur votre solde marchand personnel.
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '18px', marginBottom: '20px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--dash-text-secondary)', marginBottom: '6px' }}>
+                        Clé Secrète FedaPay (Secret Key)
+                      </label>
+                      <input
+                        type="password"
+                        placeholder="v1_sk_live_..."
+                        value={merchantKeys.fedapaySecretKey}
+                        onChange={(e) => setMerchantKeys({ ...merchantKeys, fedapaySecretKey: e.target.value })}
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--dash-input-border)', backgroundColor: 'var(--dash-input-bg)', color: 'var(--dash-text-primary)', fontSize: '13.5px' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--dash-text-secondary)', marginBottom: '6px' }}>
+                        Clé Publique FedaPay (Public Key)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="v1_pk_live_..."
+                        value={merchantKeys.fedapayPublicKey}
+                        onChange={(e) => setMerchantKeys({ ...merchantKeys, fedapayPublicKey: e.target.value })}
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--dash-input-border)', backgroundColor: 'var(--dash-input-bg)', color: 'var(--dash-text-primary)', fontSize: '13.5px' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--dash-text-secondary)', marginBottom: '6px' }}>
+                        Clé Publique KKiaPay (Public API Key)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="kkiapay_pk_..."
+                        value={merchantKeys.kkiapayPublicKey}
+                        onChange={(e) => setMerchantKeys({ ...merchantKeys, kkiapayPublicKey: e.target.value })}
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--dash-input-border)', backgroundColor: 'var(--dash-input-bg)', color: 'var(--dash-text-primary)', fontSize: '13.5px' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--dash-text-secondary)', marginBottom: '6px' }}>
+                        Clé Secrète KKiaPay (Private Key)
+                      </label>
+                      <input
+                        type="password"
+                        placeholder="kkiapay_sk_..."
+                        value={merchantKeys.kkiapaySecretKey}
+                        onChange={(e) => setMerchantKeys({ ...merchantKeys, kkiapaySecretKey: e.target.value })}
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--dash-input-border)', backgroundColor: 'var(--dash-input-bg)', color: 'var(--dash-text-primary)', fontSize: '13.5px' }}
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={keysSaving}
+                    onClick={handleSaveMerchantKeys}
+                    className="btn-blue-primary"
+                    style={{ padding: '10px 24px', fontSize: '14px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+                  >
+                    {keysSaving ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle size={16} />}
+                    {keysSaving ? 'Enregistrement des clés...' : 'Enregistrer mes Clés de Paiement'}
+                  </button>
                 </div>
 
 

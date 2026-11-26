@@ -82,6 +82,23 @@ export class PaymentService {
       return `https://reflex-dashboard-lfp6.onrender.com/#pay-${data.orderId}`;
     }
   }
+
+  /**
+   * Génère un lien de paiement KKiaPay (Mobile Money MTN Bénin, Moov Bénin, Carte, Wave)
+   */
+  async createKkiapayLink(data: PaymentRequest): Promise<string> {
+    const publicKey = data.customPublicKey || process.env.KKIAPAY_PUBLIC_KEY || 'kkiapay_public_key_default';
+    const isSandbox = config.fedapay.environment !== 'live';
+    const amount = Math.round(data.amount);
+    const cleanPhone = (data.customerPhone || '97000000').replace(/\s+/g, '').replace('+', '');
+    const returnUrl = data.returnUrl || `https://reflex-dashboard-lfp6.onrender.com/#pay-${data.orderId}`;
+
+    // Format officiel URL KKiaPay Hosted Widget
+    const kkiapayUrl = `https://widget.kkiapay.me/?api_key=${encodeURIComponent(publicKey)}&amount=${amount}&phone=${encodeURIComponent(cleanPhone)}&name=${encodeURIComponent(data.customerName || 'Client')}&reason=${encodeURIComponent(data.description || 'Commande Reflex')}&callback=${encodeURIComponent(returnUrl)}&data=${encodeURIComponent(data.orderId)}&sandbox=${isSandbox}`;
+
+    console.log(`💳 Lien KKiaPay généré pour commande ${data.orderId} (${amount} FCFA) : ${kkiapayUrl}`);
+    return kkiapayUrl;
+  }
 }
 
 export const paymentService = new PaymentService();

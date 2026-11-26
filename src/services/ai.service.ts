@@ -18,7 +18,7 @@ export class AIService {
       tone?: string;
       welcomeMessage?: string;
       deliveryInfo?: string;
-      catalogue: Array<{ name: string; price: number; category?: string; description?: string }>;
+      catalogue: Array<{ name: string; price: number; category?: string; description?: string; image_url?: string }>;
     }
   ): Promise<string> {
     if (!config.geminiApiKey || config.geminiApiKey.includes('mock-key') || config.geminiApiKey.includes('your-key')) {
@@ -90,6 +90,7 @@ ${hasHistory
 
 4. PROCESSUS COMMERCIAL & PAIEMENT :
 - Renseigne le client sur les produits du catalogue et les prix en FCFA.
+- Si le client demande à voir un article ou une photo, et que cet article possède un "image_url" dans le catalogue, insère à la toute fin de ton message la balise : [IMAGE: lien_image] (remplace par le vrai lien).
 - Ne donne pas le lien de paiement au début. Discute d'abord, confirme l'article souhaité.
 - Uniquement quand le client est prêt à commander et payer, donne le lien sécurisé :
   "*Voici votre lien de règlement Mobile Money sécurisé* : ${appUrl}/#payment-checkout?orderId=ORD-229-XXX" (remplace XXX par 3 chiffres aléatoires).

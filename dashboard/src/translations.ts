@@ -96,6 +96,7 @@ export interface TranslationDict {
   dashOrders: string;
   dashPayments: string;
   dashCatalog: string;
+  dashSubscription: string;
   dashSettings: string;
   dashAiActive: string;
   dashPmeActive: string;
@@ -274,6 +275,7 @@ export const translations: Record<LanguageCode, TranslationDict> = {
     dashOrders: 'Commandes',
     dashPayments: 'Paiements',
     dashCatalog: 'Catalogue',
+    dashSubscription: 'Abonnement',
     dashSettings: 'Paramètres',
     dashAiActive: 'IA Active sur WhatsApp (24/7)',
     dashPmeActive: 'PME active',
@@ -451,6 +453,7 @@ export const translations: Record<LanguageCode, TranslationDict> = {
     dashOrders: 'Orders',
     dashPayments: 'Payments',
     dashCatalog: 'Catalog',
+    dashSubscription: 'Subscription',
     dashSettings: 'Settings',
     dashAiActive: 'AI Active on WhatsApp (24/7)',
     dashPmeActive: 'Active Business',

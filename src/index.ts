@@ -511,12 +511,55 @@ app.post('/api/webhook/n8n', (req, res) => {
   }
 });
 
-// Route 4 : REST API Stats pour le Dashboard Reflex React (Protégée par auth JWT en production)
-app.get('/api/dashboard/stats', requireAuth, (_req, res) => {
-  res.json({
-    stats: liveStats,
-    recentOrders: liveOrders
-  });
+// Route 4 : REST API Stats pour le Dashboard Reflex React (Multi-Tenant & Isolé par PME)
+app.get('/api/dashboard/stats', requireAuth, async (req: any, res) => {
+  try {
+    const userId = req.user?.id;
+    let pme = null;
+    if (userId) {
+      pme = await databaseService.getPmeByUserId(userId);
+    }
+
+    if (pme) {
+      const pmeStats = await databaseService.getPmeStats(pme.id);
+      const pmeOrders = await databaseService.getPmeOrders(pme.id, 20);
+
+      if (pmeStats) {
+        return res.json({
+          success: true,
+          pmeId: pme.id,
+          pmeName: pme.name,
+          stats: {
+            totalRevenue: pmeStats.totalRevenue,
+            totalMessages: pmeStats.totalMessages,
+            commandesCount: pmeStats.commandesCount,
+            conversionRate: pmeStats.conversionRate,
+            autoAiPercent: pmeStats.autoAiPercent
+          },
+          recentOrders: pmeOrders.map((o: any) => ({
+            id: o.order_number || o.id,
+            customerName: o.customer_name || 'Client WhatsApp',
+            phone: o.customer_phone || '',
+            amount: Number(o.total_amount || 0),
+            status: o.status || 'PENDING',
+            item: o.items_description || 'Article',
+            paymentRef: o.payment_reference || '',
+            time: new Date(o.created_at || Date.now()).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+          }))
+        });
+      }
+    }
+
+    // Fallback mémoire / mode démo
+    res.json({
+      success: true,
+      stats: liveStats,
+      recentOrders: liveOrders
+    });
+  } catch (err) {
+    console.error('Erreur stats dashboard:', err);
+    res.status(500).json({ success: false, stats: liveStats, recentOrders: liveOrders });
+  }
 });
 
 app.get('/api/dashboard/inbox', requireAuth, async (req: any, res) => {
@@ -561,6 +604,178 @@ app.post('/api/payments/fedapay/create', async (req, res) => {
   }
 });
 
+// Route KKiaPay Payment Link Creation
+app.post('/api/payments/kkiapay/create', async (req, res) => {
+  try {
+    const { amount, description, customerName, customerPhone, orderId, returnUrl } = req.body;
+    const finalOrderId = orderId || `ORD-KKIAPAY-${Date.now()}`;
+
+    const paymentUrl = await paymentService.createKkiapayLink({
+      amount: Number(amount) || 1000,
+      description: description || 'Commande Reflex PME',
+      customerName: customerName || 'Client WhatsApp',
+      customerPhone: customerPhone || '97000000',
+      orderId: finalOrderId,
+      returnUrl: returnUrl
+    });
+
+    await databaseService.saveOrder({
+      id: finalOrderId,
+      customerPhone: customerPhone || '97000000',
+      customerName: customerName || 'Client WhatsApp',
+      amount: Number(amount) || 1000,
+      item: description || 'Commande Reflex PME',
+      status: 'PENDING'
+    });
+
+    res.json({ success: true, paymentUrl, orderId: finalOrderId });
+  } catch (error: any) {
+    console.error('Erreur API KKiaPay Route:', error);
+    res.status(500).json({ success: false, error: 'Erreur lors de la génération du lien KKiaPay.' });
+  }
+});
+
+// Webhook KKiaPay Real-time Notification
+app.post('/api/payments/kkiapay/webhook', async (req, res) => {
+  res.status(200).json({ received: true });
+
+  try {
+    const event = req.body;
+    console.log('💳 [Webhook KKiaPay] Événement reçu:', event?.event || 'transaction.completed');
+
+    const transactionId = event?.transactionId || event?.id;
+    const status = event?.status;
+    const orderId = event?.data || event?.state || `ORD-KKIAPAY-${Date.now()}`;
+    const amount = Number(event?.amount || 0);
+
+    if (status === 'SUCCESS' || status === 'approved' || event?.isPaymentSucces) {
+      console.log(`🎉 Paiement KKiaPay validé pour la commande ${orderId} (${amount} FCFA)`);
+
+      await databaseService.updateOrderStatus(orderId, 'PAID', `KKIAPAY-${transactionId}`);
+
+      const existingOrder = liveOrders.find(o => o.id === orderId);
+      if (existingOrder) {
+        existingOrder.status = 'PAID';
+      }
+
+      liveStats.totalRevenue += amount;
+
+      // Décrémentation du stock
+      await inventoryService.decrementStock('mock-pme-123', existingOrder?.item || 'Produit', 1);
+
+      // Notification WhatsApp
+      const customerPhone = existingOrder?.phone || event?.phone;
+      if (customerPhone) {
+        const receiptUrl = `https://reflex-zjf7.onrender.com/api/reports/pdf/${orderId}`;
+        const confirmMsg = `*PAIEMENT CONFIRMÉ (KKiaPay) - REFLEX*\n\n` +
+          `Votre paiement Mobile Money de *${amount.toLocaleString()} FCFA* a été validé avec succès.\n\n` +
+          `Téléchargez votre reçu officiel ici :\n${receiptUrl}`;
+
+        await whatsappService.sendTextMessage(customerPhone, confirmMsg);
+      }
+    }
+  } catch (err) {
+    console.error('Erreur Webhook KKiaPay:', err);
+  }
+});
+
+// Route Récupération Abonnement PME Actif
+app.get('/api/subscriptions/current', requireAuth, async (req: any, res) => {
+  try {
+    const userId = req.user?.id;
+    let pmeId = 'mock-pme-123';
+    if (userId) {
+      const pme = await databaseService.getPmeByUserId(userId);
+      if (pme) pmeId = pme.id;
+    }
+
+    const sub = await databaseService.getPmeSubscription(pmeId);
+    res.json({ success: true, subscription: sub });
+  } catch (err) {
+    console.error('Erreur get subscription:', err);
+    res.status(500).json({ success: false, error: 'Erreur récupération abonnement' });
+  }
+});
+
+// Route Création Paiement Abonnement SaaS Reflex (Starter, Pro, Business)
+app.post('/api/subscriptions/create-checkout', requireAuth, async (req: any, res) => {
+  try {
+    const { planName, gateway } = req.body;
+    const planPrices: Record<string, number> = {
+      Starter: 15000,
+      Pro: 35000,
+      Business: 75000,
+      Enterprise: 150000
+    };
+
+    const price = planPrices[planName] || 15000;
+    const subOrderId = `SUB-${(planName || 'STARTER').toUpperCase()}-${Date.now()}`;
+    const userEmail = req.user?.email || 'merchant@reflex.bj';
+
+    let checkoutUrl = '';
+    if (gateway === 'kkiapay') {
+      checkoutUrl = await paymentService.createKkiapayLink({
+        amount: price,
+        description: `Abonnement Reflex Plan ${planName}`,
+        customerName: userEmail,
+        customerPhone: '97000000',
+        orderId: subOrderId
+      });
+    } else {
+      checkoutUrl = await paymentService.createFedaPayLink({
+        amount: price,
+        description: `Abonnement Reflex Plan ${planName}`,
+        customerName: userEmail,
+        customerPhone: '97000000',
+        orderId: subOrderId
+      });
+    }
+
+    res.json({ success: true, checkoutUrl, orderId: subOrderId, plan: planName, amount: price });
+  } catch (err: any) {
+    console.error('Erreur create-checkout subscription:', err);
+    res.status(500).json({ success: false, error: 'Impossible de générer le lien d\'abonnement.' });
+  }
+});
+
+// Routes Clés de Paiement Personnelles de la PME
+app.get('/api/pme/payment-keys', requireAuth, async (req: any, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.json({ success: true, keys: {} });
+
+    const pme = await databaseService.getPmeByUserId(userId);
+    if (!pme) return res.json({ success: true, keys: {} });
+
+    const keys = await databaseService.getPmePaymentKeys(pme.id);
+    res.json({ success: true, keys });
+  } catch (err) {
+    res.status(500).json({ success: false, keys: {} });
+  }
+});
+
+app.post('/api/pme/payment-keys', requireAuth, async (req: any, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ success: false, error: 'Non authentifié' });
+
+    const pme = await databaseService.getPmeByUserId(userId);
+    if (!pme) return res.status(404).json({ success: false, error: 'PME non trouvée' });
+
+    const { fedapaySecretKey, fedapayPublicKey, kkiapaySecretKey, kkiapayPublicKey } = req.body;
+    await databaseService.savePmePaymentKeys(pme.id, {
+      fedapaySecretKey,
+      fedapayPublicKey,
+      kkiapaySecretKey,
+      kkiapayPublicKey
+    });
+
+    res.json({ success: true, message: 'Clés de passerelle de paiement enregistrées avec succès.' });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message || 'Erreur enregistrement clés' });
+  }
+});
+
 // Route 5 : Téléchargement dynamique du Rapport PDF
 app.get('/api/reports/pdf/:orderId', async (req, res) => {
   const { orderId } = req.params;
@@ -599,8 +814,8 @@ app.get('/privacy', (_req, res) => {
       <title>Politique de Confidentialité - Reflex</title>
       <style>
         body { font-family: sans-serif; background: #090d16; color: #ffffff; padding: 40px; line-height: 1.6; }
-        .box { max-width: 700px; margin: 0 auto; background: #0f172a; padding: 30px; border-radius: 12px; border: 1px solid #ff5500; }
-        h1 { color: #ff5500; }
+        .box { max-width: 700px; margin: 0 auto; background: #0f172a; padding: 30px; border-radius: 12px; border: 1px solid #2563EB; }
+        h1 { color: #2563EB; }
       </style>
     </head>
     <body>

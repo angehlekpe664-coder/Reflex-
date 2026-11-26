@@ -119,15 +119,32 @@ class WhatsAppQueueService {
         liveStats.totalMessages += 1;
       }
 
-      // 8. Envoi du message WhatsApp via Meta Cloud API
-      await whatsappService.sendTextMessage(
-        fromPhone,
-        aiResponse,
-        {
-          phoneNumberId: pmeRecord?.pme?.meta_phone_number_id || metaPhoneNumberId || config.whatsapp.phoneNumberId,
-          token: pmeRecord?.pme?.meta_access_token || config.whatsapp.token
-        }
-      );
+      // 8. Détection et envoi d'éventuelle image produit
+      const imageRegex = /\[IMAGE:\s*(https?:\/\/[^\s\]]+)\]/i;
+      const imageMatch = aiResponse.match(imageRegex);
+      const cleanResponse = aiResponse.replace(imageRegex, '').trim();
+
+      const creds = {
+        phoneNumberId: pmeRecord?.pme?.meta_phone_number_id || metaPhoneNumberId || config.whatsapp.phoneNumberId,
+        token: pmeRecord?.pme?.meta_access_token || config.whatsapp.token
+      };
+
+      if (imageMatch && imageMatch[1]) {
+        const imageUrl = imageMatch[1];
+        await whatsappService.sendImageMessage(
+          fromPhone,
+          imageUrl,
+          cleanResponse || undefined,
+          creds
+        );
+      } else {
+        // Envoi du message texte standard
+        await whatsappService.sendTextMessage(
+          fromPhone,
+          cleanResponse || aiResponse,
+          creds
+        );
+      }
 
       console.log(`⚡ [Queue Traitée] Réponse envoyée avec succès à ${fromPhone}`);
 
